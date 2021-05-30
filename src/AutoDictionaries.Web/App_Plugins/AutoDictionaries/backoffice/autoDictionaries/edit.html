@@ -1,0 +1,194 @@
+﻿<div ng-controller="autoDictionaries.edit.controller as vm" id="autoDictionaries">
+	<umb-editor-view>
+		<div class="umb-editor-header">
+			<div class="flex items-center" style="height: 100%;">
+				<div style="margin-right: 15px;" class="ng-scope">
+					<button type="button" class="umb-editor-header__back" ng-click="vm.goBack()">
+						<i class="fa fa-arrow-left" aria-hidden="true"></i>
+						<span class="sr-only">
+							<localize key="visuallyHiddenTexts_goBack">Go back</localize>
+						</span>
+					</button>
+				</div>
+
+				<div class="flex items-center" style="flex: 1;">
+					<div id="nameField" class="umb-editor-header__name-and-description" style="flex: 1 1 auto;">
+						<h1 class="umb-panel-header-name" title="{{vm.page.title}}">{{vm.page.title}}</h1>
+						<p class="umb-panel-header-locked-description">{{vm.page.description}}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<umb-editor-container>
+
+			<umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
+
+			<div class="flex" ng-if="!vm.loading">
+				<div class="umb-package-details__main-content">
+					<umb-box ng-if="vm.template.Dictionaries.length">
+						<umb-box-header title="Dictionaries" description="Dictionaries in this template: {{ vm.template.Dictionaries.length }}"></umb-box-header>
+
+						<table class="table" id="dictionary-items-table">
+							<thead>
+								<tr>
+									<th>Key</th>
+									<th>Id</th>
+									<th>Used in template</th>
+									<th>Translated</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="dictionaryValue in vm.template.Dictionaries">
+									<td>{{ dictionaryValue.Key }}</td>
+									<td>{{ dictionaryValue.Id }}</td>
+									<td>{{ dictionaryValue.Used }}</td>
+									<td>
+										<umb-icon icon="icon-check" ng-if="dictionaryValue.Translated"></umb-icon>
+										<umb-icon icon="icon-alert" title="This dictionary is not fully translated" ng-if="!dictionaryValue.Translated"></umb-icon>
+									</td>
+									<td><a ng-click="vm.openDictionary(dictionaryValue.Id)">Open dictionary</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</umb-box>
+
+					<umb-box>
+						<umb-box-header ng-if="vm.template.StaticContent.length" title="Static content" description="Dictionaries that can be generated in this template: {{ vm.template.StaticContent.length }}"></umb-box-header>
+
+						<div class="umb-table" id="static-content-table" ng-if="vm.template.StaticContent.length">
+							<div class="umb-table-head">
+								<div class="umb-table-row">
+									<div class="umb-table-cell">
+										<button type="button" class="umb-table__action" ng-click="vm.toggleSelectAll()">
+											<i class="icon-check umb-checkmark umb-checkmark--xs umb-outline" checked="checked" size="xs"></i>
+										</button>
+									</div>
+									<div class="umb-table-cell">
+										Content
+									</div>
+									<div class="umb-table-cell">
+										Used in template
+									</div>
+									<div class="umb-table-cell">
+										Parent
+									</div>
+									<div class="umb-table-cell">
+									</div>
+								</div>
+							</div>
+
+							<div class="umb-table-body">
+								<div ng-repeat="staticContent in vm.template.StaticContent" ng-click="vm.toggleSelect(staticContent.StaticContent, vm.parent[$index])" ng-class="{'-selected' : vm.findIndex(vm.selectedContent, staticContent.StaticContent) != -1}" class="umb-table-row -selectable umb-outline" role="button">
+									<div class="umb-table-cell">
+										<umb-icon icon="icon-book-alt-2" class="umb-table-body__icon umb-table-body__fileicon"></umb-icon>
+
+										<i class="umb-table-body__icon umb-table-body__checkicon icon-check" aria-hidden="true"></i>
+									</div>
+									<div class="umb-table-cell">
+										{{ staticContent.StaticContent }}
+									</div>
+									<div class="umb-table-cell" aria-hidden="false">
+										{{ staticContent.Used }}
+									</div>
+									<div class="umb-table-cell">
+										<select class="mb0" ng-click="$event.stopPropagation();" ng-init="vm.parent[$index] = '0'" ng-model="vm.parent[$index]" ng-change="vm.changeParent(staticContent.StaticContent, vm.parent[$index])">
+											<option value="0">None</option>
+											<option ng-repeat="dictionary in vm.allDictionaryItems" value="{{dictionary.Key}}">{{dictionary.Key}}</option>
+										</select>
+									</div>
+									<div class="umb-table-cell">
+										<umb-button ng-if="staticContent.Dictionary"
+													ng-click="$event.stopPropagation();"
+													action="vm.matchDictionary(staticContent)"
+													title="Matching dictionary item found"
+													type="button"
+													button-style="action"
+													state="vm.buttonState"
+													label="Match found">
+										</umb-button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						<umb-box-content ng-if="!vm.template.StaticContent.length">
+							No static content in this template!
+						</umb-box-content>
+					</umb-box>
+
+					<div class="umb-editor-sub-header umb-editor-sub-header-- --state-selection" ng-if="vm.selectedContent.length">
+						<div>
+							<umb-button action="vm.clearSelection()"
+										class="mr2"
+										type="button"
+										button-style="info"
+										state="vm.buttonState"
+										label="Clear selection">
+							</umb-button>
+
+							{{vm.selectedContent.length}} of {{vm.template.StaticContent.length}} selected
+						</div>
+
+						<div>
+							<select class="mb0" ng-init="vm.allParent = '0'" ng-model="vm.allParent" ng-change="vm.changeAllParent(vm.allParent)">
+								<option value="0">None</option>
+								<option ng-repeat="dictionary in vm.allDictionaryItems" value="{{dictionary.Key}}">{{dictionary.Key}}</option>
+							</select>
+
+							<umb-button action="vm.generateDictionaries()"
+										type="button"
+										button-style="info"
+										state="vm.generateDictionariesButtonState"
+										label="Generate ({{vm.selectedContent.length}}) dictionaries"
+										disabled="vm.selectedContent.length == 0">
+							</umb-button>
+						</div>
+					</div>
+				</div>
+
+				<div class="umb-package-details__sidebar" ng-if="!vm.loading">
+					<umb-box>
+						<umb-box-header title="General information" description="General information about this template "></umb-box-header>
+
+						<table class="table mb0" id="general-info-table">
+							<thead>
+								<tr>
+									<th>Key</th>
+									<th>Value</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>Template name</strong></td>
+									<td>{{ vm.template.Name }}</td>
+								</tr>
+								<tr>
+									<td><strong>Template alias</strong></td>
+									<td>{{ vm.template.Alias }}</td>
+								</tr>
+								<tr>
+									<td><strong>Template Id</strong></td>
+									<td>{{ vm.template.Id }}</td>
+								</tr>
+							</tbody>
+						</table>
+						<umb-box-content>
+							<umb-button action="vm.openTemplate()"
+										class="flex justify-end"
+										type="button"
+										button-style="action"
+										state="vm.buttonState"
+										label="Open template"
+										disabled="vm.buttonState === 'busy'">
+							</umb-button>
+						</umb-box-content>
+
+					</umb-box>
+				</div>
+			</div>
+		</umb-editor-container>
+	</umb-editor-view>
+</div>

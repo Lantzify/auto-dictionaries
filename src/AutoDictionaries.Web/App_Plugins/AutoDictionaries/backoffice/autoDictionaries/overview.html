@@ -1,0 +1,51 @@
+﻿<div ng-controller="autoDictionaries.overview.controller as vm" id="autoDictionaries">
+	<umb-editor-view>
+		<umb-editor-header name="vm.page.title"
+						   description="vm.page.description"
+						   name-locked="true"
+						   hide-icon="true"
+						   hide-alias="true"
+						   description-locked="true">
+		</umb-editor-header>
+
+		<umb-editor-container>
+
+			<umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
+
+			<table class="table table-hover" ng-if="!vm.loading">
+				<thead>
+					<tr>
+						<th>Template name</th>
+						<th>Static content</th>
+						<th>Dictionaries</th>
+						<th>Match dictionaries</th>
+					</tr>
+				</thead>
+				<tbody>
+				<tbody>
+					<tr ng-repeat="template in vm.templates" ng-click="vm.clickedTemplate(template.Id)">
+						<td>{{template.Name}}</td>
+						<td>
+							<span ng-if="template.StaticContent.length">{{template.StaticContent.length}}</span>
+							<umb-icon ng-if="!template.StaticContent.length" icon="icon-check"></umb-icon>
+							<umb-icon ng-if="template.StaticContent.length" title="Static content exists in template" icon="icon-alert"></umb-icon>
+
+						</td>
+						<td>
+							<span ng-if="template.Dictionaries.length">{{template.Dictionaries.length}}</span>
+							<umb-icon ng-if="!template.StaticContent.length" icon="icon-check"></umb-icon>
+							<umb-icon ng-if="template.StaticContent.length" title="More dictionaries can be used in template" icon="icon-alert"></umb-icon>
+						</td>
+						<td>
+							<span ng-if="vm.matchDictionary(template.StaticContent).length">{{vm.matchDictionary(template.StaticContent).length}}</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</umb-editor-container>
+
+		<umb-editor-footer>
+		</umb-editor-footer>
+	</umb-editor-view>
+</div>

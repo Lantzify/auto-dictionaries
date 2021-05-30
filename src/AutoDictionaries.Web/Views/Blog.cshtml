@@ -1,0 +1,24 @@
+@using ContentModels = Umbraco.Web.PublishedModels;
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContentModels.Blog>
+@using Umbraco.Web;
+@{ Layout = "master.cshtml"; }
+@Html.Partial("~/Views/Partials/SectionHeader.cshtml")
+
+<section class="section">
+
+	<div class="container">
+		@Umbraco.RenderMacro("latestBlogposts",
+				 new
+				 {
+					 numberOfPosts = Model.HowManyPostsShouldBeShown,
+					 startNodeId = Model.Id
+				 })
+		@{ }
+	</div>
+
+	<h1>@Umbraco.GetDictionaryValue("static_content")</h1>
+	<h1>@Umbraco.GetDictionaryValue("static_content2")</h1>
+
+</section>
+
+@Umbraco.GetDictionaryValue("Temp")

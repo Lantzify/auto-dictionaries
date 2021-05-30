@@ -1,0 +1,38 @@
+﻿<div ng-controller="dictionaryItem.controller as vm">
+	<umb-editor-view>
+
+		<umb-editor-header name="model.title"
+						   name-locked="true"
+						   hide-alias="true"
+						   hide-icon="true"
+						   hide-description="true">
+		</umb-editor-header>
+
+		<umb-editor-container>
+			<umb-box>
+				<umb-box-content>
+					An existing dictionary item was found for " <strong>{{ model.staticContent.StaticContent }}</strong> " do you want to replace it with " <strong>@Umbraco.GetDictionaryValue("{{ model.staticContent.Dictionary.Key }}") "</strong> ?
+					this action can not be undone.
+
+				</umb-box-content>
+			</umb-box>
+		</umb-editor-container>
+
+		<umb-editor-footer>
+			<umb-editor-footer-content-right>
+				<umb-button type="button"
+							button-style="link"
+							label-key="general_close"
+							shortcut="esc"
+							action="vm.close()">
+				</umb-button>
+				<umb-button type="button"
+							button-style="success"
+							label-key="general_submit"
+							action="vm.submit(model)">
+				</umb-button>
+			</umb-editor-footer-content-right>
+		</umb-editor-footer>
+
+	</umb-editor-view>
+</div>

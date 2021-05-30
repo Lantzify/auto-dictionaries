@@ -1,0 +1,88 @@
+﻿/* OVERVEW */
+#autoDictionaries .table-hover tbody tr:hover > td,
+#autoDictionaries .table-hover tbody tr:hover > th {
+	background-color: #f3f3f5;
+	cursor: pointer;
+}
+
+
+/*UMB CONFIRM*/
+#autoDictionaries .umb-confirm {
+	position: absolute;
+	width: 600px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%,-50%);
+	z-index: 999;
+	background: #fff;
+	padding: 30px 30px 0;
+}
+
+	#autoDictionaries .umb-confirm .umb-abstract {
+		font-size: 16px;
+		color: #000;
+		line-height: 16px;
+		font-weight: 700;
+		margin: 5px 0;
+	}
+
+	#autoDictionaries .umb-confirm .btn-toolbar {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+		/* EDIT */
+		#autoDictionaries #general-info-table td,
+		#autoDictionaries #general-info-table th {
+			padding: 10px 20px;
+		}
+
+#autoDictionaries #general-info-table,
+#autoDictionaries #dictionary-items-table {
+	border-top: 1px solid #e9e9eb;
+}
+
+	#autoDictionaries #general-info-table tbody,
+	#autoDictionaries #dictionary-items-table tbody {
+		border: none;
+	}
+
+	#autoDictionaries #dictionary-items-table td,
+	#autoDictionaries #dictionary-items-table th {
+		padding: 15px 20px;
+	}
+
+#autoDictionaries #static-content-table {
+	border: 1px solid #e9e9eb;
+	box-shadow: none;
+}
+
+	#autoDictionaries #static-content-table .umb-table-head {
+		color: #515054;
+	}
+
+	#autoDictionaries #static-content-table .umb-table-body .umb-table-row{
+		color: #000;
+	}
+
+		#autoDictionaries #static-content-table .umb-table-body .umb-table-row.-selectable:hover:before,
+		#autoDictionaries #static-content-table .umb-table-row.-selected:before {
+			left: 0;
+			right: 0;
+			bottom: -1px;
+		}
+
+
+		/* OVERLAYS */
+#generateDictionaries .generateDictionaries-icon-globe{
+	font-size: 55px;
+}
+
+#generateDictionaries .umb-progress-bar {
+	height: 7px;
+}
+
+#generateDictionaries .umb-progress-bar__progress {
+	background: #3544b1;
+	transition: all .5s ease-in;
+}
