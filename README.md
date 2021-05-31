@@ -5,13 +5,16 @@ Auto dictionaries is a Umbraco package that finds static content in templates an
 ## About
 
 Auto dictionaries is a Umbraco package made for v8+. Made to help automate the process of replacing static content in templates with dictionary items. It can be found on the under the "Translation" section and is an admin only tool. Not visible for user group "editors".
+
 ![preview](assets/generate.gif)
 
 ## Screenshots
 
-![preview](assets/overview.png)
-![preview](assets/edit.png)
-![preview](assets/select.png)
+![preview](assets/overview.PNG)
+
+![preview](assets/edit.PNG)
+
+![preview](assets/select.PNG)
 
 ## Contributing
 
