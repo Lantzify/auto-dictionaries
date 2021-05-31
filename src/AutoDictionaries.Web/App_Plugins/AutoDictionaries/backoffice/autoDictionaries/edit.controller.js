@@ -126,7 +126,7 @@
 		editorService.templateEditor(infiniteOptions);
 	};
 
-	vm.openDictionary = function (dictionaryId) {
+	vm.openDictionary = function (dictionaryId) {		
 		vm.openDictionary.editor = {
 			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/dictionaryItem.html",
 			title: "Edit dictionary item",

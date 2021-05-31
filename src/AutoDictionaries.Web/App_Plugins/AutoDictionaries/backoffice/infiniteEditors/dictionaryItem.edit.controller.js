@@ -1,14 +1,15 @@
-﻿angular.module("umbraco").controller("dictionaryItem.controller", function ($scope, dictionaryResource) {
+﻿angular.module("umbraco").controller("dictionaryItem.edit.controller", function ($scope, dictionaryResource) {
 
 	var vm = this;
 	vm.properties = [];
 	vm.dictionaryItem = {};
 	vm.model = $scope.model;
 
-
 	dictionaryResource.getById(vm.model.dictionaryId).then(function (response) {
 		vm.dictionaryItem = response;
-	
+
+		console.log("Test")
+
 		vm.dictionaryItem.translations.forEach(function (translation) {
 			vm.properties.push( {
 				alias: translation.isoCode,
@@ -25,14 +26,11 @@
 		});
 
 		dictionaryResource.save(vm.dictionaryItem, false).then(function (response) {
-			console.log(response)
+			if ($scope.model.submit) {
+				$scope.model.submit($scope.model);
+			}
 		})
-
-		if ($scope.model.submit) {
-			$scope.model.submit($scope.model);
-		}
 	}
-
 
 	vm.close = function () {
 		if ($scope.model.close) {
