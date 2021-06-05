@@ -115,7 +115,7 @@ namespace AutoDictionaries.Core.Services
 			var staticContents = Regex.Matches(templateContent, @"(?<=>)([\w\s]+)(?=<\/)")
 										.Cast<Match>()
 										.Where(x => !string.IsNullOrWhiteSpace(x.Value))
-										.Select(m => m.Value.Trim(' '))
+										.Select(m => m.Value.Trim())
 										.ToList();
 			var groupedContent = staticContents.GroupBy(x => x);
 
@@ -241,7 +241,7 @@ namespace AutoDictionaries.Core.Services
 					Id = dictionary.Id,
 					Key = dictionary.ItemKey,
 					Guid = dictionary.Key,
-					//	Used = GetDictionaryCountInTemplate(template, dictionary.ItemKey),
+					//Used = GetDictionaryCountInTemplate(template, dictionary.ItemKey),
 					Translations = translations,
 					Translated = translations.Count() == _languageCount
 				};
