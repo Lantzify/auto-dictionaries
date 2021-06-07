@@ -8,6 +8,17 @@ Auto dictionaries is a Umbraco package made for v8+. Made to help automate the p
 
 ![preview](assets/generate.gif)
 
+## Installation
+
+You can install Auto dictionaries via Nuget
+
+```
+PM> Install-Package AutoDictionaries
+
+```
+
+Or via Umbraco backoffice!
+
 ## Screenshots
 
 ![preview](assets/overview.PNG)
