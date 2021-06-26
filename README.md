@@ -2,8 +2,7 @@
 
 Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.
 
-
-![Nuget](https://img.shields.io/nuget/dt/AutoDictionaries?color=%2346c018&logo=Nuget)
+[![Nuget](https://img.shields.io/nuget/dt/AutoDictionaries?color=%2346c018&logo=Nuget)](https://www.nuget.org/packages/AutoDictionaries/)
 
 ## About
 
