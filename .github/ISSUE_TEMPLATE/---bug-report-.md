@@ -2,7 +2,7 @@
 name: "\U0001F99F Bug report "
 about: 'Something doesn''t work how it should. '
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
