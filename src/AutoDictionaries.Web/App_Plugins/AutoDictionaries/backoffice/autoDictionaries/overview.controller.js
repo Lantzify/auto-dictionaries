@@ -4,13 +4,16 @@
 
 	vm.loading = true;
 
+
+	vm.reverse = false;
+
 	vm.page = {
 		title: "Auto dictionaries",
-		description: "Overview of all avaible templates to genarte dictionaries to."
+		description: "Overview of all avaible views to genarte dictionaries to."
 	};
 
 	//Table
-	vm.templates = [];
+	vm.views = [];
 
 	vm.options = {
 		includeProperties: [
@@ -19,9 +22,20 @@
 		]
 	};
 
-	vm.clickedTemplate = function (id) {
+	vm.clickedView = function (id) {
 		$location.path("/translation/autoDictionaries/edit/" + id);
 	};
+
+	vm.sort = function (property) {
+
+		if (property === vm.sorted) {
+			vm.reverse = !vm.reverse;
+		} else {
+			vm.reverse = false;
+		}
+
+		vm.sorted = property;
+	}
 
 	vm.matchDictionary = function (arr) {
 
@@ -36,8 +50,8 @@
 		return retVal;
 	};
 
-	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllTemplates").then(function (response) {
+	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllViews").then(function (response) {
 		vm.loading = false;
-		vm.templates = response.data;
+		vm.views = response.data;
 	});
 });

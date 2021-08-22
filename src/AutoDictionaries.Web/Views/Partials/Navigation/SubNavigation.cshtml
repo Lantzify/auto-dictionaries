@@ -1,4 +1,4 @@
-﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage
+@inherits Umbraco.Web.Mvc.UmbracoViewPage
 @using Umbraco.Web;
 @{
     var siteSection = Model.AncestorOrSelf(2);
@@ -9,3 +9,5 @@
 {
     <a class="nav-link nav-link--black nav-link--air-bottom @(item.IsAncestorOrSelf(Model) ? "nav-link--active" : null)" href="@item.Url">@item.Name</a>
 }
+
+<p>@Umbraco.GetDictionaryValue("static_content")</p>

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Umbraco.Core.Models;
-
-namespace AutoDictionaries.Core.Models
+﻿namespace AutoDictionaries.Core.Models
 {
 	public class StaticContentModel
 	{

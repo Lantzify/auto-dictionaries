@@ -270,9 +270,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\Umbraco.sdf" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.edit.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\generateDictionaries.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\matchDictionary.controller.js" />
-    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\edit.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\edit.html" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\overview.controller.js" />

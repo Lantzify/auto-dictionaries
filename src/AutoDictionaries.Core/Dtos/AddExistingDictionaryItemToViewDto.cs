@@ -2,9 +2,9 @@
 
 namespace AutoDictionaries.Core.Dtos
 {
-	public class AddExistingDictionaryItemToTemplate
+	public class AddExistingDictionaryItemToViewDto
 	{
-		public TemplateModel Template { get; set; }
+		public AutoDictionariesModel AutoDictionariesModel { get; set; }
 		public int DictionaryId { get; set; }
 		public string StaticContent { get; set; }
 	}

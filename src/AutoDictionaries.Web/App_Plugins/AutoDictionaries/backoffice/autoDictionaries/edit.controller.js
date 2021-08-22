@@ -8,13 +8,13 @@
 	vm.selectedContent = [];
 	vm.allDictionaryItems = []
 
-	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetTemplate?templateId=" + $routeParams.id).then(function (response) {
+	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetView?id=" + $routeParams.id).then(function (response) {
 
-		vm.template = response.data;
+		vm.view = response.data;
 		vm.loading = false;
 		vm.page = {
-			title: "Edit " + vm.template.Name + " dictionaries",
-			description: "Edit template dictionaries."
+			title: "Edit " + vm.view.Name + " dictionaries",
+			description: "Edit view dictionaries."
 		};
 	});
 
@@ -27,8 +27,8 @@
 	};
 
 	vm.toggleSelectAll = function () {
-		if (vm.selectedContent.length !== vm.template.StaticContent.length) {
-			vm.template.StaticContent.forEach(function (content) {
+		if (vm.selectedContent.length !== vm.view.StaticContent.length) {
+			vm.view.StaticContent.forEach(function (content) {
 				if (vm.selectedContent.indexOf(content.StaticContent) === -1) {
 					vm.toggleSelect(content.StaticContent)
 				}
@@ -56,7 +56,7 @@
 	vm.changeAllParent = function (parent) {
 		vm.selectedContent.forEach(function (obj) {
 			obj.Parent = parent;
-			vm.parent[vm.findIndex(vm.template.StaticContent, obj.StaticContent)] = parent;
+			vm.parent[vm.findIndex(vm.view.StaticContent, obj.StaticContent)] = parent;
 		});
 	}
 
@@ -75,7 +75,7 @@
 			title: "Generate dictionaries",
 			size: "small",
 			selectedContent: vm.selectedContent,
-			template: vm.template,
+			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
 				setTimeout(function () {
@@ -96,7 +96,7 @@
 			title: "Match dictionary item",
 			size: "small",
 			staticContent: staticContent,
-			template: vm.template,
+			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
 				setTimeout(function () {
@@ -126,7 +126,7 @@
 		editorService.templateEditor(infiniteOptions);
 	};
 
-	vm.openDictionary = function (dictionaryId) {		
+	vm.openDictionary = function (dictionaryId) {
 		vm.openDictionary.editor = {
 			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/dictionaryItem.html",
 			title: "Edit dictionary item",

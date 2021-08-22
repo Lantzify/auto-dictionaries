@@ -3,23 +3,22 @@ using System;
 using System.Collections.Generic;
 using Umbraco.Core.Models;
 
-namespace AutoDictionaries.Core.Services
+namespace AutoDictionaries.Core.Services.Interfaces
 {
 	public interface IAutoDictionariesService
 	{
-		List<TemplateModel> GetAllTemplates();
 		List<DictionaryModel> GetAllDictionaryItems();
 		void GetChildrenDictionaryItems(List<DictionaryModel> dictionariesModel, Guid dictionaryGuid);
-		TemplateModel GetTemplate(int templateId);
-		ITemplate GetUmbracoTemplate(int templateId);
-		List<DictionaryModel> GetTemplateDictionaries(ITemplate template);
-		List<StaticContentModel> GetTemplateStaticContent(ITemplate template);
+		List<DictionaryModel> GetDictionariesFromView(string viewContent);
+		List<StaticContentModel> GetStaticContentFromView(string viewContent);
 		DictionaryModel GetDictionaryItem(string dictionaryKey);
-		DictionaryModel GetDictionaryItem(int dictionaryKey);
+		DictionaryModel GetDictionaryItem(int dictionaryId);
 		List<DictionaryModel> GetDictionaryItems(string[] dictionaryKeys);
 		DictionaryModel GetDictionaryItemFromStaticContent(List<DictionaryModel> dictionaries, string staticContent);
-		DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId);
+		DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null);
+		bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent);
 		string CreateDictionaryKey(string staticContent, string prefix = null);
-		bool AddDictionaryItemToTemplate(ITemplate template, DictionaryModel dictionary, string content);
+		int GetDictionaryCountInView(string vierwContent, string dictionaryKey);
+		DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary);
 	}
 }

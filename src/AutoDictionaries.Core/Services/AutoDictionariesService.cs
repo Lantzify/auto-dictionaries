@@ -1,46 +1,26 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Umbraco.Core.IO;
+using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
 using System.Text.RegularExpressions;
-using Umbraco.Core.Models;
-using System;
-using System.IO;
-using System.Text;
-using Umbraco.Core.IO;
+using AutoDictionaries.Core.Services.Interfaces;
 
 namespace AutoDictionaries.Core.Services
 {
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
-		private readonly ILocalizationService _localizationService;
-		private readonly IFileService _fileService;
+		private readonly int _languageCount;
 		private readonly List<DictionaryModel> _dictionaryItems;
-		private int _languageCount;
+		private readonly ILocalizationService _localizationService;
 
-		public AutoDictionariesService(ILocalizationService localizationService, IFileService fileService)
+		public AutoDictionariesService(ILocalizationService localizationService)
 		{
 			_localizationService = localizationService;
-			_fileService = fileService;
 			_dictionaryItems = GetAllDictionaryItems();
 			_languageCount = _localizationService.GetAllLanguages().Count();
-		}
-
-		public List<TemplateModel> GetAllTemplates()
-		{
-			List<TemplateModel> templateList = new List<TemplateModel>();
-
-			var templates = _fileService.GetTemplates();
-
-			if (templates != null && templates.Any())
-			{
-				foreach (var template in templates)
-				{
-					templateList.Add(MapToTemplateModel(template));
-				}
-			}
-
-			return templateList;
 		}
 
 		public List<DictionaryModel> GetAllDictionaryItems()
@@ -77,22 +57,10 @@ namespace AutoDictionaries.Core.Services
 			}
 		}
 
-		public TemplateModel GetTemplate(int templateId)
+		public List<DictionaryModel> GetDictionariesFromView(string viewContent)
 		{
-			var template = _fileService.GetTemplate(templateId);
-
-			return MapToTemplateModel(template);
-		}
-
-		public ITemplate GetUmbracoTemplate(int templateId)
-		{
-			return _fileService.GetTemplate(templateId);
-		}
-
-		public List<DictionaryModel> GetTemplateDictionaries(ITemplate template)
-		{
-			var dictionariesCount = Regex.Matches(template.Content, "GetDictionaryValue").Count;
-			var dictionaries = Regex.Matches(template.Content, @"(?<=GetDictionaryValue[(])(.*)(?=[)])");
+			var dictionariesCount = Regex.Matches(viewContent, "GetDictionaryValue").Count;
+			var dictionaries = Regex.Matches(viewContent, @"(?<=GetDictionaryValue[(])(.*)(?=[)])");
 			var listDictionariesModel = GetDictionaryItems(dictionaries.Cast<Match>()
 													.Select(m => m.Value)
 													.ToArray());
@@ -101,18 +69,16 @@ namespace AutoDictionaries.Core.Services
 			{
 				foreach (var dictionariesModel in listDictionariesModel)
 				{
-					dictionariesModel.Used = GetDictionaryCountInTemplate(template, dictionariesModel.Key);
+					dictionariesModel.Used = GetDictionaryCountInView(viewContent, dictionariesModel.Key);
 				}
 			}
 
 			return listDictionariesModel;
 		}
 
-		public List<StaticContentModel> GetTemplateStaticContent(ITemplate template)
+		public List<StaticContentModel> GetStaticContentFromView(string viewContent)
 		{
-			var templateContent = template.Content;
-
-			var staticContents = Regex.Matches(templateContent, @"(?<=>)([\w\s]+)(?=<\/)")
+			var staticContents = Regex.Matches(viewContent, @"(?<=>)([\w\s]+)(?=<\/)")
 										.Cast<Match>()
 										.Where(x => !string.IsNullOrWhiteSpace(x.Value))
 										.Select(m => m.Value.Trim())
@@ -184,22 +150,22 @@ namespace AutoDictionaries.Core.Services
 			return MapToDictionaryModel(_localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
 		}
 
-		public bool AddDictionaryItemToTemplate(ITemplate template, DictionaryModel dictionary, string content)
+		public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
 		{
 			string insert = $"@Umbraco.GetDictionaryValue(\"{dictionary.Key}\")";
-			var regex = @"(?<=>|)(" + content + @"+)(?=\s|<\/)";
+			var regex = @"(?<=>|)(" + staticContent + @"+)(?=\s|<\/)";
 
-			var staticContent = Regex.Matches(template.Content, regex)
+			var staticContentInView = Regex.Matches(viewContent, regex)
 										.Cast<Match>()
 										.Select(m => m.Value)
 										.ToList();
 
-			if (staticContent.Any())
+			if (staticContentInView.Any())
 			{
-				string text = System.IO.File.ReadAllText(IOHelper.MapPath(template.VirtualPath));
+				string text = System.IO.File.ReadAllText(IOHelper.MapPath(path));
 
 				text = Regex.Replace(text, regex, insert);
-				System.IO.File.WriteAllText(IOHelper.MapPath(template.VirtualPath), text);
+				System.IO.File.WriteAllText(IOHelper.MapPath(path), text);
 
 				return true;
 			}
@@ -213,13 +179,13 @@ namespace AutoDictionaries.Core.Services
 			return $"{p}{staticContent.ToLower().Replace(" ", "_")}";
 		}
 
-		private int GetDictionaryCountInTemplate(ITemplate template, string dictionaryKey)
+		public int GetDictionaryCountInView(string vierwContent, string dictionaryKey)
 		{
-			if (template != null)
+			if (!string.IsNullOrEmpty(vierwContent))
 			{
 				string umbDictionary = @"(GetDictionaryValue\(\""" + dictionaryKey + @"\""\))";
 
-				var dictionaries = Regex.Matches(template.Content, umbDictionary)
+				var dictionaries = Regex.Matches(vierwContent, umbDictionary)
 											.Cast<Match>()
 											.Select(m => m.Value)
 											.ToList();
@@ -230,7 +196,7 @@ namespace AutoDictionaries.Core.Services
 			return 0;
 		}
 
-		private DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary)
+		public DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary)
 		{
 			if (dictionary != null)
 			{
@@ -241,28 +207,11 @@ namespace AutoDictionaries.Core.Services
 					Id = dictionary.Id,
 					Key = dictionary.ItemKey,
 					Guid = dictionary.Key,
-					//Used = GetDictionaryCountInTemplate(template, dictionary.ItemKey),
 					Translations = translations,
 					Translated = translations.Count() == _languageCount
 				};
 			}
 			return null;
-		}
-
-		private TemplateModel MapToTemplateModel(ITemplate template)
-		{
-			TemplateModel templateModel = new TemplateModel();
-
-			if (template != null)
-			{
-				templateModel.Id = template.Id;
-				templateModel.Alias = template.Alias;
-				templateModel.Name = template.Name;
-				templateModel.StaticContent = GetTemplateStaticContent(template);
-				templateModel.Dictionaries = GetTemplateDictionaries(template);
-			}
-
-			return templateModel;
 		}
 	}
 }

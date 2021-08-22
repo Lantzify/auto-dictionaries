@@ -5,6 +5,9 @@
 	cursor: pointer;
 }
 
+#autoDictionaries  .clickable-th{
+	cursor:pointer;
+}
 
 /*UMB CONFIRM*/
 #autoDictionaries .umb-confirm {

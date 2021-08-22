@@ -8,8 +8,6 @@
 	dictionaryResource.getById(vm.model.dictionaryId).then(function (response) {
 		vm.dictionaryItem = response;
 
-		console.log("Test")
-
 		vm.dictionaryItem.translations.forEach(function (translation) {
 			vm.properties.push( {
 				alias: translation.isoCode,

@@ -13,9 +13,18 @@
 			<umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
 
 			<table class="table table-hover" ng-if="!vm.loading">
-				<thead>
+				<thead >
 					<tr>
-						<th>Template name</th>
+						<th class="clickable-th" ng-click="vm.sort('Name')">
+							View name
+							<umb-icon ng-if="vm.sorted == 'Name' && !vm.reverse" icon="icon-chevron-up"  class="icon-class"></umb-icon>
+							<umb-icon ng-if="vm.sorted == 'Name' && vm.reverse" icon="icon-chevron-down"  class="icon-class"></umb-icon>
+						</th>
+						<th class="clickable-th" ng-click="vm.sort('Type')">
+							Type
+							<umb-icon ng-if="vm.sorted == 'Type' && !vm.reverse" icon="icon-chevron-up" class="icon-class"></umb-icon>
+							<umb-icon ng-if="vm.sorted == 'Type' && vm.reverse" icon="icon-chevron-down" class="icon-class"></umb-icon>
+						</th>
 						<th>Static content</th>
 						<th>Dictionaries</th>
 						<th>Match dictionaries</th>
@@ -23,21 +32,21 @@
 				</thead>
 				<tbody>
 				<tbody>
-					<tr ng-repeat="template in vm.templates" ng-click="vm.clickedTemplate(template.Id)">
-						<td>{{template.Name}}</td>
+					<tr ng-repeat="view in vm.views | orderBy: vm.sorted:vm.reverse" ng-click="vm.clickedView(view.Id)">
+						<td>{{view.Name}}</td>
+						<td>{{view.Type}}</td>
 						<td>
-							<span ng-if="template.StaticContent.length">{{template.StaticContent.length}}</span>
-							<umb-icon ng-if="!template.StaticContent.length" icon="icon-check"></umb-icon>
-							<umb-icon ng-if="template.StaticContent.length" title="Static content exists in template" icon="icon-alert"></umb-icon>
-
+							<span ng-if="view.StaticContent.length">{{view.StaticContent.length}}</span>
+							<umb-icon ng-if="!view.StaticContent.length" icon="icon-check"></umb-icon>
+							<umb-icon ng-if="view.StaticContent.length" title="Static content exists in view" icon="icon-alert"></umb-icon>
 						</td>
 						<td>
-							<span ng-if="template.Dictionaries.length">{{template.Dictionaries.length}}</span>
-							<umb-icon ng-if="!template.StaticContent.length" icon="icon-check"></umb-icon>
-							<umb-icon ng-if="template.StaticContent.length" title="More dictionaries can be used in template" icon="icon-alert"></umb-icon>
+							<span ng-if="view.Dictionaries.length">{{view.Dictionaries.length}}</span>
+							<umb-icon ng-if="!view.StaticContent.length" icon="icon-check"></umb-icon>
+							<umb-icon ng-if="view.StaticContent.length" title="More dictionaries can be used in view" icon="icon-alert"></umb-icon>
 						</td>
 						<td>
-							<span ng-if="vm.matchDictionary(template.StaticContent).length">{{vm.matchDictionary(template.StaticContent).length}}</span>
+							<span ng-if="vm.matchDictionary(view.StaticContent).length">{{vm.matchDictionary(view.StaticContent).length}}</span>
 						</td>
 					</tr>
 				</tbody>

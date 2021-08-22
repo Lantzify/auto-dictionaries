@@ -244,15 +244,20 @@
   <ItemGroup>
     <Compile Include="Compositions\AutoDictionariesComposer.cs" />
     <Compile Include="Controllers\AutoDictionariesApiController.cs" />
-    <Compile Include="Dtos\AddExistingDictionaryItemToTemplate.cs" />
-    <Compile Include="Dtos\AddNewDictionaryItemToTemplateDto.cs" />
+    <Compile Include="Dtos\AddExistingDictionaryItemToViewDto.cs" />
+    <Compile Include="Dtos\AddNewDictionaryItemToViewDto.cs" />
+    <Compile Include="Dtos\PathContentDto.cs" />
     <Compile Include="Dtos\StaticContentDto.cs" />
     <Compile Include="Models\DictionaryModel.cs" />
     <Compile Include="Models\StaticContentModel.cs" />
-    <Compile Include="Models\TemplateModels.cs" />
+    <Compile Include="Models\AutoDictionariesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\interface\IADTemplateService.cs" />
+    <Compile Include="Services\ADTemplateService.cs" />
+    <Compile Include="Services\ADPartialViewService.cs" />
     <Compile Include="Services\AutoDictionariesService.cs" />
-    <Compile Include="Services\IAutoDictionariesService.cs" />
+    <Compile Include="Services\interface\IAutoDictionariesService.cs" />
+    <Compile Include="Services\interface\IADPartialViewService.cs" />
     <Compile Include="Trees\AutoDictionariesTreeController.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace AutoDictionaries.Core.Dtos
 {
-	public class AddNewDictionaryItemToTemplateDto
+	public class AddNewDictionaryItemToViewDto
 	{
-		public TemplateModel Template { get; set; }
+		public AutoDictionariesModel AutoDictionariesModel { get; set; }
 		public StaticContentDto StaticContent { get; set; }
 	}
 }

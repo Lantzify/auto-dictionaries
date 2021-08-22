@@ -26,21 +26,21 @@
 
 			<div class="flex" ng-if="!vm.loading">
 				<div class="umb-package-details__main-content">
-					<umb-box ng-if="vm.template.Dictionaries.length">
-						<umb-box-header title="Dictionaries" description="Dictionaries in this template: {{ vm.template.Dictionaries.length }}"></umb-box-header>
+					<umb-box ng-if="vm.view.Dictionaries.length">
+						<umb-box-header title="Dictionaries" description="Dictionaries in this view: {{ vm.view.Dictionaries.length }}"></umb-box-header>
 
 						<table class="table" id="dictionary-items-table">
 							<thead>
 								<tr>
 									<th>Key</th>
 									<th>Id</th>
-									<th>Used in template</th>
+									<th>Used in view</th>
 									<th>Translated</th>
 									<th></th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="dictionaryValue in vm.template.Dictionaries">
+								<tr ng-repeat="dictionaryValue in vm.view.Dictionaries">
 									<td>{{ dictionaryValue.Key }}</td>
 									<td>{{ dictionaryValue.Id }}</td>
 									<td>{{ dictionaryValue.Used }}</td>
@@ -55,9 +55,9 @@
 					</umb-box>
 
 					<umb-box>
-						<umb-box-header ng-if="vm.template.StaticContent.length" title="Static content" description="Dictionaries that can be generated in this template: {{ vm.template.StaticContent.length }}"></umb-box-header>
+						<umb-box-header ng-if="vm.view.StaticContent.length" title="Static content" description="Dictionaries that can be generated in this template: {{ vm.view.StaticContent.length }}"></umb-box-header>
 
-						<div class="umb-table" id="static-content-table" ng-if="vm.template.StaticContent.length">
+						<div class="umb-table" id="static-content-table" ng-if="vm.view.StaticContent.length">
 							<div class="umb-table-head">
 								<div class="umb-table-row">
 									<div class="umb-table-cell">
@@ -69,7 +69,7 @@
 										Content
 									</div>
 									<div class="umb-table-cell">
-										Used in template
+										Used in view
 									</div>
 									<div class="umb-table-cell">
 										Parent
@@ -80,7 +80,7 @@
 							</div>
 
 							<div class="umb-table-body">
-								<div ng-repeat="staticContent in vm.template.StaticContent" ng-click="vm.toggleSelect(staticContent.StaticContent, vm.parent[$index])" ng-class="{'-selected' : vm.findIndex(vm.selectedContent, staticContent.StaticContent) != -1}" class="umb-table-row -selectable umb-outline" role="button">
+								<div ng-repeat="staticContent in vm.view.StaticContent" ng-click="vm.toggleSelect(staticContent.StaticContent, vm.parent[$index])" ng-class="{'-selected' : vm.findIndex(vm.selectedContent, staticContent.StaticContent) != -1}" class="umb-table-row -selectable umb-outline" role="button">
 									<div class="umb-table-cell">
 										<umb-icon icon="icon-book-alt-2" class="umb-table-body__icon umb-table-body__fileicon"></umb-icon>
 
@@ -114,8 +114,8 @@
 						</div>
 
 
-						<umb-box-content ng-if="!vm.template.StaticContent.length">
-							No static content in this template!
+						<umb-box-content ng-if="!vm.view.StaticContent.length">
+							No static content in this view!
 						</umb-box-content>
 					</umb-box>
 
@@ -129,7 +129,7 @@
 										label="Clear selection">
 							</umb-button>
 
-							{{vm.selectedContent.length}} of {{vm.template.StaticContent.length}} selected
+							{{vm.selectedContent.length}} of {{vm.view.StaticContent.length}} selected
 						</div>
 
 						<div>
@@ -151,7 +151,7 @@
 
 				<div class="umb-package-details__sidebar" ng-if="!vm.loading">
 					<umb-box>
-						<umb-box-header title="General information" description="General information about this template "></umb-box-header>
+						<umb-box-header title="General information" description="General information about this view "></umb-box-header>
 
 						<table class="table mb0" id="general-info-table">
 							<thead>
@@ -162,16 +162,20 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td><strong>Template name</strong></td>
-									<td>{{ vm.template.Name }}</td>
+									<td><strong>View name</strong></td>
+									<td>{{ vm.view.Name }}</td>
 								</tr>
 								<tr>
-									<td><strong>Template alias</strong></td>
-									<td>{{ vm.template.Alias }}</td>
+									<td><strong>View alias</strong></td>
+									<td>{{ vm.view.Alias }}</td>
 								</tr>
 								<tr>
-									<td><strong>Template Id</strong></td>
-									<td>{{ vm.template.Id }}</td>
+									<td><strong>View Id</strong></td>
+									<td>{{ vm.view.Id }}</td>
+								</tr>
+								<tr>
+									<td><strong>View type</strong></td>
+									<td>{{ vm.view.Type }}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -182,7 +186,8 @@
 										button-style="action"
 										state="vm.buttonState"
 										label="Open template"
-										disabled="vm.buttonState === 'busy'">
+										disabled="vm.buttonState === 'busy'"
+										ng-if="vm.view.Type !== 'Partial view'">
 							</umb-button>
 						</umb-box-content>
 

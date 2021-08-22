@@ -18,10 +18,10 @@
 				vm.currentlyGenerating = staticContent.StaticContent;
 
 				$http({
-					url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToTemplate",
+					url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToView",
 					method: "POST",
 					data: {
-						template: $scope.model.template,
+						autoDictionariesModel: $scope.model.autoDictionariesModel,
 						staticContent: staticContent
 					}
 				}).then(function (response) {
@@ -47,7 +47,7 @@
 			} else {
 				notificationsService.error("Dictionaries", "Failed to add dictionary to template");
 			}
-			
+
 			if ($scope.model.submit) {
 				$scope.model.submit($scope.model);
 			}
