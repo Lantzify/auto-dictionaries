@@ -78,7 +78,7 @@ namespace AutoDictionaries.Core.Services
 
 		public List<StaticContentModel> GetStaticContentFromView(string viewContent)
 		{
-			var staticContents = Regex.Matches(viewContent, @"(?<=>)([\w\s\D]+)(?=<\/)")
+			var staticContents = Regex.Matches(viewContent, @"(?<=>)([\w\s[().,\-:;#$%^&*\[\]\""'+–\/!?|`~]+)(?=<\/)")
 										.Cast<Match>()
 										.Where(x => !string.IsNullOrWhiteSpace(x.Value))
 										.Select(m => m.Value.Trim())
