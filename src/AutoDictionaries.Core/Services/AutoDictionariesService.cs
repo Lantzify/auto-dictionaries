@@ -78,9 +78,9 @@ namespace AutoDictionaries.Core.Services
 
 		public List<StaticContentModel> GetStaticContentFromView(string viewContent)
 		{
-			var staticContents = Regex.Matches(viewContent, @"(?<=>)([\w\s[().,\-:;#$%^&*\[\]\""'+–\/!?|`~]+)(?=<\/)")
+			var staticContents = Regex.Matches(viewContent, @"(?<=>)([\s\w,.&?!'#]+)(.*?)")
 										.Cast<Match>()
-										.Where(x => !string.IsNullOrWhiteSpace(x.Value))
+										.Where(x => !string.IsNullOrWhiteSpace(x.Value) && Regex.Match(x.Value, @"\D+").Length > 1)
 										.Select(m => m.Value.Trim())
 										.ToList();
 			var groupedContent = staticContents.GroupBy(x => x);
