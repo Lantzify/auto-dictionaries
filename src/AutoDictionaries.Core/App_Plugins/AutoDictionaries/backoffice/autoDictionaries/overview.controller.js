@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("autoDictionaries.overview.controller", function ($scope, $http, $location) {
+﻿angular.module("umbraco").controller("autoDictionaries.overview.controller", function ($scope, $http, $location) {
 
 	var vm = this;
 

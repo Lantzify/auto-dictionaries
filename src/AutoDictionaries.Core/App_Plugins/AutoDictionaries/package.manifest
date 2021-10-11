@@ -1,0 +1,12 @@
+{
+	"javascript": [
+		"/App_Plugins/AutoDictionaries/backoffice/autoDictionaries/overview.controller.js",
+		"/App_Plugins/AutoDictionaries/backoffice/autoDictionaries/edit.controller.js",
+		"/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/dictionaryItem.edit.controller.js",
+		"/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/generateDictionaries.controller.js",
+		"/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/matchDictionary.controller.js"
+	],
+	"css": [
+		"/App_Plugins/AutoDictionaries/css/autoDictionaries.css"
+	]
+}

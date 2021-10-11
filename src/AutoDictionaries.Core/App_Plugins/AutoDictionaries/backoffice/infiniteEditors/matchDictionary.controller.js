@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("dictionaryItem.controller", function ($scope, $http, notificationsService) {
+﻿angular.module("umbraco").controller("dictionaryItem.controller", function ($scope, $http, notificationsService) {
 
 	var vm = this;
 

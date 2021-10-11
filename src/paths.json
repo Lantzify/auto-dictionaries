@@ -1,0 +1,6 @@
+{
+    "source": "AutoDictionaries.Core/App_Plugins/AutoDictionaries",
+    "sites": [
+        "AutoDictionaries.Web/App_Plugins/AutoDictionaries"
+    ]
+}

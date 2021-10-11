@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("dictionaryItem.edit.controller", function ($scope, dictionaryResource) {
+﻿angular.module("umbraco").controller("dictionaryItem.edit.controller", function ($scope, dictionaryResource) {
 
 	var vm = this;
 	vm.properties = [];

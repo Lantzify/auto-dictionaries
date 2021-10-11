@@ -1,4 +1,4 @@
-<div ng-controller="dictionaryItem.controller as vm">
+﻿<div ng-controller="dictionaryItem.edit.controller as vm">
 	<umb-editor-view>
 
 		<umb-editor-header name="model.title"
@@ -11,9 +11,11 @@
 		<umb-editor-container>
 			<umb-box>
 				<umb-box-content>
-					An existing dictionary item was found for " <strong>{{ model.staticContent.StaticContent }}</strong> " do you want to replace it with " <strong>@Umbraco.GetDictionaryValue("{{ model.staticContent.Dictionary.Key }}") "</strong> ?
-					this action can not be undone.
-
+					<ng-form val-form-manager>
+						<umb-control-group ng-repeat="translation in vm.dictionaryItem.translations" label="{{translation.displayName}}">
+							<umb-property-editor model="vm.properties[$index]" />
+						</umb-control-group>
+					</ng-form>
 				</umb-box-content>
 			</umb-box>
 		</umb-editor-container>
@@ -29,7 +31,6 @@
 				<umb-button type="button"
 							button-style="success"
 							label-key="general_submit"
-							state="vm.buttonState"
 							action="vm.submit(model)">
 				</umb-button>
 			</umb-editor-footer-content-right>
