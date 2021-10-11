@@ -7,6 +7,7 @@ using Umbraco.Core.Services;
 using System;
 using AutoDictionaries.Core.Dtos;
 using System.Linq;
+using Umbraco.Core.IO;
 
 namespace AutoDictionaries.Core.Controllers
 {
@@ -124,6 +125,21 @@ namespace AutoDictionaries.Core.Controllers
 			}
 
 			return pathContent;
+		}
+
+		[HttpPost]
+		public bool SavePartialView(PathContentDto dto)
+		{
+			try
+			{
+				System.IO.File.WriteAllText(IOHelper.MapPath(dto.Path), dto.Content);
+			}
+			catch (Exception ex)
+			{
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

@@ -189,6 +189,16 @@
 										disabled="vm.buttonState === 'busy'"
 										ng-if="vm.view.Type !== 'Partial view'">
 							</umb-button>
+
+							<umb-button action="vm.openPartialView()"
+										class="flex justify-end"
+										type="button"
+										button-style="action"
+										state="vm.buttonState"
+										label="Open partial view"
+										disabled="vm.buttonState === 'busy'"
+										ng-if="vm.view.Type === 'Partial view'">
+							</umb-button>
 						</umb-box-content>
 
 					</umb-box>

@@ -10,6 +10,6 @@ namespace AutoDictionaries.Core.Services.Interfaces
 		void GetDirectories(List<AutoDictionariesModel> partialViewList, string path);
 		AutoDictionariesModel GetPartialView(int id);
 		IPartialView GetUmbracoPartialView(string path);
-		AutoDictionariesModel MapToAutoDictionariesModel(IPartialView partialView);
+		AutoDictionariesModel MapToAutoDictionariesModel(IPartialView partialView, string path, bool getContent = false);
 	}
 }

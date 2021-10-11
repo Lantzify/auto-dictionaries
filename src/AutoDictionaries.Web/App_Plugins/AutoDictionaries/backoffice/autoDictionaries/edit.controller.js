@@ -126,6 +126,26 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 		editorService.templateEditor(infiniteOptions);
 	};
 
+	vm.openPartialView = function () {
+		var infiniteOptions = {
+			title: "Edit partial view",
+			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/partialView.html",
+			content: vm.view.Content,
+			path: vm.view.Path,
+			submit: function () {
+				editorService.close();
+				setTimeout(function () {
+					location.reload();
+				}, 1000);
+			},
+			close: function () {
+				editorService.close();
+			}
+		};
+
+		editorService.open(infiniteOptions);
+	};
+
 	vm.openDictionary = function (dictionaryId) {
 		vm.openDictionary.editor = {
 			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/dictionaryItem.html",

@@ -262,9 +262,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="App_Plugins\AutoDictionaries\package.manifest" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\edit.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\edit.html" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\overview.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\overview.html" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\partialView.html" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\partialView.edit.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.edit.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.html" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\generateDictionaries.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\generateDictionaries.html" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\matchDictionary.controller.js" />
+    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\matchDictionary.html" />
+    <Content Include="App_Plugins\AutoDictionaries\css\autoDictionaries.css" />
+    <Content Include="App_Plugins\AutoDictionaries\Lang\en-US.user.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets" Condition="Exists('..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

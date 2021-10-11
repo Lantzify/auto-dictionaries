@@ -31,9 +31,10 @@ namespace AutoDictionaries.Core.Services
 
 			foreach (var partialViewName in partialViews)
 			{
-				var partialView = _fileService.GetPartialView(_rootPartialViewDirectory + partialViewName);
-
-				partialViewList.Add(MapToAutoDictionariesModel(partialView));
+				string path = _rootPartialViewDirectory + partialViewName;
+				var partialView = _fileService.GetPartialView(path);
+				
+				partialViewList.Add(MapToAutoDictionariesModel(partialView, path));
 			}
 
 			GetDirectories(partialViewList, _rootPartialViewDirectory);
@@ -49,8 +50,10 @@ namespace AutoDictionaries.Core.Services
 
 				foreach (var partialViewName in partialViews)
 				{
-					var partialView = _fileService.GetPartialView(_rootPartialViewDirectory + partialViewName);
-					partialViewList.Add(MapToAutoDictionariesModel(partialView));
+					string partialViewPath = _rootPartialViewDirectory + partialViewName;
+					var partialView = _fileService.GetPartialView(partialViewPath);
+					
+					partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewPath));
 				}
 
 				GetDirectories(partialViewList, _rootPartialViewDirectory + fileDirectory);
@@ -61,7 +64,9 @@ namespace AutoDictionaries.Core.Services
 		{
 			var allPartialViews = GetAllPartialViews();
 
-			return allPartialViews.Where(x => x.Id == id).FirstOrDefault();
+			var partialView = allPartialViews.Where(x => x.Id == id).FirstOrDefault();
+
+			return MapToAutoDictionariesModel(GetUmbracoPartialView(partialView?.Path), partialView?.Path, true);
 		}
 
 		public IPartialView GetUmbracoPartialView(string path)
@@ -69,7 +74,7 @@ namespace AutoDictionaries.Core.Services
 			return _fileService.GetPartialView(path);
 		}
 
-		public AutoDictionariesModel MapToAutoDictionariesModel(IPartialView partialView)
+		public AutoDictionariesModel MapToAutoDictionariesModel(IPartialView partialView, string path, bool getContent = false)
 		{
 			return partialView == null ? null : new AutoDictionariesModel()
 			{
@@ -77,7 +82,8 @@ namespace AutoDictionaries.Core.Services
 				Alias = partialView.Alias,
 				Name = RemoveFileExtension(partialView.Name),
 				Type = "Partial view",
-				Path = partialView.VirtualPath,
+				Path = !string.IsNullOrEmpty(path) ? path : partialView.VirtualPath,
+				Content = getContent ? partialView.Content : string.Empty,
 				StaticContent = _autoDictionariesService.GetStaticContentFromView(partialView.Content),
 				Dictionaries = _autoDictionariesService.GetDictionariesFromView(partialView.Content)
 			};
