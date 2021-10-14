@@ -128,15 +128,10 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 
 	vm.openPartialView = function () {
 		var infiniteOptions = {
-			title: "Edit partial view",
-			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/partialView.html",
-			content: vm.view.Content,
-			path: vm.view.Path,
+			view: "views/partialViews/edit.html",
+			id: vm.view.Path,
 			submit: function () {
 				editorService.close();
-				setTimeout(function () {
-					location.reload();
-				}, 1000);
 			},
 			close: function () {
 				editorService.close();

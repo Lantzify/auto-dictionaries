@@ -270,8 +270,6 @@
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\edit.html" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\overview.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\autoDictionaries\overview.html" />
-    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\partialView.html" />
-    <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\partialView.edit.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.edit.controller.js" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\dictionaryItem.html" />
     <Content Include="App_Plugins\AutoDictionaries\backoffice\infiniteEditors\generateDictionaries.controller.js" />
