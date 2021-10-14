@@ -127,38 +127,18 @@
 	};
 
 	vm.openPartialView = function () {
-		//var infiniteOptions = {
-		//	title: "Edit partial view",
-		//	view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/partialView.html",
-		//	content: vm.view.Content,
-		//	path: vm.view.Path,
-		//	submit: function () {
-		//		editorService.close();
-		//		setTimeout(function () {
-		//			location.reload();
-		//		}, 1000);
-		//	},
-		//	close: function () {
-		//		editorService.close();
-		//	}
-		//};
-
-		//editorService.open(infiniteOptions);
-
-		var editor = {
+		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
 			id: vm.view.Path,
 			submit: function () {
-				//vm.init();
 				editorService.close();
 			},
 			close: function () {
 				editorService.close();
 			}
 		};
-		editorService.open(editor);
 
-	
+		editorService.open(infiniteOptions);	
 	};
 
 	vm.openDictionary = function (dictionaryId) {
