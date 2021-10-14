@@ -127,6 +127,7 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 	};
 
 	vm.openPartialView = function () {
+
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
 			id: vm.view.Path,
@@ -138,7 +139,7 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 			}
 		};
 
-		editorService.open(infiniteOptions);
+		editorService.open(infiniteOptions);	
 	};
 
 	vm.openDictionary = function (dictionaryId) {

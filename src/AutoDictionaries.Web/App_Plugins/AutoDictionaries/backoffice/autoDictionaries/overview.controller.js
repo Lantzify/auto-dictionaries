@@ -3,8 +3,6 @@ angular.module("umbraco").controller("autoDictionaries.overview.controller", fun
 	var vm = this;
 
 	vm.loading = true;
-
-
 	vm.reverse = false;
 
 	vm.page = {
@@ -26,12 +24,12 @@ angular.module("umbraco").controller("autoDictionaries.overview.controller", fun
 		$location.path("/translation/autoDictionaries/edit/" + id);
 	};
 
-	vm.sort = function (property) {
+	vm.sort = function (property, reverseFirstSort) {
 
 		if (property === vm.sorted) {
 			vm.reverse = !vm.reverse;
 		} else {
-			vm.reverse = false;
+			vm.reverse = reverseFirstSort;
 		}
 
 		vm.sorted = property;
