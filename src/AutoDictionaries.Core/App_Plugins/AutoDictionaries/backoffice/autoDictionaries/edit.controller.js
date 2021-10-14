@@ -127,6 +127,7 @@
 	};
 
 	vm.openPartialView = function () {
+
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
 			id: vm.view.Path,

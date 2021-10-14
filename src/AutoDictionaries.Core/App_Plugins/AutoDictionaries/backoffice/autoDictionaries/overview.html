@@ -15,17 +15,21 @@
 			<table class="table table-hover" ng-if="!vm.loading">
 				<thead >
 					<tr>
-						<th class="clickable-th" ng-click="vm.sort('Name')">
+						<th class="clickable-th" ng-click="vm.sort('Name', false)">
 							View name
 							<umb-icon ng-if="vm.sorted == 'Name' && !vm.reverse" icon="icon-chevron-up"  class="icon-class"></umb-icon>
 							<umb-icon ng-if="vm.sorted == 'Name' && vm.reverse" icon="icon-chevron-down"  class="icon-class"></umb-icon>
 						</th>
-						<th class="clickable-th" ng-click="vm.sort('Type')">
+						<th class="clickable-th" ng-click="vm.sort('Type', false)">
 							Type
 							<umb-icon ng-if="vm.sorted == 'Type' && !vm.reverse" icon="icon-chevron-up" class="icon-class"></umb-icon>
 							<umb-icon ng-if="vm.sorted == 'Type' && vm.reverse" icon="icon-chevron-down" class="icon-class"></umb-icon>
 						</th>
-						<th>Static content</th>
+						<th class="clickable-th" ng-click="vm.sort('StaticContent', true)">
+							Static content
+							<umb-icon ng-if="vm.sorted == 'StaticContent' && !vm.reverse" icon="icon-chevron-up" class="icon-class"></umb-icon>
+							<umb-icon ng-if="vm.sorted == 'StaticContent' && vm.reverse" icon="icon-chevron-down" class="icon-class"></umb-icon>
+						</th>
 						<th>Dictionaries</th>
 						<th>Match dictionaries</th>
 					</tr>
