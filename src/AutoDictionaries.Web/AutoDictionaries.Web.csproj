@@ -397,12 +397,6 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AutoDictionaries.Core\AutoDictionaries.Core.csproj">
-      <Project>{faba2e24-75bb-470e-8ddf-fe7292731efc}</Project>
-      <Name>AutoDictionaries.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
