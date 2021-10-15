@@ -21,14 +21,6 @@ PM> Install-Package AutoDictionaries
 
 Or via Umbraco backoffice!
 
-## Screenshots
-
-![preview](assets/overview.PNG)
-
-![preview](assets/edit.PNG)
-
-![preview](assets/select.PNG)
-
 ## Contributing
 
 If you would like to help me improve this package, feel free to create a pull request!
@@ -36,3 +28,11 @@ If you would like to help me improve this package, feel free to create a pull re
 ## Issues
 
 If you find any issues with the package feel free to raise a issue!
+
+## Screenshots
+
+![preview](assets/overview.PNG)
+
+![preview](assets/edit.PNG)
+
+![preview](assets/select.PNG)
