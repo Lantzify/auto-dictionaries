@@ -11,6 +11,7 @@
 	vm.submit = function () {
 
 		vm.generating = true;
+		vm.buttonState = "busy";
 
 		var generatingDictionaries = new Promise(function (resolve, reject) {
 			$scope.model.selectedContent.forEach(function (staticContent, index, array) {
