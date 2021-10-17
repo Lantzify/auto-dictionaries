@@ -1,4 +1,4 @@
-﻿using Umbraco.Core.Models;
+﻿using Umbraco.Cms.Core.Models;
 using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
 

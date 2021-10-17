@@ -1,13 +1,14 @@
-﻿using System.Web.Http;
-using Umbraco.Web.WebApi;
+﻿using System;
 using AutoDictionaries.Core.Services.Interfaces;
 using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
-using Umbraco.Core.Services;
-using System;
+
 using AutoDictionaries.Core.Dtos;
 using System.Linq;
-using Umbraco.Core.IO;
+using Umbraco.Cms.Web.BackOffice.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AutoDictionaries.Core.Controllers
 {
@@ -98,7 +99,7 @@ namespace AutoDictionaries.Core.Controllers
 
 		private PathContentDto GetPathAndContentFromView(AutoDictionariesModel autoDictionariesModel)
 		{
-			PathContentDto pathContent = new PathContentDto();
+			PathContentDto pathContent = new();
 
 			switch (autoDictionariesModel.Type)
 			{
@@ -125,21 +126,6 @@ namespace AutoDictionaries.Core.Controllers
 			}
 
 			return pathContent;
-		}
-
-		[HttpPost]
-		public bool SavePartialView(PathContentDto dto)
-		{
-			try
-			{
-				System.IO.File.WriteAllText(IOHelper.MapPath(dto.Path), dto.Content);
-			}
-			catch (Exception ex)
-			{
-				return false;
-			}
-
-			return true;
 		}
 	}
 }

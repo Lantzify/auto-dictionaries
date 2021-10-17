@@ -9,6 +9,7 @@ angular.module("umbraco").controller("generateDictionaries.controller", function
 	vm.generatingPercentage = 0;
 
 	vm.submit = function () {
+		vm.buttonState = "busy";
 
 		vm.generating = true;
 

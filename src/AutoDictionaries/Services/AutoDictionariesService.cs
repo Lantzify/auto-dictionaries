@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Umbraco.Core.IO;
-using Umbraco.Core.Models;
-using Umbraco.Core.Services;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Services;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
 using AutoDictionaries.Core.Models;
 using System.Text.RegularExpressions;
 using AutoDictionaries.Core.Services.Interfaces;
@@ -13,11 +13,13 @@ namespace AutoDictionaries.Core.Services
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
 		private readonly int _languageCount;
+		private readonly IWebHostEnvironment _webHostEnvironment;
 		private readonly List<DictionaryModel> _dictionaryItems;
 		private readonly ILocalizationService _localizationService;
 
-		public AutoDictionariesService(ILocalizationService localizationService)
+		public AutoDictionariesService(ILocalizationService localizationService, IWebHostEnvironment webHostEnvironment)
 		{
+			_webHostEnvironment = webHostEnvironment;
 			_localizationService = localizationService;
 			_dictionaryItems = GetAllDictionaryItems();
 			_languageCount = _localizationService.GetAllLanguages().Count();
@@ -25,7 +27,7 @@ namespace AutoDictionaries.Core.Services
 
 		public List<DictionaryModel> GetAllDictionaryItems()
 		{
-			List<DictionaryModel> dictionariesModel = new List<DictionaryModel>();
+			List<DictionaryModel> dictionariesModel = new();
 
 			var dictionaries = _localizationService.GetRootDictionaryItems();
 
@@ -82,12 +84,13 @@ namespace AutoDictionaries.Core.Services
 										.Cast<Match>()
 										.Where(x => !string.IsNullOrWhiteSpace(x.Value) && 
 													Regex.Match(x.Value, @"\D+").Length > 1 &&
+													!Regex.IsMatch(x.Value[0].ToString(), @"\W") &&
 													!Regex.IsMatch(x.Value, @"(if *\()"))
 										.Select(m => m.Value.Trim())
 										.ToList();
 			var groupedContent = staticContents.GroupBy(x => x);
 
-			List<StaticContentModel> staticContentModelList = new List<StaticContentModel>();
+			List<StaticContentModel> staticContentModelList = new ();
 
 			foreach (var staticContent in groupedContent)
 			{
@@ -113,7 +116,7 @@ namespace AutoDictionaries.Core.Services
 
 		public List<DictionaryModel> GetDictionaryItems(string[] dictionaryKeys)
 		{
-			List<DictionaryModel> dictionaryItems = new List<DictionaryModel>();
+			List<DictionaryModel> dictionaryItems = new ();
 
 			if (dictionaryKeys != null && dictionaryKeys.Any())
 			{
@@ -164,10 +167,10 @@ namespace AutoDictionaries.Core.Services
 
 			if (staticContentInView.Any())
 			{
-				string text = System.IO.File.ReadAllText(IOHelper.MapPath(path));
+				string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
 
 				text = Regex.Replace(text, regex, insert);
-				System.IO.File.WriteAllText(IOHelper.MapPath(path), text);
+				System.IO.File.WriteAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath, text);
 
 				return true;
 			}
@@ -192,7 +195,7 @@ namespace AutoDictionaries.Core.Services
 											.Select(m => m.Value)
 											.ToList();
 
-				return dictionaries.Count();
+				return dictionaries.Count;
 			}
 
 			return 0;
@@ -210,7 +213,7 @@ namespace AutoDictionaries.Core.Services
 					Key = dictionary.ItemKey,
 					Guid = dictionary.Key,
 					Translations = translations,
-					Translated = translations.Count() == _languageCount
+					Translated = translations.Count == _languageCount
 				};
 			}
 			return null;

@@ -1,7 +1,7 @@
-﻿using AutoDictionaries.Core.Models;
-using System;
+﻿using System;
+using Umbraco.Cms.Core.Models;
 using System.Collections.Generic;
-using Umbraco.Core.Models;
+using AutoDictionaries.Core.Models;
 
 namespace AutoDictionaries.Core.Services.Interfaces
 {

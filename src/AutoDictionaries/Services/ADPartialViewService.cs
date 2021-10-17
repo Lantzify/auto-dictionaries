@@ -1,31 +1,35 @@
 ﻿using System.Linq;
-using Umbraco.Core.Services;
 using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
-using Umbraco.Core.Models;
-using Umbraco.Core.IO;
 using AutoDictionaries.Core.Services.Interfaces;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AutoDictionaries.Core.Services
 {
 	public class ADPartialViewService : IADPartialViewService
 	{
-		private readonly IFileSystems _fileSystem;
+		private readonly FileSystems _fileSystem;
 		private readonly IFileService _fileService;
 		private readonly string _rootPartialViewDirectory;
+		private readonly IWebHostEnvironment _webHostEnvironment;
 		private readonly IAutoDictionariesService _autoDictionariesService;
 
-		public ADPartialViewService(IFileSystems fileSystem, IFileService fileService, IAutoDictionariesService autoDictionariesService)
+		public ADPartialViewService(FileSystems fileSystem, IFileService fileService, IWebHostEnvironment webHostEnvironment, IAutoDictionariesService autoDictionariesService)
 		{
 			_fileSystem = fileSystem;
 			_fileService = fileService;
-			_rootPartialViewDirectory = IOHelper.MapPath("/Views/Partials/");
+			_webHostEnvironment = webHostEnvironment;
+			_rootPartialViewDirectory = "/Views/Partials/";
 			_autoDictionariesService = autoDictionariesService;
+
 		}
 
 		public List<AutoDictionariesModel> GetAllPartialViews()
 		{
-			List<AutoDictionariesModel> partialViewList = new List<AutoDictionariesModel>();
+			List<AutoDictionariesModel> partialViewList = new ();
 
 			var partialViews = _fileSystem.PartialViewsFileSystem.GetFiles(_rootPartialViewDirectory);
 
@@ -66,7 +70,7 @@ namespace AutoDictionaries.Core.Services
 
 			var partialView = allPartialViews.Where(x => x.Id == id).FirstOrDefault();
 
-			return MapToAutoDictionariesModel(GetUmbracoPartialView(partialView?.Path), partialView?.Path, true);
+			return MapToAutoDictionariesModel(GetUmbracoPartialView(partialView.Path), partialView.Path, true);
 		}
 
 		public IPartialView GetUmbracoPartialView(string path)
@@ -82,14 +86,14 @@ namespace AutoDictionaries.Core.Services
 				Alias = partialView.Alias,
 				Name = RemoveFileExtension(partialView.Name),
 				Type = "Partial view",
-				Path = !string.IsNullOrEmpty(path) ? path : partialView.VirtualPath,
+				Path = path,
 				Content = getContent ? partialView.Content : string.Empty,
 				StaticContent = _autoDictionariesService.GetStaticContentFromView(partialView.Content),
 				Dictionaries = _autoDictionariesService.GetDictionariesFromView(partialView.Content)
 			};
 		}
 
-		private string RemoveFileExtension(string name)
+		private static string RemoveFileExtension(string name)
 		{
 			if (!name.Contains(".cshtml")) return name;
 

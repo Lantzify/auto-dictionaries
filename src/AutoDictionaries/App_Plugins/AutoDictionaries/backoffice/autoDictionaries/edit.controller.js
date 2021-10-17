@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $routeParams, $location, editorService) {
+﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $routeParams, $location, editorService, navigationService) {
 
 	var vm = this;
 	vm.loading = true;
@@ -131,7 +131,7 @@
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
 			id: vm.view.Path,
-			submit: function () {
+			submit: function (model) {
 				editorService.close();
 			},
 			close: function () {
@@ -139,7 +139,7 @@
 			}
 		};
 
-		editorService.open(infiniteOptions);	
+		editorService.open(infiniteOptions);
 	};
 
 	vm.openDictionary = function (dictionaryId) {

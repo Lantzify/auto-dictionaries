@@ -4,4 +4,48 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+
+	<ItemGroup>
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
+	</ItemGroup>
+
+	<!-- nuget package stuff -->
+	<PropertyGroup>
+		<PackageId>AutoDictionaries</PackageId>
+		<Version>9.0.0</Version>
+		<Title>Auto dictionaries</Title>
+		<Authors>Lantzify</Authors>
+		<Owners>Lantzify</Owners>
+		<PackageIconUrl></PackageIconUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/Lantzify/auto-dictionaries</PackageProjectUrl>
+		<PackageTags>Umbraco</PackageTags>
+		<RepositoryUrl>https://github.com/Lantzify/auto-dictionaries</RepositoryUrl>
+		<Description>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Description>
+		<Summary>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Summary>
+		<Tags>umbraco dictionaries package</Tags>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+		<ContentTargetFolders>content</ContentTargetFolders>
+
+		<PackageOutputPath>../../build/Release</PackageOutputPath>
+	</PropertyGroup>
+
+	<!-- package files -->
+	<ItemGroup>
+		<Content Include="App_Plugins\**\*.*">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+
+		<!-- target file to copy app_plugins in .netcore -->
+		<None Include="build\**\*.*">
+			<Pack>True</Pack>
+			<PackagePath>buildTransitive</PackagePath>
+		</None>
+	</ItemGroup>
+
 </Project>

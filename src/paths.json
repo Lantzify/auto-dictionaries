@@ -1,5 +1,5 @@
 {
-    "source": "AutoDictionaries.Core/App_Plugins/AutoDictionaries",
+    "source": "AutoDictionaries/App_Plugins/AutoDictionaries",
     "sites": [
         "AutoDictionaries.Web/App_Plugins/AutoDictionaries"
     ]
