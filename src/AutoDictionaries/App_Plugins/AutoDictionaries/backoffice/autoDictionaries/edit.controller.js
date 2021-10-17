@@ -131,7 +131,7 @@
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
 			id: vm.view.Path,
-			submit: function (model) {
+			submit: function () {
 				editorService.close();
 			},
 			close: function () {
