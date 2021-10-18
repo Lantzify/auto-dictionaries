@@ -12,11 +12,13 @@ using Umbraco.Cms.Web.BackOffice.Trees;
 using Umbraco.Extensions;
 using AutoDictionaries.Core.Services.Interfaces;
 using Umbraco.Cms.Web.Common.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
 
 namespace AutoDictionaries.Core.Trees
 {
 	[PluginController("AutoDictionaries")]
-	//[UmbracoTreeAuthorize(Constants.Trees.DocumentTypes)]
+	[Authorize(Policy = AuthorizationPolicies.TreeAccessDocumentTypes)]
 	[Tree("translation", "autoDictionaries", SortOrder = 12, TreeTitle = "Auto dictionaries", TreeGroup = "autoDictionariesGroup")]
 	public class AutoDictionariesTreeController : TreeController
 	{
