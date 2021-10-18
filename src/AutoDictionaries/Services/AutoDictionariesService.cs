@@ -168,9 +168,7 @@ namespace AutoDictionaries.Core.Services
 			if (staticContentInView.Any())
 			{
 				string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
-
-				text = Regex.Replace(text, regex, insert);
-				System.IO.File.WriteAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath, text);
+				System.IO.File.WriteAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath, Regex.Replace(text, regex, insert));
 
 				return true;
 			}
