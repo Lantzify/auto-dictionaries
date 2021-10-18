@@ -51,10 +51,9 @@ namespace AutoDictionaries.Core.Services
 
 				foreach (var partialViewName in partialViews)
 				{
-					string partialViewPath = partialViewName;
-					var partialView = _fileService.GetPartialView(partialViewPath);
+					var partialView = _fileService.GetPartialView(partialViewName);
 					
-					partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewPath));
+					partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewName));
 				}
 
 				GetDirectories(partialViewList, _rootPartialViewDirectory + fileDirectory);

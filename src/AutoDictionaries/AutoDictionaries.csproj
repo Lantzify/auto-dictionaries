@@ -1,10 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
-
 	<ItemGroup>
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0" />
 		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0" />
@@ -12,19 +7,19 @@
 
 	<!-- nuget package stuff -->
 	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>9.0.0</Version>
+		<Version>9.0.3</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
-		<Owners>Lantzify</Owners>
 		<PackageIconUrl></PackageIconUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/Lantzify/auto-dictionaries</PackageProjectUrl>
-		<PackageTags>Umbraco</PackageTags>
 		<RepositoryUrl>https://github.com/Lantzify/auto-dictionaries</RepositoryUrl>
 		<Description>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Description>
 		<Summary>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Summary>
 		<Tags>umbraco dictionaries package</Tags>
+		<PackageTags>umbraco dictionaries package</PackageTags>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -32,6 +27,7 @@
 		<ContentTargetFolders>content</ContentTargetFolders>
 
 		<PackageOutputPath>../../build/Release</PackageOutputPath>
+
 	</PropertyGroup>
 
 	<!-- package files -->

@@ -94,7 +94,7 @@ namespace AutoDictionaries.Core.Controllers
 				return false;
 			}
 
-			return true;
+			return false;
 		}
 
 		private PathContentDto GetPathAndContentFromView(AutoDictionariesModel autoDictionariesModel)
