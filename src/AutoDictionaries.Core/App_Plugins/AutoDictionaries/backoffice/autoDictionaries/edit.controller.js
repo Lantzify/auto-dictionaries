@@ -130,7 +130,7 @@
 
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
-			id: vm.view.Path,
+			id: encodeURIComponent(vm.view.Path),
 			submit: function () {
 				editorService.close();
 			},

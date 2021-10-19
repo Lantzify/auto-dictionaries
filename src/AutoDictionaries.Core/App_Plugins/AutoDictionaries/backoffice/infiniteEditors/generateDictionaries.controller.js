@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $q, $http, notificationsService) {
+angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $http, notificationsService) {
 
 	var vm = this;
 	var counter = 0;
@@ -12,7 +12,6 @@ angular.module("umbraco").controller("generateDictionaries.controller", function
 		vm.buttonState = "busy";
 
 		(function generateDictionary(staticContent) {
-			console.log(staticContent)
 			vm.currentlyGenerating = staticContent.StaticContent;
 
 			$http({

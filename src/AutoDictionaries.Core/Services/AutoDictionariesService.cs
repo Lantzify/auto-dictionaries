@@ -82,7 +82,7 @@ namespace AutoDictionaries.Core.Services
 										.Cast<Match>()
 										.Where(x => !string.IsNullOrWhiteSpace(x.Value) && 
 													Regex.Match(x.Value, @"\D+").Length > 1 &&
-													!Regex.IsMatch(x.Value[0].ToString(), @"\W") &&
+													!Regex.IsMatch(x.Value.Trim()[0].ToString(), @"\W") &&
 													!Regex.IsMatch(x.Value, @"(if *\()"))
 										.Select(m => m.Value.Trim())
 										.ToList();

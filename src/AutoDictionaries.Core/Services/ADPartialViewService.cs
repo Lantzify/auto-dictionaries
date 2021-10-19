@@ -19,7 +19,7 @@ namespace AutoDictionaries.Core.Services
 		{
 			_fileSystem = fileSystem;
 			_fileService = fileService;
-			_rootPartialViewDirectory = IOHelper.MapPath("/Views/Partials/");
+			_rootPartialViewDirectory = "/Views/Partials/";
 			_autoDictionariesService = autoDictionariesService;
 		}
 
@@ -31,10 +31,9 @@ namespace AutoDictionaries.Core.Services
 
 			foreach (var partialViewName in partialViews)
 			{
-				string path = _rootPartialViewDirectory + partialViewName;
-				var partialView = _fileService.GetPartialView(path);
+				var partialView = _fileService.GetPartialView(partialViewName);
 				
-				partialViewList.Add(MapToAutoDictionariesModel(partialView, path));
+				partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewName));
 			}
 
 			GetDirectories(partialViewList, _rootPartialViewDirectory);
@@ -50,10 +49,9 @@ namespace AutoDictionaries.Core.Services
 
 				foreach (var partialViewName in partialViews)
 				{
-					string partialViewPath = _rootPartialViewDirectory + partialViewName;
-					var partialView = _fileService.GetPartialView(partialViewPath);
+					var partialView = _fileService.GetPartialView(partialViewName);
 					
-					partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewPath));
+					partialViewList.Add(MapToAutoDictionariesModel(partialView, partialViewName));
 				}
 
 				GetDirectories(partialViewList, _rootPartialViewDirectory + fileDirectory);

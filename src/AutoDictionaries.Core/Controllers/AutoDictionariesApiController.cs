@@ -117,7 +117,7 @@ namespace AutoDictionaries.Core.Controllers
 					var partialView = _adPartialViewService.GetUmbracoPartialView(autoDictionariesModel.Path);
 					if (partialView != null)
 					{
-						pathContent.Path = partialView.Path;
+						pathContent.Path = "/Views/Partials/" + partialView.Path;
 						pathContent.Content = partialView.Content;
 					}
 
