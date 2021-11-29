@@ -23,6 +23,10 @@ PM> dotnet add package AutoDictionaries
 
 If you would like to help me improve this package, feel free to create a pull request!
 
+Login details:
+- Email: admin@admin.com 
+- Password: password123
+
 ## Issues
 
 If you find any issues with the package feel free to raise a issue!
