@@ -1,9 +1,9 @@
-﻿angular.module("umbraco").controller("autoDictionaries.overview.controller", function ($scope, $http, $location) {
+﻿angular.module("umbraco").controller("autoDictionaries.overview.controller", function ($http, $filter, $location) {
 
 	var vm = this;
 
 	vm.loading = true;
-	vm.reverse = false;
+	vm.sortOrder = {};
 
 	vm.page = {
 		title: "Auto dictionaries",
@@ -24,32 +24,17 @@
 		$location.path("/translation/autoDictionaries/edit/" + id);
 	};
 
-	vm.sort = function (property, reverseFirstSort) {
+	vm.sort = function (columnName) {
+		vm.sortOrder.column = columnName;
+		vm.sortOrder.reverse = !vm.sortOrder.reverse;
 
-		if (property === vm.sorted) {
-			vm.reverse = !vm.reverse;
-		} else {
-			vm.reverse = reverseFirstSort;
-		}
-
-		vm.sorted = property;
-	}
-
-	vm.matchDictionary = function (arr) {
-
-		var retVal = [];
-
-		arr.forEach(function (obj) {
-			if (obj.Dictionary !== null) {
-				retVal.push(obj.Dictionary)
-			}
-		});
-
-		return retVal;
+		vm.views = $filter("orderBy")(vm.views, vm.sortOrder.column, vm.sortOrder.reverse);
 	};
 
 	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllViews").then(function (response) {
 		vm.loading = false;
 		vm.views = response.data;
+
+		console.log(vm.views);
 	});
 });

@@ -74,7 +74,11 @@ namespace AutoDictionaries.Core.Services
 
 		public AutoDictionariesModel MapToAutoDictionariesModel(IPartialView partialView, string path, bool getContent = false)
 		{
-			return partialView == null ? null : new AutoDictionariesModel()
+			if (partialView == null) return null;
+
+			var staticContent = _autoDictionariesService.GetStaticContentFromView(partialView.Content);
+
+			return new AutoDictionariesModel()
 			{
 				Id = partialView.Id,
 				Alias = partialView.Alias,
@@ -82,8 +86,9 @@ namespace AutoDictionaries.Core.Services
 				Type = "Partial view",
 				Path = !string.IsNullOrEmpty(path) ? path : partialView.VirtualPath,
 				Content = getContent ? partialView.Content : string.Empty,
-				StaticContent = _autoDictionariesService.GetStaticContentFromView(partialView.Content),
-				Dictionaries = _autoDictionariesService.GetDictionariesFromView(partialView.Content)
+				StaticContent = staticContent,
+				Dictionaries = _autoDictionariesService.GetDictionariesFromView(partialView.Content),
+				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}
 

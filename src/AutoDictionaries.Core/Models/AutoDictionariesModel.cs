@@ -12,5 +12,6 @@ namespace AutoDictionaries.Core.Models
 		public string Content { get; set; }
 		public List<DictionaryModel> Dictionaries { get; set; }
 		public List<StaticContentModel> StaticContent { get; set; }
+		public int MatchDictionaries { get; set; }
 	}
 }

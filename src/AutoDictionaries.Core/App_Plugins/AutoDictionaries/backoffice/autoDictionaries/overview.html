@@ -15,28 +15,31 @@
 			<table class="table table-hover" ng-if="!vm.loading">
 				<thead >
 					<tr>
-						<th class="clickable-th" ng-click="vm.sort('Name', false)">
+						<th class="clickable-th" ng-click="vm.sort('Name')">
 							View name
-							<umb-icon ng-if="vm.sorted == 'Name' && !vm.reverse" icon="icon-chevron-up"  class="icon-class"></umb-icon>
-							<umb-icon ng-if="vm.sorted == 'Name' && vm.reverse" icon="icon-chevron-down"  class="icon-class"></umb-icon>
+							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Name'"></umb-icon>
 						</th>
-						<th class="clickable-th" ng-click="vm.sort('Type', false)">
+						<th class="clickable-th" ng-click="vm.sort('Type')">
 							Type
-							<umb-icon ng-if="vm.sorted == 'Type' && !vm.reverse" icon="icon-chevron-up" class="icon-class"></umb-icon>
-							<umb-icon ng-if="vm.sorted == 'Type' && vm.reverse" icon="icon-chevron-down" class="icon-class"></umb-icon>
-						</th>
-						<th class="clickable-th" ng-click="vm.sort('StaticContent', true)">
+							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Type'"></umb-icon>					
+							</th>
+						<th class="clickable-th" ng-click="vm.sort('StaticContent')">
 							Static content
-							<umb-icon ng-if="vm.sorted == 'StaticContent' && !vm.reverse" icon="icon-chevron-up" class="icon-class"></umb-icon>
-							<umb-icon ng-if="vm.sorted == 'StaticContent' && vm.reverse" icon="icon-chevron-down" class="icon-class"></umb-icon>
+							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'StaticContent'"></umb-icon>
 						</th>
-						<th>Dictionaries</th>
-						<th>Match dictionaries</th>
+						<th class="clickable-th" ng-click="vm.sort('Dictionaries')">
+							Dictionaries
+							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Dictionaries'"></umb-icon>	
+						</th>
+						<th class="clickable-th" ng-click="vm.sort('MatchDictionaries')">
+							Match dictionaries
+							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'MatchDictionaries'"></umb-icon>
+						</th>
 					</tr>
 				</thead>
 				<tbody>
 				<tbody>
-					<tr ng-repeat="view in vm.views | orderBy: vm.sorted:vm.reverse" ng-click="vm.clickedView(view.Id)">
+					<tr ng-repeat="view in vm.views" ng-click="vm.clickedView(view.Id)">
 						<td>{{view.Name}}</td>
 						<td>{{view.Type}}</td>
 						<td>
@@ -50,7 +53,7 @@
 							<umb-icon ng-if="view.StaticContent.length" title="More dictionaries can be used in view" icon="icon-alert"></umb-icon>
 						</td>
 						<td>
-							<span ng-if="vm.matchDictionary(view.StaticContent).length">{{vm.matchDictionary(view.StaticContent).length}}</span>
+							<span ng-if="view.MatchDictionaries != 0">{{view.MatchDictionaries}}</span>
 						</td>
 					</tr>
 				</tbody>
@@ -58,7 +61,5 @@
 
 		</umb-editor-container>
 
-		<umb-editor-footer>
-		</umb-editor-footer>
 	</umb-editor-view>
 </div>
