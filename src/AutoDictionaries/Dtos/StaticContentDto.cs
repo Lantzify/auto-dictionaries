@@ -3,6 +3,7 @@
 	public class StaticContentDto
 	{
 		public string StaticContent { get; set; }
+		public string SafeAlias { get; set; }
 		public string Parent { get; set; }
 	}
 }

@@ -17,7 +17,6 @@ namespace AutoDictionaries.Core.Services.Interfaces
 		DictionaryModel GetDictionaryItemFromStaticContent(List<DictionaryModel> dictionaries, string staticContent);
 		DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null);
 		bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent);
-		string CreateDictionaryKey(string staticContent, string prefix = null);
 		int GetDictionaryCountInView(string vierwContent, string dictionaryKey);
 		DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary);
 	}

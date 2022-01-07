@@ -150,11 +150,6 @@ namespace AutoDictionaries.Core.Services
 			return null;
 		}
 
-		public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
-		{
-			return MapToDictionaryModel(_localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
-		}
-
 		public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
 		{
 			string insert = $"@Umbraco.GetDictionaryValue(\"{dictionary.Key}\")";

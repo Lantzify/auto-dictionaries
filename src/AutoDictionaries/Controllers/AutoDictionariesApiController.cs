@@ -80,7 +80,7 @@ namespace AutoDictionaries.Core.Controllers
 			try
 			{
 				var parent = _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
-				var dictionaryName = _autoDictionariesService.CreateDictionaryKey(dto.StaticContent.StaticContent, dto.StaticContent.Parent != "0" ? parent.Key : null); ;
+				var dictionaryName = $"{(dto.StaticContent.Parent != "0" ? dto.StaticContent.Parent + "_" : null)}{dto.StaticContent.SafeAlias}";
 				var dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, parent?.Id);
 				PathContentDto pathContent = GetPathAndContentFromView(dto.AutoDictionariesModel);
 
