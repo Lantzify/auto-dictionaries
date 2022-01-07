@@ -34,7 +34,5 @@
 	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllViews").then(function (response) {
 		vm.loading = false;
 		vm.views = response.data;
-
-		console.log(vm.views);
 	});
 });
