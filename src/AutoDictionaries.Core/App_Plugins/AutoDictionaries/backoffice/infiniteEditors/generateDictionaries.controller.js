@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $http, notificationsService) {
+angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $http, entityResource, notificationsService) {
 
 	var vm = this;
 	var counter = 0;
@@ -6,7 +6,7 @@ angular.module("umbraco").controller("generateDictionaries.controller", function
 	vm.currentlyGenerating = "";
 	vm.generatingPercentage = 0;
 	vm.percentage = 100 / $scope.model.selectedContent.length;
-	
+
 	vm.submit = function () {
 
 		vm.buttonState = "busy";
@@ -14,34 +14,39 @@ angular.module("umbraco").controller("generateDictionaries.controller", function
 		(function generateDictionary(staticContent) {
 			vm.currentlyGenerating = staticContent.StaticContent;
 
-			$http({
-				url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToView",
-				method: "POST",
-				data: {
-					autoDictionariesModel: $scope.model.autoDictionariesModel,
-					staticContent: staticContent
-				}
-			}).then(function (response) {
-				if (response.data) {
+			entityResource.getSafeAlias(vm.currentlyGenerating, true).then(function (safeAlias) {
 
-					vm.generatingPercentage += vm.percentage;
-					counter += 1;
-					setTimeout(function () {
-						if (counter !== $scope.model.selectedContent.length) {
-							generateDictionary($scope.model.selectedContent[counter]);
+				staticContent.SafeAlias = safeAlias.alias;
 
-						} else {
-							notificationsService.success("Dictionaries", "All dictionaries were created adn added to the template successfully!");
+				$http({
+					url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToView",
+					method: "POST",
+					data: {
+						autoDictionariesModel: $scope.model.autoDictionariesModel,
+						staticContent: staticContent
+					}
+				}).then(function (response) {
+					if (response.data) {
 
-							if ($scope.model.submit) {
-								$scope.model.submit($scope.model);
+						vm.generatingPercentage += vm.percentage;
+						counter += 1;
+						setTimeout(function () {
+							if (counter !== $scope.model.selectedContent.length) {
+								generateDictionary($scope.model.selectedContent[counter]);
+
+							} else {
+								notificationsService.success("Dictionaries", "All dictionaries were created and added to the template successfully!");
+
+								if ($scope.model.submit) {
+									$scope.model.submit($scope.model);
+								}
 							}
-						}
-					}, 1000);
-				} else {
-					notificationsService.error("Dictionaries", "Failed to add dictionary to template");
-					$scope.model.close();
-				}
+						}, 1000);
+					} else {
+						notificationsService.error("Dictionaries", "Failed to add dictionary to template");
+						$scope.model.close();
+					}
+				});
 			});
 		})($scope.model.selectedContent[counter]);
 	};

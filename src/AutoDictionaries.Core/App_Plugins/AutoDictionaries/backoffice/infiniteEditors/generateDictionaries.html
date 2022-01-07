@@ -10,7 +10,7 @@
 		<umb-editor-container>
 			<umb-box>
 				<umb-box-content>
-					<div ng-if="!vm.generating">
+					<div ng-if="vm.currentlyGenerating == ''">
 						Are you sure you want to generate dictionaries for:
 						<ul>
 							<li ng-repeat="staticContent in model.selectedContent" class="mt3">
@@ -20,7 +20,7 @@
 						</ul>
 						<div class="mt3">This action can not be undone.</div>
 					</div>
-					<div ng-if="vm.generating" class="text-center">
+					<div ng-if="vm.currentlyGenerating != ''" class="text-center">
 						<umb-icon icon="icon-globe" class="generateDictionaries-icon-globe"></umb-icon>
 						<div class="mb2">Generating dictionaries.. {{vm.currentlyGenerating}}</div>
 						<umb-progress-bar percentage="{{vm.generatingPercentage}}"></umb-progress-bar>

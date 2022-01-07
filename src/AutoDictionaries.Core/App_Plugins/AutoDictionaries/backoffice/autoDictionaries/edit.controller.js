@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $routeParams, $location, editorService) {
+﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $route, $routeParams, $location, editorService) {
 
 	var vm = this;
 	vm.loading = true;
@@ -78,9 +78,7 @@
 			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
-				setTimeout(function () {
-					location.reload();
-				}, 1000);
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
@@ -99,9 +97,7 @@
 			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
-				setTimeout(function () {
-					location.reload();
-				}, 1000);
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
@@ -117,7 +113,8 @@
 			id: $routeParams.id,
 			submit: function () {
 				editorService.close();
-			},
+				$route.reload();
+			}, 
 			close: function () {
 				editorService.close();
 			}
@@ -133,6 +130,7 @@
 			id: encodeURIComponent(vm.view.Path),
 			submit: function () {
 				editorService.close();
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();

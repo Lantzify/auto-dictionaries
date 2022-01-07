@@ -176,12 +176,6 @@ namespace AutoDictionaries.Core.Services
 			return false;
 		}
 
-		public string CreateDictionaryKey(string staticContent, string prefix = null)
-		{
-			string p = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
-			return $"{p}{staticContent.ToLower().Replace(" ", "_")}";
-		}
-
 		public int GetDictionaryCountInView(string vierwContent, string dictionaryKey)
 		{
 			if (!string.IsNullOrEmpty(vierwContent))
