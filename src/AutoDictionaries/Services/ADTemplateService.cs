@@ -49,14 +49,19 @@ namespace AutoDictionaries.Core.Services
 
 		public AutoDictionariesModel MapToMapToAutoDictionariesModel(ITemplate template)
 		{
-			return template == null ? null : new AutoDictionariesModel()
+			if (template == null) return null;
+
+			var staticContent = _autoDictionariesService.GetStaticContentFromView(template.Content);
+
+			return new AutoDictionariesModel()
 			{
 				Id = template.Id,
 				Alias = template.Alias,
 				Name = template.Name,
 				Type = "Template",
-				StaticContent = _autoDictionariesService.GetStaticContentFromView(template.Content),
-				Dictionaries = _autoDictionariesService.GetDictionariesFromView(template.Content)
+				StaticContent = staticContent,
+				Dictionaries = _autoDictionariesService.GetDictionariesFromView(template.Content),
+				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}
 	}

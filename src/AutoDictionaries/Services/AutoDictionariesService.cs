@@ -150,6 +150,11 @@ namespace AutoDictionaries.Core.Services
 			return null;
 		}
 
+		public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
+		{
+			return MapToDictionaryModel(_localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
+		}
+
 		public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
 		{
 			string insert = $"@Umbraco.GetDictionaryValue(\"{dictionary.Key}\")";
@@ -169,12 +174,6 @@ namespace AutoDictionaries.Core.Services
 			}
 
 			return false;
-		}
-
-		public string CreateDictionaryKey(string staticContent, string prefix = null)
-		{
-			string p = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
-			return $"{p}{staticContent.ToLower().Replace(" ", "_")}";
 		}
 
 		public int GetDictionaryCountInView(string vierwContent, string dictionaryKey)
