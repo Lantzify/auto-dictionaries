@@ -2,28 +2,20 @@
 
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Blog>
 
-@{ Layout = "master.cshtml"; }
+@{
+    Layout = "master.cshtml";
+}
 @Html.Partial("~/Views/Partials/SectionHeader.cshtml")
 
 <section class="section">
 
-	<div class="container">
-		@await Umbraco.RenderMacroAsync("latestBlogposts",
-				 new
-				 {
-					 numberOfPosts = Model.HowManyPostsShouldBeShown,
-					 startNodeId = Model.Id
-				 })
-	</div>
+    <div class="container">
+        @await Umbraco.RenderMacroAsync("latestBlogposts",
+            new
+            {
+                numberOfPosts = Model.HowManyPostsShouldBeShown,
+                startNodeId = Model.Id
+            })
+    </div>
 
-	<h1>Static content</h1>
-	<h1>@Html.Raw("foo")</h1>
-	<h1>@(Model.Value<string>("foo"))</h1>
-	<h1>@{Model.Value<string>("foo");}</h1>
-	<h1>Static content2...</h1>
-	<h1>
-		Static content2...
-		<i class="foo"></i>
-	</h1>
-	<h1>.</h1>
 </section>

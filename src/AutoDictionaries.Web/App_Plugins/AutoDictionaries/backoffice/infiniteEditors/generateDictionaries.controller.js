@@ -1,22 +1,22 @@
-angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $http, notificationsService) {
+angular.module("umbraco").controller("generateDictionaries.controller", function ($scope, $http, entityResource, notificationsService) {
 
 	var vm = this;
+	var counter = 0;
 
-	vm.generating = false;
-	vm.successGenerating = true;
 	vm.currentlyGenerating = "";
-	vm.percentage = 100 / $scope.model.selectedContent.length;
 	vm.generatingPercentage = 0;
+	vm.percentage = 100 / $scope.model.selectedContent.length;
 
 	vm.submit = function () {
+
 		vm.buttonState = "busy";
 
-		vm.generating = true;
+		(function generateDictionary(staticContent) {
+			vm.currentlyGenerating = staticContent.StaticContent;
 
-		var generatingDictionaries = new Promise(function (resolve, reject) {
-			$scope.model.selectedContent.forEach(function (staticContent, index, array) {
+			entityResource.getSafeAlias(vm.currentlyGenerating, true).then(function (safeAlias) {
 
-				vm.currentlyGenerating = staticContent.StaticContent;
+				staticContent.SafeAlias = safeAlias.alias;
 
 				$http({
 					url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToView",
@@ -27,33 +27,29 @@ angular.module("umbraco").controller("generateDictionaries.controller", function
 					}
 				}).then(function (response) {
 					if (response.data) {
-						vm.successGenerating = true;
-						vm.generatingPercentage += vm.percentage;
-					} else {
-						vm.successGenerating = false;
-					}
 
-					if (index + 1 === array.length) {
+						vm.generatingPercentage += vm.percentage;
+						counter += 1;
 						setTimeout(function () {
-							resolve();
+							if (counter !== $scope.model.selectedContent.length) {
+								generateDictionary($scope.model.selectedContent[counter]);
+
+							} else {
+								notificationsService.success("Dictionaries", "All dictionaries were created and added to the template successfully!");
+
+								if ($scope.model.submit) {
+									$scope.model.submit($scope.model);
+								}
+							}
 						}, 1000);
+					} else {
+						notificationsService.error("Dictionaries", "Failed to add dictionary to template");
+						$scope.model.close();
 					}
 				});
 			});
-		});
-
-		generatingDictionaries.then(function () {
-			if (vm.successGenerating) {
-				notificationsService.success("Dictionaries", "All dictionaries were created adn added to the template successfully!");
-			} else {
-				notificationsService.error("Dictionaries", "Failed to add dictionary to template");
-			}
-
-			if ($scope.model.submit) {
-				$scope.model.submit($scope.model);
-			}
-		});
-	}
+		})($scope.model.selectedContent[counter]);
+	};
 
 	vm.close = function () {
 		if ($scope.model.close) {

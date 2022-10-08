@@ -1,4 +1,4 @@
-angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $routeParams, $location, editorService, navigationService) {
+angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $route, $routeParams, $location, editorService) {
 
 	var vm = this;
 	vm.loading = true;
@@ -78,9 +78,7 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
-				setTimeout(function () {
-					location.reload();
-				}, 1000);
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
@@ -99,9 +97,7 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 			autoDictionariesModel: vm.view,
 			submit: function () {
 				editorService.close();
-				setTimeout(function () {
-					location.reload();
-				}, 1000);
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
@@ -117,6 +113,7 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 			id: $routeParams.id,
 			submit: function () {
 				editorService.close();
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
@@ -130,9 +127,10 @@ angular.module("umbraco").controller("autoDictionaries.edit.controller", functio
 
 		var infiniteOptions = {
 			view: "views/partialViews/edit.html",
-			id: vm.view.Path,
-			submit: function (model) {
+			id: encodeURIComponent(vm.view.Path),
+			submit: function () {
 				editorService.close();
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();
