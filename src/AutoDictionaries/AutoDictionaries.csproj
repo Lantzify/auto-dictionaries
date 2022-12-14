@@ -9,17 +9,16 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>10.0.0</Version>
+		<Version>10.0.1</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
-		<PackageIconUrl></PackageIconUrl>
+		<PackageIcon>logo.png</PackageIcon>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/Lantzify/auto-dictionaries</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Lantzify/auto-dictionaries</RepositoryUrl>
 		<Description>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Description>
 		<Summary>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Summary>
-		<Tags>umbraco dictionaries package</Tags>
-		<PackageTags>umbraco dictionaries package</PackageTags>
+		<PackageTags>umbraco dictionaries package umbraco-marketplace</PackageTags>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -41,6 +40,13 @@
 		<None Include="build\**\*.*">
 			<Pack>True</Pack>
 			<PackagePath>buildTransitive</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\assets\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 
