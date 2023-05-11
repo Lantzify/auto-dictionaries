@@ -1,4 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<StaticWebAssetBasePath>App_Plugins/AutoDictionaries</StaticWebAssetBasePath>
+	</PropertyGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="10.1.0" />
@@ -9,7 +15,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>10.0.1</Version>
+		<Version>10.1.0</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>
@@ -30,20 +36,7 @@
 	</PropertyGroup>
 
 	<!-- package files -->
-	<ItemGroup>
-		<Content Include="App_Plugins\**\*.*">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
-		</Content>
-
-		<!-- target file to copy app_plugins in .netcore -->
-		<None Include="build\**\*.*">
-			<Pack>True</Pack>
-			<PackagePath>buildTransitive</PackagePath>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
+	<ItemGroup>	
 		<None Include="..\..\assets\logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
