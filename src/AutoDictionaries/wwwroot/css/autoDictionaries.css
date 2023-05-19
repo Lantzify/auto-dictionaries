@@ -89,3 +89,13 @@
 	background: #3544b1;
 	transition: all .5s ease-in;
 }
+
+#matchDictionaries pre del,
+#generateDictionaries pre del {
+	color: #d42054;
+}
+
+#matchDictionaries pre ins,
+#generateDictionaries pre ins {
+	color: #2bc37c;
+}

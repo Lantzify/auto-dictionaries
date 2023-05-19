@@ -73,7 +73,7 @@
 		vm.generateDictionaries.editor = {
 			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/generateDictionaries.html",
 			title: "Generate dictionaries",
-			size: "small",
+			size: "medium",
 			selectedContent: vm.selectedContent,
 			autoDictionariesModel: vm.view,
 			submit: function () {
@@ -92,7 +92,7 @@
 		vm.matchDictionary.editor = {
 			view: "/App_Plugins/AutoDictionaries/backoffice/infiniteEditors/matchDictionary.html",
 			title: "Match dictionary item",
-			size: "small",
+			size: "medium",
 			staticContent: staticContent,
 			autoDictionariesModel: vm.view,
 			submit: function () {

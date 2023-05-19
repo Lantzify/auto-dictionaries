@@ -25,6 +25,8 @@
 						<div class="mb2">Generating dictionaries.. {{vm.currentlyGenerating}}</div>
 						<umb-progress-bar percentage="{{vm.generatingPercentage}}"></umb-progress-bar>
 					</div>
+
+					<pre ng-if="vm.currentlyGenerating == ''"><span ng-repeat="part in changes"><ins ng-if="part.added">{{part.value}}</ins><del ng-if="part.removed">{{part.value}}</del><span ng-if="!part.added && !part.removed">{{part.value}}</span></span></pre>
 				</umb-box-content>
 			</umb-box>
 		</umb-editor-container>

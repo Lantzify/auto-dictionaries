@@ -59,6 +59,7 @@ namespace AutoDictionaries.Core.Services
 				Alias = template.Alias,
 				Name = template.Name,
 				Type = "Template",
+				Path = template.VirtualPath,
 				StaticContent = staticContent,
 				Dictionaries = _autoDictionariesService.GetDictionariesFromView(template.Content),
 				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()

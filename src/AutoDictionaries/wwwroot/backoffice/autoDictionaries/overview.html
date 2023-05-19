@@ -23,6 +23,9 @@
 							Type
 							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Type'"></umb-icon>
 						</th>
+						<th>
+							Path
+						</th>
 						<th class="clickable-th" ng-click="vm.sort('StaticContent')">
 							Static content
 							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'StaticContent'"></umb-icon>
@@ -42,6 +45,7 @@
 					<tr ng-repeat="view in vm.views" ng-click="vm.clickedView(view.Id)">
 						<td>{{view.Name}}</td>
 						<td>{{view.Type}}</td>
+						<td>{{view.Path}}</td>
 						<td>
 							<span ng-if="view.StaticContent.length">{{view.StaticContent.length}}</span>
 							<umb-icon ng-if="!view.StaticContent.length" icon="icon-check"></umb-icon>

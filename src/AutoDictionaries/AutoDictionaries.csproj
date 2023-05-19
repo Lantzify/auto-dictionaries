@@ -14,7 +14,7 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>11.0.0</Version>
+		<Version>11.1.0</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>

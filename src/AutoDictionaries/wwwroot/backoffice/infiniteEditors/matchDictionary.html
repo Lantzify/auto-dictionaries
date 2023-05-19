@@ -1,39 +1,41 @@
-﻿<div ng-controller="dictionaryItem.controller as vm">
-	<umb-editor-view>
+﻿<div ng-controller="dictionaryItem.controller as vm" id="matchDictionaries">
+    <umb-editor-view>
 
-		<umb-editor-header name="model.title"
-						   name-locked="true"
-						   hide-alias="true"
-						   hide-icon="true"
-						   hide-description="true">
-		</umb-editor-header>
+        <umb-editor-header name="model.title"
+                           name-locked="true"
+                           hide-alias="true"
+                           hide-icon="true"
+                           hide-description="true">
+        </umb-editor-header>
 
-		<umb-editor-container>
-			<umb-box>
-				<umb-box-content>
-					An existing dictionary item was found for " <strong>{{ model.staticContent.StaticContent }}</strong> " do you want to replace it with " <strong>@Umbraco.GetDictionaryValue("{{ model.staticContent.Dictionary.Key }}") "</strong> ?
-					this action can not be undone.
+        <umb-editor-container>
+            <umb-box>
+                <umb-box-content>
+                    An existing dictionary item was found. Do you want to use the dictionary item?
+                    this action can not be undone.
 
-				</umb-box-content>
-			</umb-box>
-		</umb-editor-container>
+                    <pre><span ng-repeat="part in changes"><ins ng-if="part.added">{{part.value}}</ins><del ng-if="part.removed">{{part.value}}</del><span ng-if="!part.added && !part.removed">{{part.value}}</span></span></pre>
 
-		<umb-editor-footer>
-			<umb-editor-footer-content-right>
-				<umb-button type="button"
-							button-style="link"
-							label-key="general_close"
-							shortcut="esc"
-							action="vm.close()">
-				</umb-button>
-				<umb-button type="button"
-							button-style="success"
-							label-key="general_submit"
-							state="vm.buttonState"
-							action="vm.submit(model)">
-				</umb-button>
-			</umb-editor-footer-content-right>
-		</umb-editor-footer>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
 
-	</umb-editor-view>
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button"
+                            button-style="link"
+                            label-key="general_close"
+                            shortcut="esc"
+                            action="vm.close()">
+                </umb-button>
+                <umb-button type="button"
+                            button-style="success"
+                            label-key="general_submit"
+                            state="vm.buttonState"
+                            action="vm.submit(model)">
+                </umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+
+    </umb-editor-view>
 </div>
