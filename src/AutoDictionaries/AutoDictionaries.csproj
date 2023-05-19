@@ -15,7 +15,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>10.0.3</Version>
+		<Version>10.1.0</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>

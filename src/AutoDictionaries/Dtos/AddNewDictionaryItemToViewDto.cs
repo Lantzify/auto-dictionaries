@@ -1,5 +1,4 @@
 ﻿using AutoDictionaries.Core.Models;
-using System.Collections.Generic;
 
 namespace AutoDictionaries.Core.Dtos
 {

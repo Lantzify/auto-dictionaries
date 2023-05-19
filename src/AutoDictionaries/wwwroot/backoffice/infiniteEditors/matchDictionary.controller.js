@@ -1,6 +1,20 @@
-﻿angular.module("umbraco").controller("dictionaryItem.controller", function ($scope, $http, notificationsService) {
+﻿angular.module("umbraco").controller("dictionaryItem.controller", function ($scope, $http, notificationsService, assetsService) {
 
 	var vm = this;
+
+	assetsService.loadJs("lib/jsdiff/diff.js", $scope).then(function () {
+		$http({
+			url: "/umbraco/backoffice/api/AutoDictionariesApi/PreviewAddExistingDictionaryItemToView",
+			method: "POST",
+			data: {
+				autoDictionariesModel: $scope.model.autoDictionariesModel,
+				dictionaryId: $scope.model.staticContent.Dictionary.Id,
+				staticContent: $scope.model.staticContent.StaticContent
+			}
+		}).then(function (response) {
+			$scope.changes = Diff.diffWords(response.data[0], response.data[1]);
+		});
+	});
 
 	vm.submit = function () {
 		vm.buttonState = "busy";
