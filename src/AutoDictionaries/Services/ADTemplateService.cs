@@ -58,6 +58,7 @@ namespace AutoDictionaries.Core.Services
 				Id = template.Id,
 				Alias = template.Alias,
 				Name = template.Name,
+				Path = template.VirtualPath,
 				Type = "Template",
 				StaticContent = staticContent,
 				Dictionaries = _autoDictionariesService.GetDictionariesFromView(template.Content),
