@@ -1,4 +1,4 @@
-﻿<div ng-controller="autoDictionaries.overview.controller as vm" id="autoDictionaries">
+﻿﻿<div ng-controller="autoDictionaries.overview.controller as vm" id="autoDictionaries">
 	<umb-editor-view>
 		<umb-editor-header name="vm.page.title"
 						   description="vm.page.description"
@@ -12,6 +12,15 @@
 
 			<umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
 
+			<umb-editor-sub-header>
+				<umb-editor-sub-header-content-right>
+					<umb-search-filter model="vm.filter.searchTerm"
+									   label-key="placeholders_filter"
+									   text="Type to filter...">
+					</umb-search-filter>
+				</umb-editor-sub-header-content-right>
+			</umb-editor-sub-header>
+
 			<table class="table table-hover" ng-if="!vm.loading">
 				<thead>
 					<tr>
@@ -19,6 +28,7 @@
 							View name
 							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Name'"></umb-icon>
 						</th>
+
 						<th class="clickable-th" ng-click="vm.sort('Type')">
 							Type
 							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Type'"></umb-icon>
@@ -42,7 +52,7 @@
 				</thead>
 				<tbody>
 				<tbody>
-					<tr ng-repeat="view in vm.views" ng-click="vm.clickedView(view.Id)">
+					<tr ng-repeat="view in vm.views | orderBy: vm.sorted:vm.reverse | filter: { 'Name': vm.filter.searchTerm }" ng-click="vm.clickedView(view.Id)">
 						<td>{{view.Name}}</td>
 						<td>{{view.Type}}</td>
 						<td>{{view.Path}}</td>
