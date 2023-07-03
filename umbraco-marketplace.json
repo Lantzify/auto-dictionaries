@@ -1,0 +1,37 @@
+{
+    "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+    "AuthorDetails": {
+        "Name": "Lantzify",
+        "ImageUrl": "https://github.com/lantzify.png "
+    },
+    "Category": "Translations",
+    "PackageType": "Package",
+    "LicenseTypes": [
+        "Free"
+    ],
+    "Title": "Auto dictionaries",
+    "Description": "Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.",
+    "IssueTrackerUrl": "https://github.com/Lantzify/auto-dictionaries/issues",
+    "PackagesByAuthor": [
+        "uSupport",
+        "UmbracoNaviHideIcon"
+    ],
+    "Screenshots": [
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/overview.PNG",
+            "Caption": "Overview"
+        },
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/edit.PNG",
+            "Caption": "Edit"
+        },
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/select.PNG",
+            "Caption": "Select"
+        },
+                {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/generate.gif",
+            "Caption": "Short demo"
+        }
+    ]
+}
