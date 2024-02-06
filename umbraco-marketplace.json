@@ -10,7 +10,7 @@
         "Free"
     ],
     "Title": "Auto dictionaries",
-    "Description": "Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.",
+    "Description": "Auto dictionaries is a Umbraco package made to help automate the process of replacing static content in templates with dictionary items.",
     "IssueTrackerUrl": "https://github.com/Lantzify/auto-dictionaries/issues",
     "PackagesByAuthor": [
         "uSupport",
