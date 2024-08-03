@@ -2,37 +2,22 @@
 
 	var vm = this;
 
-	vm.loading = true;
-	vm.sortOrder = {};
-
 	vm.page = {
 		title: "Auto dictionaries",
-		description: "Overview of all avaible views to genarte dictionaries to."
+		description: "Overview of all avaible views to genarte dictionaries to.",
+		navigation: [{
+			name: "Overview",
+			alias: "overview",
+			icon: "icon-book",
+			view: "/App_Plugins/AutoDictionaries/backoffice/autoDictionaries/apps/overview/overview.html",
+			active: true
+		},
+		{
+			name: "Settings",
+			alias: "settings",
+			icon: "icon-settings",
+			view: "/App_Plugins/AutoDictionaries/backoffice/autoDictionaries/apps/settings/overview.html",
+			active: false
+		}]
 	};
-
-	//Table
-	vm.views = [];
-
-	vm.options = {
-		includeProperties: [
-			{ alias: "staticcontent.Count", header: "Static content" },
-			{ alias: "dictionaries.Count", header: "Dictionary Values" }
-		]
-	};
-
-	vm.clickedView = function (id) {
-		$location.path("/translation/autoDictionaries/edit/" + id);
-	};
-
-	vm.sort = function (columnName) {
-		vm.sortOrder.column = columnName;
-		vm.sortOrder.reverse = !vm.sortOrder.reverse;
-
-		vm.views = $filter("orderBy")(vm.views, vm.sortOrder.column, vm.sortOrder.reverse);
-	};
-
-	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllViews").then(function (response) {
-		vm.loading = false;
-		vm.views = response.data;
-	});
 });

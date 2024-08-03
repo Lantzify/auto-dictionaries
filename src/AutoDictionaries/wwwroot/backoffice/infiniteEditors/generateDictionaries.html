@@ -32,7 +32,31 @@
 		</umb-editor-container>
 
 		<umb-editor-footer>
-			<umb-editor-footer-content-right>
+			<umb-editor-footer-content-left ng-if="model.allowTranslate">
+				<umb-button type="button"
+							button-style="link"
+							label-key="general_close"
+							shortcut="esc"
+							action="vm.close()">
+				</umb-button>
+			</umb-editor-footer-content-left>
+
+			<umb-editor-footer-content-right ng-if="model.allowTranslate">
+				<umb-button type="button"
+							button-style="secondary"
+							label="Generate"
+							state="vm.buttonState"
+							action="vm.submit('false')">
+				</umb-button>
+				<umb-button type="button"
+							button-style="success"
+							label="Generate and Translate"
+							state="vm.buttonState"
+							action="vm.submit('true')">
+				</umb-button>
+			</umb-editor-footer-content-right>
+
+			<umb-editor-footer-content-right ng-if="!model.allowTranslate">
 				<umb-button type="button"
 							button-style="link"
 							label-key="general_close"

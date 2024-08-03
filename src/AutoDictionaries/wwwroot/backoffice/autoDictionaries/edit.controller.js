@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($http, $route, $routeParams, $location, editorService) {
+﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($q, $http, $route, $routeParams, $location, editorService) {
 
 	var vm = this;
 	vm.loading = true;
@@ -8,18 +8,21 @@
 	vm.selectedContent = [];
 	vm.allDictionaryItems = []
 
-	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetView?id=" + $routeParams.id).then(function (response) {
+	$q.all({
+		getTranslateSetting: $http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetTranslateSetting"),
+		getView: $http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetView?id=" + $routeParams.id),
+		getAllDictionaryItems: $http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllDictionaryItems"),
+	}).then(function (promises) {
 
-		vm.view = response.data;
+		vm.view = promises.getView.data;
 		vm.loading = false;
 		vm.page = {
 			title: "Edit " + vm.view.Name + " dictionaries",
 			description: "Edit view dictionaries."
 		};
-	});
 
-	$http.get("/umbraco/backoffice/api/AutoDictionariesApi/GetAllDictionaryItems").then(function (response) {
-		vm.allDictionaryItems = response.data;
+		vm.allowTranslate = promises.getTranslateSetting.data;
+		vm.allDictionaryItems = promises.getAllDictionaryItems.data;
 	});
 
 	vm.clearSelection = function () {
@@ -76,6 +79,7 @@
 			size: "medium",
 			selectedContent: vm.selectedContent,
 			autoDictionariesModel: vm.view,
+			allowTranslate: vm.allowTranslate,
 			submit: function () {
 				editorService.close();
 				$route.reload();

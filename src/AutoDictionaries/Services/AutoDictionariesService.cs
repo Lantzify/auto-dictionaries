@@ -1,27 +1,36 @@
-﻿using System;
-using System.Linq;
-using Umbraco.Cms.Core.Models;
+﻿using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
-using System.Collections.Generic;
 using AutoDictionaries.Core.Dtos;
 using Microsoft.AspNetCore.Hosting;
 using AutoDictionaries.Core.Models;
 using System.Text.RegularExpressions;
 using AutoDictionaries.Core.Services.Interfaces;
+using AutoDictionaries.Models;
+using Microsoft.Extensions.Options;
 
 namespace AutoDictionaries.Core.Services
 {
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
 		private readonly int _languageCount;
-		private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 		private readonly List<DictionaryModel> _dictionaryItems;
 		private readonly ILocalizationService _localizationService;
+		private readonly IOptions<AutoDictionariesSettings> _adSettings;
 
-		public AutoDictionariesService(ILocalizationService localizationService, IWebHostEnvironment webHostEnvironment)
+		public bool GetTranslateSetting() => _adSettings.Value.Translate;
+		public string GetTranslatorSetting() => _adSettings?.Value?.Translator ?? string.Empty;
+        public string GetApiEndpoint() => _adSettings?.Value?.ApiEndpoint ?? string.Empty;
+        public string GetApiKey() => _adSettings?.Value?.ApiKey ?? string.Empty;
+        public string GetApiRegion() => _adSettings?.Value?.ApiRegion ?? string.Empty;
+
+        public AutoDictionariesService(ILocalizationService localizationService, 
+			IWebHostEnvironment webHostEnvironment,
+            IOptions<AutoDictionariesSettings> adSettings)
 		{
 			_webHostEnvironment = webHostEnvironment;
-			_localizationService = localizationService;
+            _adSettings = adSettings;
+            _localizationService = localizationService;
 			_dictionaryItems = GetAllDictionaryItems();
 			_languageCount = _localizationService.GetAllLanguages().Count();
 		}
@@ -66,6 +75,7 @@ namespace AutoDictionaries.Core.Services
 			var dictionaries = Regex.Matches(viewContent, @"(?<=GetDictionaryValue[(])(.*)(?=[)])");
 			var listDictionariesModel = GetDictionaryItems(dictionaries.Cast<Match>()
 													.Select(m => m.Value)
+													.Distinct()
 													.ToArray());
 
 			if (listDictionariesModel != null && listDictionariesModel.Any())
@@ -156,7 +166,19 @@ namespace AutoDictionaries.Core.Services
 			return MapToDictionaryModel(_localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
 		}
 
-		public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
+        public DictionaryModel CreateDictionaryItem(string dictionaryName, List<TranslateModel> translations, int? parentId = null)
+        {
+			var dictionaryItem = _localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid);
+
+			foreach(var translation in translations)
+				_localizationService.AddOrUpdateDictionaryValue(dictionaryItem, translation.Language, translation.TranslatedText);
+
+            _localizationService.Save(dictionaryItem);
+
+            return MapToDictionaryModel(dictionaryItem);
+        }
+
+        public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
 		{
 			string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
             foreach (var item in staticContent)

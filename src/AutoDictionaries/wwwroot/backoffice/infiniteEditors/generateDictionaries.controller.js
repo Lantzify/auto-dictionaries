@@ -20,19 +20,25 @@
 	vm.generatingPercentage = 0;
 	vm.percentage = 100 / $scope.model.selectedContent.length;
 
-	vm.submit = function () {
+	vm.submit = function (shouldTranslate) {
 
 		vm.buttonState = "busy";
 
+		vm.formData = {
+			autoDictionariesModel: $scope.model.autoDictionariesModel,
+		}
+
+		if ($scope.model.allowTranslate) {
+			vm.formData.tanslate = shouldTranslate;
+		}
+
 		(function generateDictionary(staticContent) {
+			vm.formData.staticContent = staticContent;
 			vm.currentlyGenerating = staticContent.StaticContent;
 			$http({
 				url: "/umbraco/backoffice/api/AutoDictionariesApi/AddNewDictionaryItemToView",
 				method: "POST",
-				data: {
-					autoDictionariesModel: $scope.model.autoDictionariesModel,
-					staticContent: staticContent
-				}
+				data: vm.formData
 			}).then(function (response) {
 				if (response.data) {
 

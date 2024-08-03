@@ -3,10 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<StaticWebAssetBasePath>App_Plugins/AutoDictionaries</StaticWebAssetBasePath>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 
 	<ItemGroup>
+		<PackageReference Include="DeepL.net" Version="1.9.0" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="13.0.0" />
 		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.0.0" />
 	</ItemGroup>

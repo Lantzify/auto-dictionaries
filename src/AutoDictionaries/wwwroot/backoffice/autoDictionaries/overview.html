@@ -5,73 +5,13 @@
 						   name-locked="true"
 						   hide-icon="true"
 						   hide-alias="true"
-						   description-locked="true">
+						   description-locked="true"
+						   navigation="vm.page.navigation">
 		</umb-editor-header>
 
 		<umb-editor-container>
 
-			<umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
-			
-			<umb-editor-sub-header>
-				<umb-editor-sub-header-content-right>
-					<umb-search-filter model="vm.filter.searchTerm"
-								label-key="placeholders_filter"
-								text="Type to filter...">
-					</umb-search-filter>
-				</umb-editor-sub-header-content-right>
-			</umb-editor-sub-header>
-			
-			<table class="table table-hover" ng-if="!vm.loading">
-				<thead>
-					<tr>
-						<th class="clickable-th" ng-click="vm.sort('Name')">
-							View name
-							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Name'"></umb-icon>
-						</th>
-
-						<th class="clickable-th" ng-click="vm.sort('Type')">
-							Type
-							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Type'"></umb-icon>
-						</th>
-						<th>
-							Path
-						</th>
-						<th class="clickable-th" ng-click="vm.sort('StaticContent')">
-							Static content
-							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'StaticContent'"></umb-icon>
-						</th>
-						<th class="clickable-th" ng-click="vm.sort('Dictionaries')">
-							Dictionaries
-							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'Dictionaries'"></umb-icon>
-						</th>
-						<th class="clickable-th" ng-click="vm.sort('MatchDictionaries')">
-							Match dictionaries
-							<umb-icon icon="{{vm.sortOrder.reverse ? 'icon-navigation-up' : 'icon-navigation-down'}}" ng-if="vm.sortOrder.column == 'MatchDictionaries'"></umb-icon>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-				<tbody>
-					<tr ng-repeat="view in vm.views | orderBy: vm.sorted:vm.reverse | filter: { 'Name': vm.filter.searchTerm }" ng-click="vm.clickedView(view.Id)">
-						<td>{{view.Name}}</td>
-						<td>{{view.Type}}</td>
-						<td>{{view.Path}}</td>
-						<td>
-							<span ng-if="view.StaticContent.length">{{view.StaticContent.length}}</span>
-							<umb-icon ng-if="!view.StaticContent.length" icon="icon-check"></umb-icon>
-							<umb-icon ng-if="view.StaticContent.length" title="Static content exists in view" icon="icon-alert"></umb-icon>
-						</td>
-						<td>
-							<span ng-if="view.Dictionaries.length">{{view.Dictionaries.length}}</span>
-							<umb-icon ng-if="!view.StaticContent.length" icon="icon-check"></umb-icon>
-							<umb-icon ng-if="view.StaticContent.length" title="More dictionaries can be used in view" icon="icon-alert"></umb-icon>
-						</td>
-						<td>
-							<span ng-if="view.MatchDictionaries != 0">{{view.MatchDictionaries}}</span>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<umb-editor-sub-views sub-views="vm.page.navigation" model="vm"></umb-editor-sub-views>
 
 		</umb-editor-container>
 
