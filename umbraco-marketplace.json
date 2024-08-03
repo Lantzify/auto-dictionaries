@@ -19,19 +19,23 @@
     ],
     "Screenshots": [
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/overview.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/dashboard.PNG",
             "Caption": "Overview"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/edit.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/settings.PNG",
+            "Caption": "Settings"
+        },
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/edit.PNG",
             "Caption": "Edit"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/select.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/select.PNG",
             "Caption": "Select"
         },
                 {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v8/main/assets/generate.gif",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/generate.gif",
             "Caption": "Short demo"
         }
     ]
