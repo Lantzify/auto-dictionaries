@@ -13,8 +13,6 @@ Auto dictionaries is a Umbraco package made for v8+. Made to help automate the p
 Auto Dictionaries uses a regular expression to find "static content" between HTML tags. When "static content" is found, it checks if the content matches any value in an existing dictionary item. If a match is found, you can choose to associate it with the existing dictionary. It will then insert the dictionary item. If no match is found, it will create a new dictionary item and insert it into the template. If the translation setting is enabled and correctly setup. The "static content" will be translated into all available langues that has been setup in Umbraco.
 
 ![demo](assets/demo.gif)
-![preview](assets/generate.gif)
-
 
 ### Settings
 Default settings are:
@@ -61,6 +59,8 @@ Login details:
 If you find any issues with the package feel free to raise a issue!
 
 ## Screenshots
+
+![preview](assets/generate.gif)
 
 ![preview](assets/dashboard.PNG)
 

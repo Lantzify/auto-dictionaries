@@ -99,12 +99,12 @@ namespace AutoDictionaries.Services
                             if (response.IsSuccessStatusCode)
                             {
                                 string stringResult = await response.Content.ReadAsStringAsync();
-                                var result = JsonConvert.DeserializeObject<TranslationResponse>(stringResult);
+                                var result = JsonConvert.DeserializeObject<List<TranslationResponse>>(stringResult);
 
                                 translations.Add(new TranslateModel
                                 {
                                     Language = lang,
-                                    TranslatedText = result?.Translations.FirstOrDefault()?.Text
+                                    TranslatedText = result.FirstOrDefault()?.Translations.FirstOrDefault()?.Text
                                 });
                             }
                         }
