@@ -14,10 +14,14 @@
     "IssueTrackerUrl": "https://github.com/Lantzify/auto-dictionaries/issues",
     "PackagesByAuthor": [
         "uSupport",
-        "Auto block list",
+        "AutoBlockList",
         "UmbracoNaviHideIcon"
     ],
     "Screenshots": [
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/demo.gif",
+            "Caption": "Quick demo"
+        },
         {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/dashboard.PNG",
             "Caption": "Overview"
