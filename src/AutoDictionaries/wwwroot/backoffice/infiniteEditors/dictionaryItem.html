@@ -21,12 +21,20 @@
 		</umb-editor-container>
 
 		<umb-editor-footer>
-			<umb-editor-footer-content-right>
+			<umb-editor-footer-content-left>
 				<umb-button type="button"
 							button-style="link"
 							label-key="general_close"
 							shortcut="esc"
 							action="vm.close()">
+				</umb-button>
+			</umb-editor-footer-content-left>
+
+			<umb-editor-footer-content-right>
+				<umb-button type="button"
+							button-style="secondary"
+							label="Translate missing"
+							action="vm.translate(model)">
 				</umb-button>
 				<umb-button type="button"
 							button-style="success"

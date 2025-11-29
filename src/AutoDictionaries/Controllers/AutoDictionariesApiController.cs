@@ -1,32 +1,37 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using AutoDictionaries.Core.Models;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using AutoDictionaries.Core.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace AutoDictionaries.Core.Controllers
 {
     public class AutoDictionariesApiController : UmbracoAuthorizedApiController
     {
-        private readonly ILogger<AutoDictionariesApiController> _logger;
+		
+		private readonly ILogger<AutoDictionariesApiController> _logger;
         private readonly IShortStringHelper _shortStringHelper;
         private readonly IADTemplateService _adTemplateService;
-        private readonly IADTranslationService _adTranslationService;
+		private readonly ILocalizationService _localizationService;
+		private readonly IADTranslationService _adTranslationService;
         private readonly IADPartialViewService _adPartialViewService;
         private readonly IAutoDictionariesService _autoDictionariesService;
         
         public AutoDictionariesApiController(ILogger<AutoDictionariesApiController> logger,
             IShortStringHelper shortStringHelper, 
             IADTemplateService adTemplateService,
-            IADTranslationService adTranslationService,
+			ILocalizationService localizationService,
+			IADTranslationService adTranslationService,
             IADPartialViewService adPartialViewService,
             IAutoDictionariesService autoDictionariesService)
         {
             _logger = logger;
             _shortStringHelper = shortStringHelper;
             _adTemplateService = adTemplateService;
+            _localizationService = localizationService;
             _adTranslationService = adTranslationService;
             _adPartialViewService = adPartialViewService;
             _autoDictionariesService = autoDictionariesService;
@@ -152,6 +157,44 @@ namespace AutoDictionaries.Core.Controllers
             return true;
         }
 
+        public bool TranslateDictionaryItem(int id)
+        {
+            try
+            {
+                var defaultLang = _localizationService.GetDefaultLanguageIsoCode();
+
+                var item = _localizationService.GetDictionaryItemById(id);
+                
+                var defaultText = item.Translations.FirstOrDefault(x => x.LanguageIsoCode == defaultLang);
+
+                if (string.IsNullOrEmpty(defaultText.Value))
+					return false;
+
+
+                var translations = _adTranslationService.Translate(defaultText.Value);
+
+                var fieldsWithNoTranslations = item.Translations.Where(x => string.IsNullOrEmpty(x.Value));
+                foreach (var field in fieldsWithNoTranslations)
+                {
+                    var matchingTranslaion = translations.FirstOrDefault(x => x.Language.IsoCode == field.LanguageIsoCode);
+                    if (matchingTranslaion == null)
+                        return false;
+
+                    if(string.IsNullOrEmpty(field.Value))
+                        field.Value = matchingTranslaion.TranslatedText;
+                }
+
+                _localizationService.Save(item);
+			}
+            catch (Exception ex)
+            {
+				_logger.LogError(ex, "Failed to translate dictionary item {0}", ex.Message);
+				return false;
+			}
+
+            return true;
+        }
+
         [HttpGet]
         public bool GetTranslateSetting() => _autoDictionariesService.GetTranslateSetting();
 
@@ -197,5 +240,6 @@ namespace AutoDictionaries.Core.Controllers
 
             return pathContent;
         }
+
     }
 }

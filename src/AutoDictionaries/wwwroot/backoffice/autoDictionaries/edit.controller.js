@@ -1,4 +1,9 @@
-﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($q, $http, $route, $routeParams, $location, editorService) {
+﻿angular.module("umbraco").controller("autoDictionaries.edit.controller", function ($q,
+	$http,
+	$route,
+	$routeParams,
+	$location,
+	editorService) {
 
 	var vm = this;
 	vm.loading = true;
@@ -152,6 +157,7 @@
 			dictionaryId: dictionaryId,
 			submit: function () {
 				editorService.close();
+				$route.reload();
 			},
 			close: function () {
 				editorService.close();

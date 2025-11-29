@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("dictionaryItem.edit.controller", function ($scope, dictionaryResource) {
+﻿angular.module("umbraco").controller("dictionaryItem.edit.controller", function ($http, $scope, notificationsService, dictionaryResource) {
 
 	var vm = this;
 	vm.properties = [];
@@ -17,6 +17,20 @@
 			});
 		});
 	});
+
+	vm.translate = function () {
+		$http.get("/umbraco/backoffice/api/AutoDictionariesApi/TranslateDictionaryItem?id=" + vm.dictionaryItem.id).then(function (response) {
+			if (response.data) {
+				notificationsService.success("Dictionaries", "Successfully translated dictionary item!");
+				if ($scope.model.submit) {
+					$scope.model.submit($scope.model);
+				}
+			} else {
+				notificationsService.error("Dictionaries", "Failed to translate dictionary item");
+				$scope.model.close();
+			}
+		});
+	}
 
 	vm.submit = function () {
 		vm.dictionaryItem.translations.forEach(function (translation, index) {

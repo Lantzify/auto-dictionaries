@@ -35,7 +35,7 @@ namespace AutoDictionaries.Services
         {
             var translator = new Translator(_autoDictionariesService.GetApiKey());
 
-            string defaultLangISOCode = string.Empty;
+            string defaultLangISOCode = _localizationService.GetDefaultLanguageIsoCode();
 
             List<TranslateModel> translations = new List<TranslateModel>();
 
@@ -57,8 +57,6 @@ namespace AutoDictionaries.Services
                 }
                 else
                 {
-                    defaultLangISOCode = lang.CultureInfo.TwoLetterISOLanguageName;
-
                     translations.Add(new TranslateModel
                     {
                         Language = lang,
