@@ -1,11 +1,11 @@
-﻿using AutoDictionaries.Core.Services.Interfaces;
-using AutoDictionaries.Dtos;
-using AutoDictionaries.Models;
-using DeepL;
-using Microsoft.CodeAnalysis;
-using Newtonsoft.Json;
+﻿using DeepL;
 using System.Text;
+using Newtonsoft.Json;
+using AutoDictionaries.Dtos;
+using Microsoft.CodeAnalysis;
+using AutoDictionaries.Models;
 using Umbraco.Cms.Core.Services;
+using AutoDictionaries.Core.Services.Interfaces;
 
 namespace AutoDictionaries.Services
 {
@@ -35,7 +35,7 @@ namespace AutoDictionaries.Services
         {
             var translator = new Translator(_autoDictionariesService.GetApiKey());
 
-            var defaultLangISOCode = _localizationService.GetDefaultLanguageIsoCode().Split("-").First();
+            string defaultLangISOCode = string.Empty;
 
             List<TranslateModel> translations = new List<TranslateModel>();
 
@@ -44,9 +44,10 @@ namespace AutoDictionaries.Services
 
                 if (!lang.IsDefault)
                 {
-                    var translatedText = await translator.TranslateTextAsync(textToTranslate,
+                    string iso = lang.CultureInfo.TwoLetterISOLanguageName;
+					var translatedText = await translator.TranslateTextAsync(textToTranslate,
                         defaultLangISOCode,
-                        lang.IsoCode.Split("-").First());
+                        string.Format("{0}{1}", iso, iso == "en" ? "-US" : string.Empty));
 
                     translations.Add(new TranslateModel
                     {
@@ -56,6 +57,8 @@ namespace AutoDictionaries.Services
                 }
                 else
                 {
+                    defaultLangISOCode = lang.CultureInfo.TwoLetterISOLanguageName;
+
                     translations.Add(new TranslateModel
                     {
                         Language = lang,
