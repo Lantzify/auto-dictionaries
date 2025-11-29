@@ -33,7 +33,7 @@
 
 		<ContentTargetFolders>content</ContentTargetFolders>
 
-		<PackageOutputPath>../../build/Release</PackageOutputPath>
+		<PackageOutputPath>build/Release</PackageOutputPath>
 
 	</PropertyGroup>
 
