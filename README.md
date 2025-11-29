@@ -38,6 +38,9 @@ Right now the services below are built in with Auto dictionaries. Thease are how
  - Requires a DeepL Account and API Key 
 
  [Create Free API Account](https://www.deepl.com/en/pro/change-plan?cta=apiDocsHeader#developer)
+ 
+ Only need to add ``ApiKey`` no need to add ``ApiEndpoint``
+
 
 #### Microsoft Translation
 - Requires a microsoft azure account 
