@@ -23,6 +23,10 @@
             "Caption": "Quick demo"
         },
         {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/translate_existing.gif",
+            "Caption": "Quick demo"
+        },
+        {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/dashboard.PNG",
             "Caption": "Overview"
         },
