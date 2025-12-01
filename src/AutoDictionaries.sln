@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoDictionaries", "AutoDic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoDictionaries.Web", "AutoDictionaries.Web\AutoDictionaries.Web.csproj", "{F5F204A9-DCD0-4AC7-AE03-689D51058CA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoDictionaries.Tests", "AutoDictionaries.Tests\AutoDictionaries.Tests.csproj", "{BF8F50C0-1AA4-432F-BA66-DF07BBDFBC34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F5F204A9-DCD0-4AC7-AE03-689D51058CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5F204A9-DCD0-4AC7-AE03-689D51058CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5F204A9-DCD0-4AC7-AE03-689D51058CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF8F50C0-1AA4-432F-BA66-DF07BBDFBC34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF8F50C0-1AA4-432F-BA66-DF07BBDFBC34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF8F50C0-1AA4-432F-BA66-DF07BBDFBC34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF8F50C0-1AA4-432F-BA66-DF07BBDFBC34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
