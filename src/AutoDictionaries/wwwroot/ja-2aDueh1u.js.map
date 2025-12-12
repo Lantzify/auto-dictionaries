@@ -1,0 +1,1 @@
+{"version":3,"file":"ja-2aDueh1u.js","sources":["../Client/src/localization/languages/ja.ts"],"sourcesContent":["export default {\r\n    autoDictionaries : {\r\n        overview: \"Overview\"\r\n    }\r\n};"],"names":["ja"],"mappings":"AAAA,MAAAA,IAAe;AAAA,EACX,kBAAmB;AAAA,IACf,UAAU;AAAA,EAAA;AAElB;"}

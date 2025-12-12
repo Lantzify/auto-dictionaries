@@ -1,30 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using AutoDictionaries.Core.Models;
 using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Web.BackOffice.Controllers;
+using Umbraco.Cms.Api.Common.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Web.Common.Authorization;
 using AutoDictionaries.Core.Services.Interfaces;
 
 namespace AutoDictionaries.Core.Controllers
 {
-    public class AutoDictionariesApiController : UmbracoAuthorizedApiController
+	[ApiController]
+	[ApiVersion("1.0")]
+    [MapToApi("autoDictionaries")]
+	[ApiExplorerSettings(GroupName = "autoDictionaries")]
+	[Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
+	public class AutoDictionariesApiController : Controller
     {
-		
-		private readonly ILogger<AutoDictionariesApiController> _logger;
+
+        private readonly ILogger<AutoDictionariesApiController> _logger;
         private readonly IShortStringHelper _shortStringHelper;
         private readonly IADTemplateService _adTemplateService;
-		private readonly ILocalizationService _localizationService;
-		private readonly IADTranslationService _adTranslationService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IADTranslationService _adTranslationService;
         private readonly IADPartialViewService _adPartialViewService;
         private readonly IAutoDictionariesService _autoDictionariesService;
-        
+
         public AutoDictionariesApiController(ILogger<AutoDictionariesApiController> logger,
-            IShortStringHelper shortStringHelper, 
+            IShortStringHelper shortStringHelper,
             IADTemplateService adTemplateService,
-			ILocalizationService localizationService,
-			IADTranslationService adTranslationService,
+            ILocalizationService localizationService,
+            IADTranslationService adTranslationService,
             IADPartialViewService adPartialViewService,
             IAutoDictionariesService autoDictionariesService)
         {
@@ -37,18 +45,25 @@ namespace AutoDictionaries.Core.Controllers
             _autoDictionariesService = autoDictionariesService;
         }
 
-        [HttpGet]
-        public List<AutoDictionariesModel> GetAllViews() => _adTemplateService.GetAllTemplates().Concat(_adPartialViewService.GetAllPartialViews()).OrderBy(x => x.Name).ToList();
-
-        [HttpGet]
-        public AutoDictionariesModel GetView(int id)
+        [HttpGet("get-all-views")]
+        public async Task<List<AutoDictionariesModel>> GetAllViews() 
         {
-            var template = _adTemplateService.GetTemplate(id);
+            var templates = await _adTemplateService.GetAllTemplates();
+            var partialViews = await _adPartialViewService.GetAllPartialViews();
+
+            return templates.Concat(partialViews).OrderBy(x => x.Name).ToList();
+		}
+		
+
+        [HttpGet("get-view/{id}")]
+        public async Task<AutoDictionariesModel> GetView(int id)
+        {
+            var template = await _adTemplateService.GetTemplate(id);
 
             if (template != null)
                 return template;
 
-            var partialView = _adPartialViewService.GetPartialView(id);
+            var partialView = await _adPartialViewService.GetPartialView(id);
 
             if (partialView != null)
                 return partialView;
@@ -56,18 +71,22 @@ namespace AutoDictionaries.Core.Controllers
             return null;
         }
 
-        [HttpGet]
-        public List<DictionaryModel> GetAllDictionaryItems() => _autoDictionariesService.GetAllDictionaryItems();
+        [HttpGet("get-all-dictionary-items")]
+        public async Task<List<DictionaryModel>> GetAllDictionaryItems() => await _autoDictionariesService.GetAllDictionaryItems();
 
-        [HttpGet]
-        public string GetPreview(string id) => _adTemplateService.GetUmbracoTemplate(int.Parse(id)).Content;
-
-
-        [HttpPost]
-        public string[] PreviewAddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
+        [HttpGet("get-preview/{id}")]
+        public async Task<string> GetPreview(string id) 
         {
-            var dictionary = _autoDictionariesService.GetDictionaryItem(dto.DictionaryId);
-            PathContentDto pathContent = GetPathAndContentFromView(dto.AutoDictionariesModel);
+            var template = await _adTemplateService.GetUmbracoTemplate(int.Parse(id));
+			return template?.Content ?? "";
+		} 
+
+
+        [HttpPost("preview-add-existing-dictionary-item")]
+        public async Task<string[]> PreviewAddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
+        {
+            var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
+            PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
             List<StaticContentDto> staticContent = new List<StaticContentDto>()
             {
@@ -85,13 +104,13 @@ namespace AutoDictionaries.Core.Controllers
             };
         }
 
-        [HttpPost]
-        public bool AddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
+        [HttpPost("add-existing-dictionary-item")]
+        public async Task<bool> AddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
         {
             try
             {
-                var dictionary = _autoDictionariesService.GetDictionaryItem(dto.DictionaryId);
-                PathContentDto pathContent = GetPathAndContentFromView(dto.AutoDictionariesModel);
+                var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
+                PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
                 if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent))
                 {
@@ -107,13 +126,13 @@ namespace AutoDictionaries.Core.Controllers
             return true;
         }
 
-        [HttpPost]
-        public string[] PreviewAddNewDictionaryItemToView(PreviewAddNewDictionaryItemToViewDto dto)
+        [HttpPost("preview-add-new-dictionary-item")]
+        public async Task<string[]> PreviewAddNewDictionaryItemToView(PreviewAddNewDictionaryItemToViewDto dto)
         {
             foreach (var staticContent in dto.StaticContent)
                 staticContent.SafeAlias = $"{(staticContent.Parent != "0" ? staticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(staticContent.StaticContent)}";
 
-            PathContentDto pathContent = GetPathAndContentFromView(dto.AutoDictionariesModel);
+            PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
             return new string[]
             {
@@ -122,8 +141,8 @@ namespace AutoDictionaries.Core.Controllers
             };
         }
 
-        [HttpPost]
-        public bool AddNewDictionaryItemToView(AddNewDictionaryItemToViewDto dto)
+        [HttpPost("add-new-dictionary-item")]
+        public async Task<bool> AddNewDictionaryItemToView(AddNewDictionaryItemToViewDto dto)
         {
             try
             {
@@ -132,21 +151,21 @@ namespace AutoDictionaries.Core.Controllers
                 DictionaryModel dictionary;
 
 
-                if (!dto.Tanslate)
-                {
-                    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, parent?.Id);
-                }
-                else
-                {
-                    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, _adTranslationService.Translate(dto.StaticContent.StaticContent), parent?.Id);
-                }
+                //if (!dto.Tanslate)
+                //{
+                //    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, parent?.Id);
+                //}
+                //else
+                //{
+                //    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, _adTranslationService.Translate(dto.StaticContent.StaticContent), parent?.Id);
+                //}
 
-                PathContentDto pathContent = GetPathAndContentFromView(dto.AutoDictionariesModel);
+                PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
-                {
-                    return false;
-                }
+                //if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
+                //{
+                //    return false;
+                //}
             }
             catch (Exception ex)
             {
@@ -157,6 +176,7 @@ namespace AutoDictionaries.Core.Controllers
             return true;
         }
 
+        [HttpGet("translate-dictionary-item/{id}")]
         public bool TranslateDictionaryItem(int id)
         {
             try
@@ -164,11 +184,11 @@ namespace AutoDictionaries.Core.Controllers
                 var defaultLang = _localizationService.GetDefaultLanguageIsoCode();
 
                 var item = _localizationService.GetDictionaryItemById(id);
-                
+
                 var defaultText = item.Translations.FirstOrDefault(x => x.LanguageIsoCode == defaultLang);
 
                 if (string.IsNullOrEmpty(defaultText.Value))
-					return false;
+                    return false;
 
 
                 var translations = _adTranslationService.Translate(defaultText.Value);
@@ -180,37 +200,37 @@ namespace AutoDictionaries.Core.Controllers
                     if (matchingTranslaion == null)
                         return false;
 
-                    if(string.IsNullOrEmpty(field.Value))
+                    if (string.IsNullOrEmpty(field.Value))
                         field.Value = matchingTranslaion.TranslatedText;
                 }
 
                 _localizationService.Save(item);
-			}
+            }
             catch (Exception ex)
             {
-				_logger.LogError(ex, "Failed to translate dictionary item {0}", ex.Message);
-				return false;
-			}
+                _logger.LogError(ex, "Failed to translate dictionary item {0}", ex.Message);
+                return false;
+            }
 
             return true;
         }
 
-        [HttpGet]
+        [HttpGet("get-translate-setting")]
         public bool GetTranslateSetting() => _autoDictionariesService.GetTranslateSetting();
 
-        [HttpGet]
+        [HttpGet("get-translator-setting")]
         public string GetTranslatorSetting() => _autoDictionariesService.GetTranslatorSetting();
 
-        [HttpGet]
+        [HttpGet("get-api-key")]
         public string GetApiKey() => _autoDictionariesService.GetApiKey();
 
-        [HttpGet]
+        [HttpGet("get-api-endpoint")]
         public string GetApiEndpoint() => _autoDictionariesService.GetApiEndpoint();
 
-        [HttpGet]
+        [HttpGet("get-api-region")]
         public string GetApiRegion() => _autoDictionariesService.GetApiRegion();
 
-        private PathContentDto GetPathAndContentFromView(AutoDictionariesModel autoDictionariesModel)
+        private async Task<PathContentDto> GetPathAndContentFromView(AutoDictionariesModel autoDictionariesModel)
         {
             PathContentDto pathContent = new();
 
@@ -218,7 +238,7 @@ namespace AutoDictionaries.Core.Controllers
             {
                 case "Template":
 
-                    var template = _adTemplateService.GetUmbracoTemplate(autoDictionariesModel.Id);
+                    var template = await _adTemplateService.GetUmbracoTemplate(autoDictionariesModel.Id);
                     if (template != null)
                     {
                         pathContent.Path = template.VirtualPath;
@@ -228,7 +248,7 @@ namespace AutoDictionaries.Core.Controllers
                     break;
                 case "Partial view":
 
-                    var partialView = _adPartialViewService.GetUmbracoPartialView(autoDictionariesModel.Path);
+                    var partialView = await _adPartialViewService.GetUmbracoPartialView(autoDictionariesModel.Path);
                     if (partialView != null)
                     {
                         pathContent.Path = "/Views/Partials/" + partialView.Path;

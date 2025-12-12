@@ -1,0 +1,13 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "Auto Dictionaries",
+  "alias": "autoDictionaries",
+  "extensions": [
+    {
+      "type": "backofficeEntryPoint",
+      "name": "Auto dictionaries EntryPoint",
+      "alias": "autoDictionaries.entryPoint",
+      "js": "/App_Plugins/AutoDictionaries/autoDictionaries.js"
+    }
+  ]
+}

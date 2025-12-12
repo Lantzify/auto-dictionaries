@@ -1,79 +1,80 @@
 ﻿using Umbraco.Cms.Core.Models;
+using AutoDictionaries.Models;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using Microsoft.AspNetCore.Hosting;
 using AutoDictionaries.Core.Models;
+using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using AutoDictionaries.Core.Services.Interfaces;
-using AutoDictionaries.Models;
-using Microsoft.Extensions.Options;
 
-namespace AutoDictionaries.Core.Services
+namespace AutoDictionaries.Services
 {
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
 		private readonly int _languageCount;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-		private readonly List<DictionaryModel> _dictionaryItems;
-		private readonly ILocalizationService _localizationService;
+		private readonly ILanguageService _languageService;
+		private readonly IWebHostEnvironment _webHostEnvironment;
+		private readonly IDictionaryItemService _dictionaryItemService;
 		private readonly IOptions<AutoDictionariesSettings> _adSettings;
 
 		public bool GetTranslateSetting() => _adSettings.Value.Translate;
 		public string GetTranslatorSetting() => _adSettings?.Value?.Translator ?? string.Empty;
-        public string GetApiEndpoint() => _adSettings?.Value?.ApiEndpoint ?? string.Empty;
-        public string GetApiKey() => _adSettings?.Value?.ApiKey ?? string.Empty;
-        public string GetApiRegion() => _adSettings?.Value?.ApiRegion ?? string.Empty;
+		public string GetApiEndpoint() => _adSettings?.Value?.ApiEndpoint ?? string.Empty;
+		public string GetApiKey() => _adSettings?.Value?.ApiKey ?? string.Empty;
+		public string GetApiRegion() => _adSettings?.Value?.ApiRegion ?? string.Empty;
 
-        public AutoDictionariesService(ILocalizationService localizationService, 
+		public AutoDictionariesService(ILanguageService languageService,
 			IWebHostEnvironment webHostEnvironment,
-            IOptions<AutoDictionariesSettings> adSettings)
+			IOptions<AutoDictionariesSettings> adSettings,
+			IDictionaryItemService dictionaryItemService)
 		{
 			_webHostEnvironment = webHostEnvironment;
-            _adSettings = adSettings;
-            _localizationService = localizationService;
-			_dictionaryItems = GetAllDictionaryItems();
-			_languageCount = _localizationService.GetAllLanguages().Count();
+			_adSettings = adSettings;
+			_languageService = languageService;
+			_dictionaryItemService = dictionaryItemService;
+			//_languageCount = _languageService.GetAllLanguages().Count();
 		}
 
-		public List<DictionaryModel> GetAllDictionaryItems()
+		public async Task<List<DictionaryModel>> GetAllDictionaryItems()
 		{
 			List<DictionaryModel> dictionariesModel = new();
 
-			var dictionaries = _localizationService.GetRootDictionaryItems();
+			var dictionaries = await _dictionaryItemService.GetAtRootAsync();
 
 			if (dictionaries != null && dictionaries.Any())
 			{
 				foreach (var dictionary in dictionaries)
 				{
-					dictionariesModel.Add(GetDictionaryItem(dictionary.Id));
+					dictionariesModel.Add(await GetDictionaryItem(dictionary.Key));
 
-					GetChildrenDictionaryItems(dictionariesModel, dictionary.Key);
+					await GetChildrenDictionaryItems(dictionariesModel, dictionary.Key);
 				}
 			}
 
 			return dictionariesModel;
 		}
 
-		public void GetChildrenDictionaryItems(List<DictionaryModel> dictionariesModel, Guid dictionaryGuid)
+		public async Task GetChildrenDictionaryItems(List<DictionaryModel> dictionariesModel, Guid dictionaryGuid)
 		{
-			var dictionaries = _localizationService.GetDictionaryItemChildren(dictionaryGuid);
+			var dictionaries = await _dictionaryItemService.GetChildrenAsync(dictionaryGuid);
 
 			if (dictionaries != null && dictionaries.Any())
 			{
 				foreach (var dictionary in dictionaries)
 				{
-					dictionariesModel.Add(GetDictionaryItem(dictionary.Id));
+					dictionariesModel.Add(await GetDictionaryItem(dictionary.Key));
 
-					GetChildrenDictionaryItems(dictionariesModel, dictionary.Key);
+					await GetChildrenDictionaryItems(dictionariesModel, dictionary.Key);
 				}
 			}
 		}
 
-		public List<DictionaryModel> GetDictionariesFromView(string viewContent)
+		public async Task<List<DictionaryModel>> GetDictionariesFromView(string viewContent)
 		{
 			var dictionariesCount = Regex.Matches(viewContent, "GetDictionaryValue").Count;
 			var dictionaries = Regex.Matches(viewContent, @"(?<=GetDictionaryValue[(])(.*)(?=[)])");
-			var listDictionariesModel = GetDictionaryItems(dictionaries.Cast<Match>()
+			var listDictionariesModel = await GetDictionaryItems(dictionaries.Cast<Match>()
 													.Select(m => m.Value)
 													.Distinct()
 													.ToArray());
@@ -89,7 +90,7 @@ namespace AutoDictionaries.Core.Services
 			return listDictionariesModel;
 		}
 
-		public List<StaticContentModel> GetStaticContentFromView(string viewContent)
+		public async Task<List<StaticContentModel>> GetStaticContentFromView(string viewContent)
 		{
 			var staticContents = Regex.Matches(viewContent, @"(?<!(=>))(?<=>)(?![.,])([\s\w,.&?!'#\(]+)(.*?)")
 										.Cast<Match>()
@@ -109,23 +110,24 @@ namespace AutoDictionaries.Core.Services
 				{
 					Used = staticContent.Count(),
 					StaticContent = staticContent.Key,
-					Dictionary = GetDictionaryItemFromStaticContent(_dictionaryItems, staticContent.Key)
+					Dictionary = GetDictionaryItemFromStaticContent(await GetAllDictionaryItems(), staticContent.Key)
 				});
 			}
 
 			return staticContentModelList;
 		}
 
-		public DictionaryModel GetDictionaryItem(string dictionaryKey)
+		public async Task<DictionaryModel> GetDictionaryItem(string dictionaryKey)
 		{
-			return MapToDictionaryModel(_localizationService.GetDictionaryItemByKey(Regex.Replace(dictionaryKey, @"[\""]", "")));
-		}
-		public DictionaryModel GetDictionaryItem(int dictionaryId)
-		{
-			return MapToDictionaryModel(_localizationService.GetDictionaryItemById(dictionaryId));
+			return MapToDictionaryModel(await _dictionaryItemService.GetAsync(Regex.Replace(dictionaryKey, @"[\""]", "")));
 		}
 
-		public List<DictionaryModel> GetDictionaryItems(string[] dictionaryKeys)
+		public async Task<DictionaryModel> GetDictionaryItem(Guid dictionaryKey)
+		{
+			return MapToDictionaryModel(await _dictionaryItemService.GetAsync(dictionaryKey));
+		}
+
+		public async Task<List<DictionaryModel>> GetDictionaryItems(string[] dictionaryKeys)
 		{
 			List<DictionaryModel> dictionaryItems = new();
 
@@ -133,7 +135,7 @@ namespace AutoDictionaries.Core.Services
 			{
 				foreach (var dictionaryKey in dictionaryKeys)
 				{
-					var dictionaryItem = GetDictionaryItem(dictionaryKey);
+					var dictionaryItem = await GetDictionaryItem(dictionaryKey);
 
 					if (dictionaryItem != null)
 					{
@@ -161,43 +163,44 @@ namespace AutoDictionaries.Core.Services
 			return null;
 		}
 
-		public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
-		{
-			return MapToDictionaryModel(_localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
-		}
+		// ID NOT USABLE
+		//public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
+		//{
+		//	return MapToDictionaryModel(_dictionaryItemService.CreateAsync(dictionaryName, await GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
+		//}
 
-        public DictionaryModel CreateDictionaryItem(string dictionaryName, List<TranslateModel> translations, int? parentId = null)
-        {
-			var dictionaryItem = _localizationService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid);
+		//public async Task<DictionaryModel> CreateDictionaryItem(string dictionaryName, List<TranslateModel> translations, int? parentId = null)
+		//{
+		//	var dictionaryItem = _dictionaryItemService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid);
 
-			foreach(var translation in translations)
-				_localizationService.AddOrUpdateDictionaryValue(dictionaryItem, translation.Language, translation.TranslatedText);
+		//	foreach (var translation in translations)
+		//		_localizationService.AddOrUpdateDictionaryValue(dictionaryItem, translation.Language, translation.TranslatedText);
 
-            _localizationService.Save(dictionaryItem);
+		//	await _dictionaryItemService.UpdateAsync(dictionaryItem);
 
-            return MapToDictionaryModel(dictionaryItem);
-        }
+		//	return MapToDictionaryModel(dictionaryItem);
+		//}
 
-        public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
+		public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
 		{
 			string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
-            foreach (var item in staticContent)
+			foreach (var item in staticContent)
 			{
-                string insert = $"@Umbraco.GetDictionaryValue(\"{item.SafeAlias}\")";
-                var regex = @"(?<=>|)(" + item.StaticContent + @"+)(?=\s|<\/)";
+				string insert = $"@Umbraco.GetDictionaryValue(\"{item.SafeAlias}\")";
+				var regex = @"(?<=>|)(" + item.StaticContent + @"+)(?=\s|<\/)";
 
-                var staticContentInView = Regex.Matches(viewContent, regex)
-                                            .Cast<Match>()
-                                            .Select(m => m.Value)
-                                            .ToList();
-                if (staticContentInView.Any())
-                    text = Regex.Replace(text, regex, insert);  
-            }
+				var staticContentInView = Regex.Matches(viewContent, regex)
+											.Cast<Match>()
+											.Select(m => m.Value)
+											.ToList();
+				if (staticContentInView.Any())
+					text = Regex.Replace(text, regex, insert);
+			}
 
-            return text;
-        }
+			return text;
+		}
 
-        public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
+		public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
 		{
 			string insert = $"@Umbraco.GetDictionaryValue(\"{dictionary.Key}\")";
 			var regex = @"(?<=>|)(" + staticContent + @"+)(?=\s|<\/)";

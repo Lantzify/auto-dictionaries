@@ -1,0 +1,13 @@
+{
+  "name": "auto-dictionaries",
+  "private": true,
+  "version": "17.0.0",
+  "scripts": {
+    "install-client": "cd ./AutoDictionaries/Client/ && npm install",
+    "build-watch": "cd ./AutoDictionaries/Client/ && npm run watch",
+    "openapi-typescript-codegen": "cd ./AutoDictionaries/Client/ && npm run generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
