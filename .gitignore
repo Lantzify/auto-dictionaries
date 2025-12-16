@@ -260,3 +260,5 @@ ModelManifest.xml
 # ImageProcessor DiskCache 
 **/App_Data/cache/
 **/Media/
+
+/src/AutoDictionaries/wwwroot/*
