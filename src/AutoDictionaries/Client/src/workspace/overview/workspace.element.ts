@@ -16,17 +16,7 @@ export class autoDictionariesWorkspaceRootElement extends UmbElementMixin(LitEle
 	#workspaceContext: autoDictionariesWorkspaceContext;
 
 
-	#routes: UmbRoute[] = [
-		{
-			path: 'edit/:id',
-			component: () => import('./views/overview/overview.element')
-		},
-		// Default route
-		{
-			path: 'edit/:id',
-			redirectTo: 'overview',
-		},
-	];
+
 
 	constructor() {
 		super();
@@ -40,7 +30,7 @@ export class autoDictionariesWorkspaceRootElement extends UmbElementMixin(LitEle
 
 	render() {
 		return html`
-			<umb-workspace-editor headline="Auto Dictionaries" alias="autoDictionaries.workspace.root" .enforceNoFooter=${true}>
+			<umb-workspace-editor headline="Auto Dictionaries" alias="autoDictionaries.workspace" .enforceNoFooter=${true}>
 			</umb-workspace-editor>
 		`;
 	}

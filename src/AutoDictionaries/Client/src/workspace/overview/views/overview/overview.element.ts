@@ -1,14 +1,35 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { tryExecute } from '@umbraco-cms/backoffice/resources';
-import { LitElement, customElement, html, repeat, state } from '@umbraco-cms/backoffice/external/lit';
+import { LitElement, css, customElement, html, repeat, state } from '@umbraco-cms/backoffice/external/lit';
 import { AutoDictionariesService, type AutoDictionariesModel } from '../../../../api';
+import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
+import { UUISelectEvent } from '@umbraco-cms/backoffice/external/uui';
 
 
 @customElement("auto-dictionaries-overview")
 export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElement) {
 
+	#options: Array<Option> = [
+		{
+			name: "All",
+			value: "all"
+		},
+		{
+			name: "Templates",
+			value: "Template"
+		},
+		{
+			name: "Partial views",
+			value: "Partial view"
+		}
+	];
+
+
 	@state()
 	private _views: AutoDictionariesModel[] = [];
+
+	@state()
+	private _filterdViews: AutoDictionariesModel[] = [];
 
 	constructor() {
 		super();
@@ -23,6 +44,8 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	private async getAllViews(): Promise<void> {
 		const { data, error } = await tryExecute(this, AutoDictionariesService.getGetAllViews());
 		this._views = data ?? [];
+
+		this._filterdViews = this._views;
 	};
 
 	private _openView(view: AutoDictionariesModel) {
@@ -32,6 +55,26 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		window.history.pushState({}, '', `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`);
 	
 	};
+
+	private _filter(e: InputEvent) {
+		const query = (e.target as HTMLInputElement).value;
+
+		if (query) {
+			this._filterdViews = this._views.filter(view => view.name.toLowerCase().includes(query.toLowerCase()));
+		} else {
+			this._filterdViews = this._views;
+		}
+	}
+
+	private _filterByType(e: UUISelectEvent) {
+		const type = e.target.value as string;
+
+		if (type !== this.#options[0].value) {
+			this._filterdViews = this._views.filter(view => view.type == type);
+		} else {
+			this._filterdViews = this._views;
+		}
+	}
 
 	private _renderView(view: AutoDictionariesModel) {
 		if (!view) return;
@@ -67,20 +110,24 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		
 			<umb-body-layout header-transparent>
 				<umb-collection-toolbar slot="header">
-					<umb-collection-filter-field>
-						<uui-input label="Search" 
-							placeholder="Type to search..."
-							@change=/>
-					</umb-collection-filter-field>
+					<div id="toolbar">
+						<div>
+							<uui-input 
+								label="Search"
+								placeholder="Type to search..."
+								@input=${this._filter}/>
+						</div>
+
+						<uui-select label="Select type..."
+								placeholder="Select type..."
+								.options=${this.#options}
+								@change=${this._filterByType}></uui-select>
+					</div>
 				</umb-collection-toolbar>
 			
 				<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
 					<uui-table-column></uui-table-column>
-					<uui-table-column></uui-table-column>
-					<uui-table-column></uui-table-column>
-					<uui-table-column></uui-table-column>
-					<uui-table-column></uui-table-column>
-					<uui-table-column></uui-table-column>
+		
 
 				
 					<uui-table-head>
@@ -91,13 +138,40 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 						<uui-table-head-cell>Dictionaries</uui-table-head-cell>
 						<uui-table-head-cell>Match dictionaries</uui-table-head-cell>
 					</uui-table-head>
-	
-					${repeat(this._views, (view) => view.id, (view) => this._renderView(view))}
+
+					${repeat(this._filterdViews, (view) => view.id, (view) => this._renderView(view))}
 				</uui-table>
 			
 			</umb-body-layout>
 		`;
 	}
+
+	static styles = [
+		UmbTextStyles,
+		css`
+			uui-table-head {
+				position: sticky;
+				top: 0;
+				z-index: 1;
+				background-color: var(--uui-color-surface, #fff);
+			}
+
+			#toolbar { 
+				display: flex;
+				gap: var(--uui-size-space-5);
+				justify-content: space-between; 
+				align-items: center; 
+			}
+
+			#toolbar > div{
+				display: inline-flex;
+			}
+
+			#toolbar > div, uui-input, uui-select{
+				width:100%;
+			}
+		`,
+	];
 }
 
 export default autoDictionariesOverviewViewElement;

@@ -19,7 +19,6 @@ const dashboard: UmbExtensionManifest = {
 
 const workspace: UmbExtensionManifest = {
 	type: "workspace",
-	kind: "default",
 	alias: "autoDictionaries.workspace",
 	name: "Auto dictionaries workspace",
 	js: () => import('./workspace.element.js'),
