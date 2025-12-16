@@ -137,9 +137,11 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			<umb-body-layout header-transparent>
 				<div id="autoDictionaries-layout">
 					<div id="autoDictionaries-main">
-						<uui-box class="no-padding" headline="Dictionaries">
-						
-							<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+						<uui-box class=${(this._item.dictionaries ?? []).length > 0 ? "no-padding": ""} headline="Dictionaries">
+
+							${(this._item.dictionaries ?? []).length > 0 ?
+							html`				
+								<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
@@ -156,28 +158,41 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 									</uui-table-head>
 
 									${repeat(this._item.dictionaries ?? [], (dictionary) => dictionary.guid, (dictionary) => this._renderDictionaries(dictionary))}
-								</uui-table>
+								</uui-table>` :
+							html`
+								${(this._item.staticContent ?? []).length > 0 ?
+								html`
+									<uui-icon name="icon-alert-alt"></uui-icon>` : null}
+									There are no dictionaries in this view`}
+
+		
 						</uui-box>	
 			
-						<uui-box class="no-padding" headline="Static Content">
-							<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
-								<uui-table-column></uui-table-column>
-								<uui-table-column></uui-table-column>
-								<uui-table-column></uui-table-column>
-								<uui-table-column></uui-table-column>
-								<uui-table-column></uui-table-column>
+						<uui-box class=${(this._item.staticContent ?? []).length > 0 ? "no-padding" : ""} headline="Static Content">
+
+							${(this._item.staticContent ?? []).length > 0 ?
+							html`
+								<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+									<uui-table-column></uui-table-column>
+									<uui-table-column></uui-table-column>
+									<uui-table-column></uui-table-column>
+									<uui-table-column></uui-table-column>
+									<uui-table-column></uui-table-column>
 
 
-								<uui-table-head>
-									<uui-table-head-cell style="--uui-table-cell-padding: 0; text-align: center;"><uui-checkbox /></uui-table-head-cell>
-									<uui-table-head-cell>Content</uui-table-head-cell>
-									<uui-table-head-cell>Used in view</uui-table-head-cell>
-									<uui-table-head-cell>Parent</uui-table-head-cell>
-									<uui-table-head-cell></uui-table-head-cell>
-								</uui-table-head>
+									<uui-table-head>
+										<uui-table-head-cell style="--uui-table-cell-padding: 0; text-align: center;"><uui-checkbox /></uui-table-head-cell>
+										<uui-table-head-cell>Content</uui-table-head-cell>
+										<uui-table-head-cell>Used in view</uui-table-head-cell>
+										<uui-table-head-cell>Parent</uui-table-head-cell>
+										<uui-table-head-cell></uui-table-head-cell>
+									</uui-table-head>
 
-								${repeat(this._item.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this._renderStaticContent(staticContent))}
-							</uui-table>
+									${repeat(this._item.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this._renderStaticContent(staticContent))}
+								</uui-table>` :
+							html`There is no static content in this view`}
+
+		
 						</uui-box>
 					</div>
 					
