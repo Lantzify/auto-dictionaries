@@ -60,6 +60,7 @@ namespace AutoDictionaries.Services
 			}
 		}
 
+		//Can't use Guid here since it's not reliabvle should use path insetad
 		public async Task<AutoDictionariesModel> GetPartialView(int id)
 		{
 			var allPartialViews = await GetAllPartialViews();
@@ -83,6 +84,7 @@ namespace AutoDictionaries.Services
 			return new AutoDictionariesModel()
 			{
 				Id = partialView.Id,
+				Key = partialView.Key,
 				Alias = partialView.Alias,
 				Name = RemoveFileExtension(partialView.Name),
 				Type = "Partial view",

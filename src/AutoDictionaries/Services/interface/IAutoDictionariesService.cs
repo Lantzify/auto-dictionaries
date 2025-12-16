@@ -22,7 +22,7 @@ namespace AutoDictionaries.Core.Services.Interfaces
         string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent);
         bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent);
 		int GetDictionaryCountInView(string viewContent, string dictionaryKey);
-		DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary);
+		Task<DictionaryModel> MapToDictionaryModel(IDictionaryItem dictionary);
 
 		public bool GetTranslateSetting();
 		public string GetTranslatorSetting();

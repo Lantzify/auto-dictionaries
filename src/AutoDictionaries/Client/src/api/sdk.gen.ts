@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetGetAllDictionaryItemsData, GetGetAllDictionaryItemsResponses, GetGetAllViewsData, GetGetAllViewsResponses, GetGetApiEndpointData, GetGetApiEndpointResponses, GetGetApiKeyData, GetGetApiKeyResponses, GetGetApiRegionData, GetGetApiRegionResponses, GetGetPreviewByIdData, GetGetPreviewByIdResponses, GetGetTranslateSettingData, GetGetTranslateSettingResponses, GetGetTranslatorSettingData, GetGetTranslatorSettingResponses, GetGetViewByIdData, GetGetViewByIdResponses, GetTranslateDictionaryItemByIdData, GetTranslateDictionaryItemByIdResponses, PostAddExistingDictionaryItemData, PostAddExistingDictionaryItemResponses, PostAddNewDictionaryItemData, PostAddNewDictionaryItemResponses, PostPreviewAddExistingDictionaryItemData, PostPreviewAddExistingDictionaryItemResponses, PostPreviewAddNewDictionaryItemData, PostPreviewAddNewDictionaryItemResponses } from './types.gen';
+import type { GetChildrenData, GetChildrenResponses, GetGetAllDictionaryItemsData, GetGetAllDictionaryItemsResponses, GetGetAllViewsData, GetGetAllViewsResponses, GetGetApiEndpointData, GetGetApiEndpointResponses, GetGetApiKeyData, GetGetApiKeyResponses, GetGetApiRegionData, GetGetApiRegionResponses, GetGetPreviewByIdData, GetGetPreviewByIdResponses, GetGetTranslateSettingData, GetGetTranslateSettingResponses, GetGetTranslatorSettingData, GetGetTranslatorSettingResponses, GetGetViewByIdData, GetGetViewByIdResponses, GetTranslateDictionaryItemByIdData, GetTranslateDictionaryItemByIdResponses, PostAddExistingDictionaryItemData, PostAddExistingDictionaryItemResponses, PostAddNewDictionaryItemData, PostAddNewDictionaryItemResponses, PostPreviewAddExistingDictionaryItemData, PostPreviewAddExistingDictionaryItemResponses, PostPreviewAddNewDictionaryItemData, PostPreviewAddNewDictionaryItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -38,6 +38,13 @@ export class AutoDictionariesService {
                 'Content-Type': 'application/json',
                 ...options?.headers
             }
+        });
+    }
+    
+    public static getChildren<ThrowOnError extends boolean = false>(options?: Options<GetChildrenData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetChildrenResponses, unknown, ThrowOnError>({
+            url: '/Children',
+            ...options
         });
     }
     

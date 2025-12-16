@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using Umbraco.Cms.Core.Models;
-using static NPoco.SqlBuilder;
+﻿using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
-using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
 using AutoDictionaries.Core.Services.Interfaces;
 
@@ -36,14 +33,14 @@ namespace AutoDictionaries.Services
 			return templateList;
 		}
 
-		public async Task<AutoDictionariesModel> GetTemplate(int templateId)
+		public async Task<AutoDictionariesModel> GetTemplate(Guid templateId)
 		{
 			var template = await _templateService.GetAsync(templateId);
 
 			return await MapToMapToAutoDictionariesModel(template);
 		}
 
-		public async Task<ITemplate> GetUmbracoTemplate(int templateId) =>  await _templateService.GetAsync(templateId);
+		public async Task<ITemplate> GetUmbracoTemplate(Guid templateId) =>  await _templateService.GetAsync(templateId);
 
 
 		public async Task<AutoDictionariesModel> MapToMapToAutoDictionariesModel(ITemplate template)
@@ -55,6 +52,7 @@ namespace AutoDictionaries.Services
 			return new AutoDictionariesModel()
 			{
 				Id = template.Id,
+				Key = template.Key,
 				Alias = template.Alias,
 				Name = template.Name,
 				Path = template.VirtualPath,

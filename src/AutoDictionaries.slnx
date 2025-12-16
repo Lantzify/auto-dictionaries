@@ -1,0 +1,7 @@
+﻿<Solution>
+	<Project Path="AutoDictionaries\AutoDictionaries.csproj" />
+	<Project Path="AutoDictionaries.Web\AutoDictionaries.Web.csproj" />
+	<Project Path="AutoDictionaries.Tests\AutoDictionaries.Tests.csproj" />
+</Solution>
+
+

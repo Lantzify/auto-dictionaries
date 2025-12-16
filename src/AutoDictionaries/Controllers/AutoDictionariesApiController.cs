@@ -1,6 +1,8 @@
 ﻿using Asp.Versioning;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Strings;
+using Microsoft.AspNetCore.Http;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using AutoDictionaries.Core.Models;
@@ -9,6 +11,8 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Umbraco.Cms.Web.Common.Authorization;
 using AutoDictionaries.Core.Services.Interfaces;
+using Umbraco.Cms.Api.Management.ViewModels.Tree;
+using Umbraco.Cms.Api.Common.ViewModels.Pagination;
 
 namespace AutoDictionaries.Core.Controllers
 {
@@ -53,31 +57,35 @@ namespace AutoDictionaries.Core.Controllers
 
             return templates.Concat(partialViews).OrderBy(x => x.Name).ToList();
 		}
-		
 
-        [HttpGet("get-view/{id}")]
-        public async Task<AutoDictionariesModel> GetView(int id)
-        {
-            var template = await _adTemplateService.GetTemplate(id);
 
-            if (template != null)
-                return template;
+		[HttpGet("get-view/{id}")]
+		public async Task<AutoDictionariesModel> GetView(string id)
+		{
+			if (Guid.TryParse(id, out Guid key))
+			{
+				var template = await _adTemplateService.GetTemplate(key);
+				if (template != null)
+					return template;
+			}
 
-            var partialView = await _adPartialViewService.GetPartialView(id);
+			if (int.TryParse(id, out int intId))
+			{
+				var partialView = await _adPartialViewService.GetPartialView(intId);
+				if (partialView != null)
+					return partialView;
+			}
 
-            if (partialView != null)
-                return partialView;
+			return null;
+		}
 
-            return null;
-        }
-
-        [HttpGet("get-all-dictionary-items")]
+		[HttpGet("get-all-dictionary-items")]
         public async Task<List<DictionaryModel>> GetAllDictionaryItems() => await _autoDictionariesService.GetAllDictionaryItems();
 
         [HttpGet("get-preview/{id}")]
         public async Task<string> GetPreview(string id) 
         {
-            var template = await _adTemplateService.GetUmbracoTemplate(int.Parse(id));
+            var template = await _adTemplateService.GetUmbracoTemplate(Guid.Parse(id));
 			return template?.Content ?? "";
 		} 
 
@@ -238,7 +246,7 @@ namespace AutoDictionaries.Core.Controllers
             {
                 case "Template":
 
-                    var template = await _adTemplateService.GetUmbracoTemplate(autoDictionariesModel.Id);
+                    var template = await _adTemplateService.GetUmbracoTemplate(autoDictionariesModel.Key);
                     if (template != null)
                     {
                         pathContent.Path = template.VirtualPath;
@@ -261,5 +269,15 @@ namespace AutoDictionaries.Core.Controllers
             return pathContent;
         }
 
-    }
+
+		[HttpGet("Children")]
+		public async Task<ActionResult<PagedViewModel<AutoDictionariesModel>>> GetChildren()
+		{    
+			return Ok(new PagedViewModel<AutoDictionariesModel>
+			{
+				Items = await GetAllViews(),
+				Total = 100
+			});
+		}
+	}
 }

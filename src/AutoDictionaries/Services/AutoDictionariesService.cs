@@ -12,7 +12,7 @@ namespace AutoDictionaries.Services
 {
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
-		private readonly int _languageCount;
+		private readonly Lazy<Task<int>> _languageCount;
 		private readonly ILanguageService _languageService;
 		private readonly IWebHostEnvironment _webHostEnvironment;
 		private readonly IDictionaryItemService _dictionaryItemService;
@@ -33,7 +33,11 @@ namespace AutoDictionaries.Services
 			_adSettings = adSettings;
 			_languageService = languageService;
 			_dictionaryItemService = dictionaryItemService;
-			//_languageCount = _languageService.GetAllLanguages().Count();
+			_languageCount = new Lazy<Task<int>>(async () =>
+			{
+				var languages = await _languageService.GetAllAsync();
+				return languages.Count();
+			});
 		}
 
 		public async Task<List<DictionaryModel>> GetAllDictionaryItems()
@@ -119,12 +123,12 @@ namespace AutoDictionaries.Services
 
 		public async Task<DictionaryModel> GetDictionaryItem(string dictionaryKey)
 		{
-			return MapToDictionaryModel(await _dictionaryItemService.GetAsync(Regex.Replace(dictionaryKey, @"[\""]", "")));
+			return await MapToDictionaryModel(await _dictionaryItemService.GetAsync(Regex.Replace(dictionaryKey, @"[\""]", "")));
 		}
 
 		public async Task<DictionaryModel> GetDictionaryItem(Guid dictionaryKey)
 		{
-			return MapToDictionaryModel(await _dictionaryItemService.GetAsync(dictionaryKey));
+			return await MapToDictionaryModel(await _dictionaryItemService.GetAsync(dictionaryKey));
 		}
 
 		public async Task<List<DictionaryModel>> GetDictionaryItems(string[] dictionaryKeys)
@@ -163,7 +167,6 @@ namespace AutoDictionaries.Services
 			return null;
 		}
 
-		// ID NOT USABLE
 		//public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
 		//{
 		//	return MapToDictionaryModel(_dictionaryItemService.CreateAsync(dictionaryName, await GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
@@ -239,12 +242,14 @@ namespace AutoDictionaries.Services
 		}
 
 
-
-		public DictionaryModel MapToDictionaryModel(IDictionaryItem dictionary)
+		private Task<int> GetLanguageCountAsync() => _languageCount.Value;
+		public async Task<DictionaryModel> MapToDictionaryModel(IDictionaryItem dictionary)
 		{
 			if (dictionary != null)
 			{
 				List<string> translations = dictionary.Translations.Where(x => !string.IsNullOrWhiteSpace(x.Value)).Select(x => x.Value).ToList();
+
+				var languageCount = await GetLanguageCountAsync();
 
 				return new DictionaryModel()
 				{
@@ -252,7 +257,7 @@ namespace AutoDictionaries.Services
 					Key = dictionary.ItemKey,
 					Guid = dictionary.Key,
 					Translations = translations,
-					Translated = translations.Count == _languageCount
+					Translated = translations.Count == languageCount
 				};
 			}
 			return null;

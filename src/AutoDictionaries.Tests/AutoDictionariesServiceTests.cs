@@ -2,10 +2,10 @@ using System.Reflection;
 using AutoDictionaries.Models;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using AutoDictionaries.Services;
 using AutoDictionaries.Core.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
-using AutoDictionaries.Core.Services;
 
 namespace AutoDictionaries.Tests
 {

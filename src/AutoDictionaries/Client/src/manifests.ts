@@ -1,9 +1,11 @@
 import { manifests as trees } from './tree/manifest.js';
-import { manifests as workspace } from './workspace/manifest.js';
+import { manifests as overviewWorkspace } from './workspace/overview/manifest.js';
+import { manifests as itemWorkspace } from './workspace/item/manifest.js';
 import { manifests as localization } from './localization/manifest.js';
 
 export const manifests = [
     ...trees,
-    ...workspace,
+    ...overviewWorkspace,
+    ...itemWorkspace,
     ...localization
 ];

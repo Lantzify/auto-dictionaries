@@ -18,13 +18,14 @@ export type AddNewDictionaryItemToViewDto = {
 
 export type AutoDictionariesModel = {
     id: number;
+    key: string;
     alias: string;
     name: string;
     type: string;
     path: string;
     content: string;
-    dictionaries: Array<DictionaryModel>;
-    staticContent: Array<StaticContentModel>;
+    dictionaries?: Array<DictionaryModel> | null;
+    staticContent?: Array<StaticContentModel> | null;
     matchDictionaries: number;
 };
 
@@ -39,15 +40,36 @@ export type DictionaryModel = {
 
 export type EventMessageTypeModel = 'Default' | 'Info' | 'Error' | 'Success' | 'Warning';
 
+export type FlagModel = {
+    alias: string;
+};
+
+export type NamedEntityTreeItemResponseModel = {
+    hasChildren: boolean;
+    id: string;
+    parent?: ReferenceByIdModel | null;
+    flags: Array<FlagModel>;
+    name: string;
+};
+
 export type NotificationHeaderModel = {
     message: string;
     category: string;
     type: EventMessageTypeModel;
 };
 
+export type PagedNamedEntityTreeItemResponseModel = {
+    total: number;
+    items: Array<NamedEntityTreeItemResponseModel>;
+};
+
 export type PreviewAddNewDictionaryItemToViewDto = {
     autoDictionariesModel: AutoDictionariesModel;
     staticContent: Array<StaticContentDto>;
+};
+
+export type ReferenceByIdModel = {
+    id: string;
 };
 
 export type StaticContentDto = {
@@ -93,6 +115,22 @@ export type PostAddNewDictionaryItemResponses = {
 };
 
 export type PostAddNewDictionaryItemResponse = PostAddNewDictionaryItemResponses[keyof PostAddNewDictionaryItemResponses];
+
+export type GetChildrenData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/Children';
+};
+
+export type GetChildrenResponses = {
+    /**
+     * OK
+     */
+    200: PagedNamedEntityTreeItemResponseModel;
+};
+
+export type GetChildrenResponse = GetChildrenResponses[keyof GetChildrenResponses];
 
 export type GetGetAllDictionaryItemsData = {
     body?: never;
@@ -227,7 +265,7 @@ export type GetGetTranslatorSettingResponse = GetGetTranslatorSettingResponses[k
 export type GetGetViewByIdData = {
     body?: never;
     path: {
-        id: number;
+        id: string;
     };
     query?: never;
     url: '/get-view/{id}';

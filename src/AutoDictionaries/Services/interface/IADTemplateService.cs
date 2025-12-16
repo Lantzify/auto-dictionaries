@@ -7,8 +7,8 @@ namespace AutoDictionaries.Core.Services.Interfaces
 	public interface IADTemplateService
 	{
 		Task<List<AutoDictionariesModel>> GetAllTemplates();
-		Task<AutoDictionariesModel> GetTemplate(int templateId);
-		Task<ITemplate> GetUmbracoTemplate(int templateId);
+		Task<AutoDictionariesModel> GetTemplate(Guid templateId);
+		Task<ITemplate> GetUmbracoTemplate(Guid templateId);
 		Task<AutoDictionariesModel> MapToMapToAutoDictionariesModel(ITemplate template);
 	}
 }

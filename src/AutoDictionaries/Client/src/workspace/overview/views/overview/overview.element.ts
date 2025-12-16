@@ -1,0 +1,103 @@
+import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { tryExecute } from '@umbraco-cms/backoffice/resources';
+import { LitElement, customElement, html, repeat, state } from '@umbraco-cms/backoffice/external/lit';
+import { AutoDictionariesService, type AutoDictionariesModel } from '../../../../api';
+
+
+@customElement("auto-dictionaries-overview")
+export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElement) {
+
+	@state()
+	private _views: AutoDictionariesModel[] = [];
+
+	constructor() {
+		super();
+	}
+
+	connectedCallback(): void {
+		super.connectedCallback();
+		void this.getAllViews();
+	}
+
+	
+	private async getAllViews(): Promise<void> {
+		const { data, error } = await tryExecute(this, AutoDictionariesService.getGetAllViews());
+		this._views = data ?? [];
+	};
+
+	private _openView(view: AutoDictionariesModel) {
+		if (!view?.id) return;
+
+		const id = view.type === "Template" ? view.key.toString() : view.id.toString();
+		window.history.pushState({}, '', `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`);
+	
+	};
+
+	private _renderView(view: AutoDictionariesModel) {
+		if (!view) return;
+
+		return html`<uui-table-row @click=${() => this._openView(view)}>
+						<uui-table-cell>${view.name}</uui-table-cell>
+						<uui-table-cell>${view.type}</uui-table-cell>
+						<uui-table-cell>${view.path}</uui-table-cell>
+						<uui-table-cell>
+
+							${view.staticContent?.length  == 0 ?
+									html`<uui-icon name="icon-check"></uui-icon>` :
+									html`${view.staticContent?.length}<uui-icon name="icon-alert"></uui-icon>`}
+						</uui-table-cell>
+						<uui-table-cell>
+
+							${view.dictionaries && view.dictionaries.length > 0 ?
+								view.dictionaries.length :
+								""
+							}
+
+							${view.staticContent?.length == 0 ?
+								html`<uui-icon name="icon-check"></uui-icon>` :
+								html`<uui-icon name="icon-alert"></uui-icon>`}
+						</uui-table-cell>
+						<uui-table-cell>${view.matchDictionaries > 0 ? view.matchDictionaries : ""}</uui-table-cell>
+					</uui-table-row>`;
+	}
+
+	render() {
+		return html`
+
+		
+			<umb-body-layout header-transparent>
+				<umb-collection-toolbar slot="header">
+					<umb-collection-filter-field>
+						<uui-input label="Search" 
+							placeholder="Type to search..."
+							@change=/>
+					</umb-collection-filter-field>
+				</umb-collection-toolbar>
+			
+				<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+					<uui-table-column></uui-table-column>
+					<uui-table-column></uui-table-column>
+					<uui-table-column></uui-table-column>
+					<uui-table-column></uui-table-column>
+					<uui-table-column></uui-table-column>
+					<uui-table-column></uui-table-column>
+
+				
+					<uui-table-head>
+						<uui-table-head-cell>View name</uui-table-head-cell>
+						<uui-table-head-cell>Type</uui-table-head-cell>
+						<uui-table-head-cell>Path</uui-table-head-cell>
+						<uui-table-head-cell>Static content</uui-table-head-cell>
+						<uui-table-head-cell>Dictionaries</uui-table-head-cell>
+						<uui-table-head-cell>Match dictionaries</uui-table-head-cell>
+					</uui-table-head>
+	
+					${repeat(this._views, (view) => view.id, (view) => this._renderView(view))}
+				</uui-table>
+			
+			</umb-body-layout>
+		`;
+	}
+}
+
+export default autoDictionariesOverviewViewElement;
