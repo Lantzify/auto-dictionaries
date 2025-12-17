@@ -8,15 +8,12 @@ import {
 
 import { autoDictionariesWorkspaceContext } from './workspace.context'
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import type {  UmbRoute } from '@umbraco-cms/backoffice/router';
+import type { UmbRoute } from '@umbraco-cms/backoffice/router';
 
 
 @customElement("auto-dictionaries-root")
 export class autoDictionariesWorkspaceRootElement extends UmbElementMixin(LitElement) {
 	#workspaceContext: autoDictionariesWorkspaceContext;
-
-
-
 
 	constructor() {
 		super();
@@ -26,7 +23,6 @@ export class autoDictionariesWorkspaceRootElement extends UmbElementMixin(LitEle
 	connectedCallback() {
 		super.connectedCallback();
 	}
-
 
 	render() {
 		return html`

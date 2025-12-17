@@ -3,7 +3,7 @@ import type { UmbApi } from "@umbraco-cms/backoffice/extension-api";
 import { UmbTreeRepositoryBase, type UmbTreeItemModel, type UmbTreeRootModel } from "@umbraco-cms/backoffice/tree";
 import { autoDictionariesTreeDataSource } from "./auto-dictionaries.data-source";
 
-export class autoDictionariesRepository extends UmbTreeRepositoryBase<UmbTreeItemModel, UmbTreeRootModel>
+export class autoDictionariesTreeRepository extends UmbTreeRepositoryBase<UmbTreeItemModel, UmbTreeRootModel>
     implements UmbApi {
     constructor(host: UmbControllerHost) {
         super(host, autoDictionariesTreeDataSource);
@@ -24,4 +24,4 @@ export class autoDictionariesRepository extends UmbTreeRepositoryBase<UmbTreeIte
     }
 }
 
-export { autoDictionariesRepository as api };
+export { autoDictionariesTreeRepository as api };

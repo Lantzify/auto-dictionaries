@@ -2,14 +2,14 @@ import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { LitElement, customElement, html, css, repeat, state, ifDefined } from '@umbraco-cms/backoffice/external/lit';
 import { UMB_WORKSPACE_CONTEXT, UMB_WORKSPACE_MODAL } from '@umbraco-cms/backoffice/workspace';
-import { AutoDictionariesService, type AutoDictionariesModel, type DictionaryModel, type StaticContentModel } from '../../api';
+import { type AutoDictionariesModel, type DictionaryModel, type StaticContentModel } from '../../api';
 import type { AutoDictionariesItemWorkspaceContext } from './workspace.context';
 import { UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 import { UMB_TEMPLATE_ENTITY_TYPE } from '@umbraco-cms/backoffice/template';
 import { UmbModalRouteRegistrationController, type UmbModalRouteBuilder } from '@umbraco-cms/backoffice/router';
 import { UMB_PARTIAL_VIEW_ENTITY_TYPE } from '@umbraco-cms/backoffice/partial-view';
 import { UmbServerFilePathUniqueSerializer } from '@umbraco-cms/backoffice/server-file-system';
-import { tryExecute } from '@umbraco-cms/backoffice/resources';
+import { UMB_DICTIONARY_ENTITY_TYPE } from '@umbraco-cms/backoffice/dictionary';
 
 
 @customElement("auto-dictionaries-item-edit")
@@ -19,6 +19,9 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 	#workspaceContext?: AutoDictionariesItemWorkspaceContext;
 	#serverFilePathUniqueSerializer = new UmbServerFilePathUniqueSerializer();
+
+	@state()
+	private _translationSetting: Boolean = false
 
     @state()
 	private _allDictionaries: DictionaryModel[] = [];
@@ -47,19 +50,6 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		});
 	}
 
-	async connectedCallback() {
-		super.connectedCallback();
-
-		const { data } = await tryExecute(
-			this,
-			AutoDictionariesService.getGetAllDictionaryItems()
-		);
-
-		if (data) {
-			this._allDictionaries = data;
-		}
-	}
-
 	#observeContext() {
 		if (!this.#workspaceContext) return;
 
@@ -74,6 +64,25 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		});
 	}
 
+	async connectedCallback() {
+		super.connectedCallback();
+
+		this.#loadData();
+	}
+
+	async #loadData() {
+		if (!this.#workspaceContext) return;
+
+		const repository = this.#workspaceContext.getRepository();
+
+		[
+			this._allDictionaries,
+			this._translationSetting
+		] = await Promise.all([
+			repository.getAllDictionaryItems(),
+			repository.getTranslateSetting()
+		]);
+	}
 
 	private _renderStaticContent(staticContent: StaticContentModel) {
 		if (!staticContent) return;
@@ -102,15 +111,27 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 		return html`<uui-table-row>
 						<uui-table-cell>${dictionary.key}</uui-table-cell>
-						<uui-table-cell>${dictionary.id}</uui-table-cell>
-						<uui-table-cell>${dictionary.used}</uui-table-cell>
-						<uui-table-cell>
-
+						<uui-table-cell>${dictionary.guid}</uui-table-cell>
+						<uui-table-cell class="text-center">${dictionary.used}</uui-table-cell>
+						<uui-table-cell class="text-center">
 							${dictionary.translated ?
 							html`<uui-icon name="icon-check"></uui-icon>` :
 							html`<uui-icon name="icon-alert"></uui-icon>`}
 						</uui-table-cell>
-						<uui-table-cell></uui-select></uui-table-cell>
+
+						<uui-table-cell style="text-align:right;">
+							${!dictionary.translated && this._translationSetting ?
+							html`	
+								<uui-button label="Translate missing" 
+								look="secondary"></uui-button>
+							` :
+							null}
+						</uui-table-cell>
+						<uui-table-cell> 
+							<uui-button label="Open dictionary item" 
+							look="link"
+							href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
+						</uui-table-cell>
 					
 
 					</uui-table-row>`;
@@ -147,13 +168,15 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
+									<uui-table-column></uui-table-column>
 
 
 									<uui-table-head>
 										<uui-table-head-cell>Key</uui-table-head-cell>
 										<uui-table-head-cell>Id</uui-table-head-cell>
-										<uui-table-head-cell>Used in view</uui-table-head-cell>
-										<uui-table-head-cell>Translated</uui-table-head-cell>
+										<uui-table-head-cell class="text-center">Used in view</uui-table-head-cell>
+										<uui-table-head-cell class="text-center">Translated</uui-table-head-cell>
+										<uui-table-head-cell></uui-table-head-cell>
 										<uui-table-head-cell></uui-table-head-cell>
 									</uui-table-head>
 
@@ -286,6 +309,10 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 		   uui-box.no-padding {
 			  --uui-box-default-padding: 0;
+			}
+
+			.text-center{
+				text-align:center;
 			}
 		`,
 	];

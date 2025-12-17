@@ -1,22 +1,3 @@
-const dashboard: UmbExtensionManifest = {
-	type: "dashboard",
-	alias: "autoDictionaries.dashboard",
-	name: "Auto dictionaries dashboard",
-	js: () => import("./views/overview/overview.element.js"),
-	weight: 90,
-	meta: {
-		label: "Auto Dictionaries overview",
-		pathname: "overview"
-	},
-	"conditions": [
-		{
-			"alias": "Umb.Condition.SectionAlias",
-			"match": "Umb.Section.Translation"
-		}
-	]
-};
-
-
 const workspace: UmbExtensionManifest = {
 	type: "workspace",
 	alias: "autoDictionaries.workspace",
@@ -82,6 +63,5 @@ const workspaceViews: Array<UmbExtensionManifest> = [
 export const manifests = [
 	workspace,
 	context,
-	dashboard,
 	...workspaceViews
 ];

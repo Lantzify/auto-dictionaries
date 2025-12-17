@@ -2,7 +2,7 @@ const repository: UmbExtensionManifest = {
     type: "repository",
     alias: "autoDictionaries.tree.repository",
     name: "AutoDictionaries Repository Settings",
-    api: () => import("./auto-dictionaries.repository.js"),
+    api: () => import("./auto-dictionaries.repository.tree.js"),
 };
 
 const menu: UmbExtensionManifest = {

@@ -1,9 +1,10 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import { tryExecute } from '@umbraco-cms/backoffice/resources';
 import { LitElement, css, customElement, html, repeat, state } from '@umbraco-cms/backoffice/external/lit';
-import { AutoDictionariesService, type AutoDictionariesModel } from '../../../../api';
+import { type AutoDictionariesModel } from '../../../../api';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UUISelectEvent } from '@umbraco-cms/backoffice/external/uui';
+import autoDictionariesWorkspaceContext from '../../workspace.context';
+import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 
 
 @customElement("auto-dictionaries-overview")
@@ -24,29 +25,46 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		}
 	];
 
+	#workspaceContext?: autoDictionariesWorkspaceContext;
 
 	@state()
-	private _views: AutoDictionariesModel[] = [];
+	private _views?: AutoDictionariesModel[] = [];
 
 	@state()
-	private _filterdViews: AutoDictionariesModel[] = [];
+	private _filterdViews?: AutoDictionariesModel[] = [];
+
+	@state()
+	private _isLoading = false;
 
 	constructor() {
 		super();
+
+		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
+			this.#workspaceContext = context as autoDictionariesWorkspaceContext;
+			this.#observeContext();
+		});
 	}
 
-	connectedCallback(): void {
+	#observeContext() {
+		if (!this.#workspaceContext) return;
+
+		this.observe(this.#workspaceContext.views, (view) => {
+			this._views = view;
+			this._filterdViews = view;
+		});
+
+		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
+			this._isLoading = isLoading;
+		});
+	}
+
+	connectedCallback() {
 		super.connectedCallback();
-		void this.getAllViews();
+
+		if (this.#workspaceContext) {
+			this.#workspaceContext.load();
+		}
 	}
-
-	
-	private async getAllViews(): Promise<void> {
-		const { data, error } = await tryExecute(this, AutoDictionariesService.getGetAllViews());
-		this._views = data ?? [];
-
-		this._filterdViews = this._views;
-	};
 
 	private _openView(view: AutoDictionariesModel) {
 		if (!view?.id) return;
@@ -60,7 +78,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		const query = (e.target as HTMLInputElement).value;
 
 		if (query) {
-			this._filterdViews = this._views.filter(view => view.name.toLowerCase().includes(query.toLowerCase()));
+			this._filterdViews = this._views?.filter(view => view.name.toLowerCase().includes(query.toLowerCase()));
 		} else {
 			this._filterdViews = this._views;
 		}
@@ -70,7 +88,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		const type = e.target.value as string;
 
 		if (type !== this.#options[0].value) {
-			this._filterdViews = this._views.filter(view => view.type == type);
+			this._filterdViews = this._views?.filter(view => view.type == type);
 		} else {
 			this._filterdViews = this._views;
 		}
@@ -96,7 +114,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 								""
 							}
 
-							${view.staticContent?.length == 0 ?
+							${view.staticContent?.length == 0 && view.dictionaries?.every((dictionary) => dictionary.translated) ?
 								html`<uui-icon name="icon-check"></uui-icon>` :
 								html`<uui-icon name="icon-alert"></uui-icon>`}
 						</uui-table-cell>
@@ -139,7 +157,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 						<uui-table-head-cell>Match dictionaries</uui-table-head-cell>
 					</uui-table-head>
 
-					${repeat(this._filterdViews, (view) => view.id, (view) => this._renderView(view))}
+					${repeat(this._filterdViews ?? [], (view) => view.id, (view) => this._renderView(view))}
 				</uui-table>
 			
 			</umb-body-layout>
