@@ -10,7 +10,6 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
         super(host, "AutoDictionariesRepository");
     }
 
-
     async getTranslateSetting() {
         const { data, error } = await tryExecute(
             this._host,
@@ -26,7 +25,16 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
             AutoDictionariesService.getGetTranslatorSetting()
         );
 
-        return data ?? false;
+        return data !== "" ? data : "DeepL";
+    }
+
+    async getApiEndpoint() {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.getGetApiEndpoint()
+        );
+
+        return data !== "" ? data : "null";
     }
 
     async getApiKeySetting() {
@@ -35,7 +43,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
             AutoDictionariesService.getGetApiKey()
         );
 
-        return data ?? false;
+        return data !== "" ? data : "null";
     }
 
     async getApiRegionSetting() {
@@ -44,7 +52,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
             AutoDictionariesService.getGetApiRegion()
         );
 
-        return data ?? false;
+        return data !== "" ? data : "null";
     }
 
     async getAllDictionaryItems() {

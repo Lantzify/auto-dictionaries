@@ -12,11 +12,11 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 
 	#options: Array<Option> = [
 		{
-			name: "All",
+			name: this.localize.term("general_all"),
 			value: "all"
 		},
 		{
-			name: "Templates",
+			name: this.localize.term("treeHeaders_templates"),
 			value: "Template"
 		},
 		{
@@ -99,7 +99,10 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 
 		return html`<uui-table-row @click=${() => this._openView(view)}>
 						<uui-table-cell>${view.name}</uui-table-cell>
-						<uui-table-cell>${view.type}</uui-table-cell>
+						<uui-table-cell>
+						<umb-localize key=${view.type === "Template" ? "template_template" : "autoDictionaries_partial_view"}></umb-localize>
+						
+						</uui-table-cell>
 						<uui-table-cell>${view.path}</uui-table-cell>
 						<uui-table-cell>
 
@@ -132,7 +135,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 						<div>
 							<uui-input 
 								label="Search"
-								placeholder="Type to search..."
+								placeholder=${this.localize.term("placeholders_search")}
 								@input=${this._filter}/>
 						</div>
 
@@ -143,18 +146,28 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 					</div>
 				</umb-collection-toolbar>
 			
-				<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+				<uui-table aria-label="Views" aria-describedby="table-description">
 					<uui-table-column></uui-table-column>
-		
-
-				
+						
 					<uui-table-head>
-						<uui-table-head-cell>View name</uui-table-head-cell>
-						<uui-table-head-cell>Type</uui-table-head-cell>
-						<uui-table-head-cell>Path</uui-table-head-cell>
-						<uui-table-head-cell>Static content</uui-table-head-cell>
-						<uui-table-head-cell>Dictionaries</uui-table-head-cell>
-						<uui-table-head-cell>Match dictionaries</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_viewName"></umb-localize>
+						</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_type"></umb-localize>					
+						</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_path"></umb-localize>
+						</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_static_content"></umb-localize>
+						</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_dictionaries"></umb-localize>
+						</uui-table-head-cell>
+						<uui-table-head-cell>
+							<umb-localize key="autoDictionaries_match_dictionaries"></umb-localize>	
+						</uui-table-head-cell>
 					</uui-table-head>
 
 					${repeat(this._filterdViews ?? [], (view) => view.id, (view) => this._renderView(view))}
@@ -187,6 +200,10 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 
 			#toolbar > div, uui-input, uui-select{
 				width:100%;
+			}
+
+			uui-table-row:hover{
+				cursor:pointer;
 			}
 		`,
 	];

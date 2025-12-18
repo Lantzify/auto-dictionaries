@@ -230,13 +230,13 @@ namespace AutoDictionaries.Core.Controllers
         public string GetTranslatorSetting() => _autoDictionariesService.GetTranslatorSetting();
 
         [HttpGet("get-api-key")]
-        public string GetApiKey() => _autoDictionariesService.GetApiKey();
+        public string GetApiKeySetting() => _autoDictionariesService.GetApiKey();
 
         [HttpGet("get-api-endpoint")]
-        public string GetApiEndpoint() => _autoDictionariesService.GetApiEndpoint();
+        public string GetApiEndpointSetting() => _autoDictionariesService.GetApiEndpoint();
 
         [HttpGet("get-api-region")]
-        public string GetApiRegion() => _autoDictionariesService.GetApiRegion();
+        public string GetApiRegionSetting() => _autoDictionariesService.GetApiRegion();
 
         private async Task<PathContentDto> GetPathAndContentFromView(AutoDictionariesModel autoDictionariesModel)
         {

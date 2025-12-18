@@ -40,36 +40,20 @@ export type DictionaryModel = {
 
 export type EventMessageTypeModel = 'Default' | 'Info' | 'Error' | 'Success' | 'Warning';
 
-export type FlagModel = {
-    alias: string;
-};
-
-export type NamedEntityTreeItemResponseModel = {
-    hasChildren: boolean;
-    id: string;
-    parent?: ReferenceByIdModel | null;
-    flags: Array<FlagModel>;
-    name: string;
-};
-
 export type NotificationHeaderModel = {
     message: string;
     category: string;
     type: EventMessageTypeModel;
 };
 
-export type PagedNamedEntityTreeItemResponseModel = {
+export type PagedAutoDictionariesModel = {
     total: number;
-    items: Array<NamedEntityTreeItemResponseModel>;
+    items: Array<AutoDictionariesModel>;
 };
 
 export type PreviewAddNewDictionaryItemToViewDto = {
     autoDictionariesModel: AutoDictionariesModel;
     staticContent: Array<StaticContentDto>;
-};
-
-export type ReferenceByIdModel = {
-    id: string;
 };
 
 export type StaticContentDto = {
@@ -127,7 +111,7 @@ export type GetChildrenResponses = {
     /**
      * OK
      */
-    200: PagedNamedEntityTreeItemResponseModel;
+    200: PagedAutoDictionariesModel;
 };
 
 export type GetChildrenResponse = GetChildrenResponses[keyof GetChildrenResponses];

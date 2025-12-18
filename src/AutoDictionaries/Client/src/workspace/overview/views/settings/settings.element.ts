@@ -1,8 +1,8 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { LitElement, css, customElement, html, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import { AutoDictionariesService } from '../../../../api'
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
+import autoDictionariesWorkspaceContext from '../../workspace.context';
 
 
 @customElement("auto-dictionaries-settings")
@@ -14,16 +14,16 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
     private _translate: boolean = false;
 
     @state()
-    private _translator: string = "DeepL";
+    private _translator?: string;
 
     @state()
-    private _apiKey: string = "null";
+    private _apiKey?: string;
 
     @state()
-    private _apiEndpoint: string = "null";
+    private _apiEndpoint?: string;
 
     @state()
-    private _apiRegion: string = "null";
+    private _apiRegion?: string;
 
 	constructor() {
         super();
@@ -40,6 +40,7 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
     }
 
     async #loadData() {
+        if (!this.#workspaceContext) return;
 
         const repository = this.#workspaceContext.getRepository();
 
@@ -51,9 +52,9 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
             this._apiRegion
         ] = await Promise.all([
             repository.getTranslateSetting(),
-            repository.getTranslorSetting(),
+            repository.getTranslatorSetting(),
             repository.getApiKeySetting(),
-            repository.getApiEndPointSetting(),
+            repository.getApiEndpoint(),
             repository.getApiRegionSetting()
         ]);
     }
@@ -76,11 +77,11 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
                 <div class="settings-item">
                     <div>
                         <strong>Translator</strong><br />
-                        <i>${this.localize.term("autoDictionaries_settings_translator")}:</i>
-                            <ul>
-                                <li>DeepL</li>
-                                <li>MicrosoftTranslation</li>
-                            </ul>
+                        <i><umb-localize key="autoDictionaries_settings_translator"></umb-localize>:</i>
+                        <ul>
+                            <li>DeepL</li>
+                            <li>MicrosoftTranslation</li>
+                        </ul>
                     </div>
                     <div>
                         <strong>${this._translator}</strong>
@@ -90,7 +91,7 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
                 <div class="settings-item">
                     <div>
                         <strong>ApiKey</strong><br />
-                        <i> ${this.localize.term("autoDictionaries_settings_apiKey")}</i>
+                        <i><umb-localize key="autoDictionaries_settings_apiKey"></umb-localize></i>
                     </div>
                     <div>
                         <strong>${this._apiKey}</strong>
@@ -100,7 +101,7 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
                 <div class="settings-item">
                     <div>
                         <strong>ApiEndpoint (Microsoft Translation)</strong><br />
-                        <i> ${this.localize.term("autoDictionaries_settings_apiEndpoint")}</i>
+                        <i><umb-localize key="autoDictionaries_settings_apiEndpoint"></umb-localize></i>
                     </div>
                     <div>
                         <strong>${this._apiEndpoint}</strong>
@@ -110,13 +111,12 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
                 <div class="settings-item">
                     <div>
                         <strong>ApiRegion (Microsoft Translation)</strong><br />
-                        <i> ${this.localize.term("autoDictionaries_settings_apiRegion")}</i>
+                        <i><umb-localize key="autoDictionaries_settings_apiRegion"></umb-localize></i>
                     </div>
                     <div>
                         <strong>${this._apiRegion}</strong>
                     </div>
                 </div>
-
             </uui-box>
 
             <uui-box headline=${this.localize.term("autoDictionaries_default_settings")}>
@@ -128,9 +128,9 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
     "ApiEndpoint": "",
     "ApiRegion": ""
   }
-}</code></pre>
+}
+</code></pre>
        
-
             </uui-box>
             </div>
 		</umb-body-layout>

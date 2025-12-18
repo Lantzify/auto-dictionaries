@@ -2,11 +2,15 @@ export default {
     autoDictionaries: {
         overview: "Overview",
         default_settings: "Default settings",
-        viewName: "",
-        type: "",
-        path: "",
-        staticContent: "",
-        match: "",
+
+        viewName: "View name",
+        type: "Type",
+        path: "Path",
+        static_content: "Static content",
+        dictionaries: "Dictionaries",
+        match_dictionaries: "Match dictionaries",
+        partial_view: "Partial view",
+
         settings_translate: "If auto dictionary should add the option to translate dictionary items",
         settings_translator: "Which translator to use. Thease are currently available (Case sensitive)",
         settings_apiKey: "Api key for the selected translator",
