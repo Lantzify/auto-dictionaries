@@ -20,6 +20,33 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
         return data ?? false;
     }
 
+    async getTranslatorSetting() {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.getGetTranslatorSetting()
+        );
+
+        return data ?? false;
+    }
+
+    async getApiKeySetting() {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.getGetApiKey()
+        );
+
+        return data ?? false;
+    }
+
+    async getApiRegionSetting() {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.getGetApiRegion()
+        );
+
+        return data ?? false;
+    }
+
     async getAllDictionaryItems() {
         const { data, error } = await tryExecute(
             this._host,
@@ -46,7 +73,6 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
 
         return data;
     }
-
 }
 
 export { AutoDictionariesRepository as api };

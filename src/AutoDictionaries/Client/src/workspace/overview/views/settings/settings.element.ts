@@ -1,60 +1,125 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import {
-	LitElement,
-	css,
-	customElement,
-	html,
-} from '@umbraco-cms/backoffice/external/lit';
+import { LitElement, css, customElement, html, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-
-
+import { AutoDictionariesService } from '../../../../api'
+import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 
 
 @customElement("auto-dictionaries-settings")
 export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElement) {
 
+    #workspaceContext?: autoDictionariesWorkspaceContext;
+
+    @state()
+    private _translate: boolean = false;
+
+    @state()
+    private _translator: string = "DeepL";
+
+    @state()
+    private _apiKey: string = "null";
+
+    @state()
+    private _apiEndpoint: string = "null";
+
+    @state()
+    private _apiRegion: string = "null";
+
 	constructor() {
-		super();
-	}
+        super();
+
+        this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
+            this.#workspaceContext = context as autoDictionariesWorkspaceContext;
+        });
+    }
+
+    async connectedCallback() {
+        super.connectedCallback();
+
+        this.#loadData();
+    }
+
+    async #loadData() {
+
+        const repository = this.#workspaceContext.getRepository();
+
+        [
+            this._translate,
+            this._translator,
+            this._apiKey,
+            this._apiEndpoint,
+            this._apiRegion
+        ] = await Promise.all([
+            repository.getTranslateSetting(),
+            repository.getTranslorSetting(),
+            repository.getApiKeySetting(),
+            repository.getApiEndPointSetting(),
+            repository.getApiRegionSetting()
+        ]);
+    }
 
 	render() {
 		return html`
 		<umb-body-layout>
         <div id="autoDictionaries-layout">
 			<uui-box headline=${this.localize.term("sections_settings")}>
-                <p>
-                    <strong>Translate</strong>
-                </p>
-                <p>If auto dictionary should add the option to translate dictionary items.</p>
-                <hr />
-                <p>
-                    <strong>Translator</strong>
-                </p>
-                <p>Which translator to use. Thease are currently available (Case sensitive):</p>
-                <ul>
-                    <li>DeepL</li>
-                    <li>MicrosoftTranslation</li>
-                </ul>
-                 <hr />
-                <p>
-                    <strong>ApiKey</strong>
-                </p>
-                <p>If the translator needs a Api key.</p>
-                 <hr />
-                <p>
-                    <strong>ApiEndpoint (Microsoft Translation)</strong>
-                </p>
-                <p>Endpoint used for the translation. Only used for Microsoft Translation.</p>
-                 <hr />
-                <p>
-                    <strong>ApiRegion (Microsoft Translation)</strong>
-                </p>
-                <p>Api region. Only used for Microsoft Translation.</p>
+                <div class="settings-item">
+                    <div>
+                        <strong>Translate</strong><br />
+                         <i><umb-localize key="autoDictionaries_settings_translate"></umb-localize></i>
+                    </div>
+                    <div>
+                        <strong>${this._translate}</strong>
+                    </div>
+                </div>
 
+                <div class="settings-item">
+                    <div>
+                        <strong>Translator</strong><br />
+                        <i>${this.localize.term("autoDictionaries_settings_translator")}:</i>
+                            <ul>
+                                <li>DeepL</li>
+                                <li>MicrosoftTranslation</li>
+                            </ul>
+                    </div>
+                    <div>
+                        <strong>${this._translator}</strong>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <strong>ApiKey</strong><br />
+                        <i> ${this.localize.term("autoDictionaries_settings_apiKey")}</i>
+                    </div>
+                    <div>
+                        <strong>${this._apiKey}</strong>
+                    </div>
+                </div>
+   
+                <div class="settings-item">
+                    <div>
+                        <strong>ApiEndpoint (Microsoft Translation)</strong><br />
+                        <i> ${this.localize.term("autoDictionaries_settings_apiEndpoint")}</i>
+                    </div>
+                    <div>
+                        <strong>${this._apiEndpoint}</strong>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <strong>ApiRegion (Microsoft Translation)</strong><br />
+                        <i> ${this.localize.term("autoDictionaries_settings_apiRegion")}</i>
+                    </div>
+                    <div>
+                        <strong>${this._apiRegion}</strong>
+                    </div>
+                </div>
 
             </uui-box>
 
-            <uui-box headline="Default settings">
+            <uui-box headline=${this.localize.term("autoDictionaries_default_settings")}>
 			  <pre><code>{
   "AutoDictionaries": {
     "Translate": false,
@@ -83,9 +148,17 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
 				align-items: flex-start; 
 			}
 
-            hr {
-                border: 0;
-                border-top: 1px solid var(--uui-color-border);
+            .settings-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: end;
+            }
+
+            .settings-item:not(:last-child){
+                padding-bottom: var(--uui-size-space-5);
+                margin-bottom: var(--uui-size-space-5);
+                border-bottom: 1px solid var(--uui-color-border);
+
             }
 
             pre {

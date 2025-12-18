@@ -1,5 +1,4 @@
 ﻿export default {
-    autoDictionaries : {
-        overview: "Overview"
+    autoDictionaries: {
     }
 };
