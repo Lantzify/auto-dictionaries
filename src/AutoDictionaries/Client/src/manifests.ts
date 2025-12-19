@@ -3,11 +3,13 @@ import { manifests as overviewWorkspace } from './workspace/overview/manifest.js
 import { manifests as itemWorkspace } from './workspace/item/manifest.js';
 import { manifests as localization } from './localization/manifest.js';
 import { manifests as repository } from './repository/manifest.js';
+import { manifests as sidebar } from './sidebar/manifest.js';
 
 export const manifests = [
     ...trees,
     ...overviewWorkspace,
     ...itemWorkspace,
     ...localization,
-    ...repository
+    ...repository,
+    ...sidebar
 ];

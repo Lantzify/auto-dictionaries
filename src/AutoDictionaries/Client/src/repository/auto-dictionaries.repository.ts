@@ -1,7 +1,7 @@
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbRepositoryBase } from "@umbraco-cms/backoffice/repository";
 import { tryExecute } from "@umbraco-cms/backoffice/resources";
-import { AutoDictionariesService } from "../api";
+import { AutoDictionariesService, PreviewAddNewDictionaryItemToViewDto } from "../api";
 import { UmbApi } from "@umbraco-cms/backoffice/extension-api";
 
 
@@ -77,6 +77,21 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
         const { data, error } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetViewById({ path: { id } })
+        );
+
+        return data;
+    }
+
+
+    async postPreviewAddNewDictionaryItem(dto: PreviewAddNewDictionaryItemToViewDto) {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.postPreviewAddNewDictionaryItem({
+                body: {
+                    autoDictionariesModel: dto.autoDictionariesModel,
+                    staticContent: dto.staticContent
+                }
+            })
         );
 
         return data;

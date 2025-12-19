@@ -6,11 +6,11 @@ namespace AutoDictionaries.Core.Models
 	{
 		public int Id { get; set; }
 		public Guid Key { get; set; }
-		public string Alias { get; set; }
-		public string Name { get; set; }
-		public string Type { get; set; }
-		public string Path { get; set; }
-		public string Content { get; set; }
+		public string? Alias { get; set; }
+		public string? Name { get; set; }
+		public string? Type { get; set; }
+		public string? Path { get; set; }
+		public string? Content { get; set; }
 		public List<DictionaryModel>? Dictionaries { get; set; }
 		public List<StaticContentModel>? StaticContent { get; set; }
 		public int MatchDictionaries { get; set; }

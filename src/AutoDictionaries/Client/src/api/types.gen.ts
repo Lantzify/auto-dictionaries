@@ -12,18 +12,18 @@ export type AddExistingDictionaryItemToViewDto = {
 
 export type AddNewDictionaryItemToViewDto = {
     tanslate: boolean;
-    autoDictionariesModel: AutoDictionariesModel;
-    staticContent: StaticContentDto;
+    autoDictionariesModel?: AutoDictionariesModel | null;
+    staticContent?: StaticContentDto | null;
 };
 
 export type AutoDictionariesModel = {
     id: number;
     key: string;
-    alias: string;
-    name: string;
-    type: string;
-    path: string;
-    content: string;
+    alias?: string | null;
+    name?: string | null;
+    type?: string | null;
+    path?: string | null;
+    content?: string | null;
     dictionaries?: Array<DictionaryModel> | null;
     staticContent?: Array<StaticContentModel> | null;
     matchDictionaries: number;
@@ -52,20 +52,21 @@ export type PagedAutoDictionariesModel = {
 };
 
 export type PreviewAddNewDictionaryItemToViewDto = {
-    autoDictionariesModel: AutoDictionariesModel;
-    staticContent: Array<StaticContentDto>;
+    autoDictionariesModel?: AutoDictionariesModel | null;
+    staticContent?: Array<StaticContentDto> | null;
+    canTranslate: boolean;
 };
 
 export type StaticContentDto = {
-    staticContent: string;
-    safeAlias: string;
-    parent: string;
+    staticContent?: string | null;
+    safeAlias?: string | null;
+    parent?: string | null;
 };
 
 export type StaticContentModel = {
     used: number;
-    staticContent: string;
-    dictionary: DictionaryModel;
+    staticContent?: string | null;
+    dictionary?: DictionaryModel | null;
 };
 
 export type PostAddExistingDictionaryItemData = {

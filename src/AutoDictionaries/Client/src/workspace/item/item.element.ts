@@ -2,29 +2,34 @@ import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { LitElement, customElement, html, css, repeat, state, ifDefined } from '@umbraco-cms/backoffice/external/lit';
 import { UMB_WORKSPACE_CONTEXT, UMB_WORKSPACE_MODAL } from '@umbraco-cms/backoffice/workspace';
-import { type AutoDictionariesModel, type DictionaryModel, type StaticContentModel } from '../../api';
+import { PreviewAddNewDictionaryItemToViewDto, StaticContentDto, type AutoDictionariesModel, type DictionaryModel, type StaticContentModel } from '../../api';
 import type { AutoDictionariesItemWorkspaceContext } from './workspace.context';
-import { UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 import { UMB_TEMPLATE_ENTITY_TYPE } from '@umbraco-cms/backoffice/template';
 import { UmbModalRouteRegistrationController, type UmbModalRouteBuilder } from '@umbraco-cms/backoffice/router';
 import { UMB_PARTIAL_VIEW_ENTITY_TYPE } from '@umbraco-cms/backoffice/partial-view';
 import { UmbServerFilePathUniqueSerializer } from '@umbraco-cms/backoffice/server-file-system';
 import { UMB_DICTIONARY_ENTITY_TYPE } from '@umbraco-cms/backoffice/dictionary';
-
+import { UmbSelectionManager } from '@umbraco-cms/backoffice/utils';
+import { GENERATE_DICTIONARY_MODAL_TOKEN } from '../../sidebar/generate-dictionaries-modal-tokent';
+import { UMB_MODAL_MANAGER_CONTEXT, UmbModalContext, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 
 @customElement("auto-dictionaries-item-edit")
 export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement) {
-	private _modalContext?: UmbModalManagerContext;
 	private _routeBuilder?: UmbModalRouteBuilder;
+	private _modalContext?: UmbModalManagerContext;
 
 	#workspaceContext?: AutoDictionariesItemWorkspaceContext;
 	#serverFilePathUniqueSerializer = new UmbServerFilePathUniqueSerializer();
+	#selectionManager = new UmbSelectionManager<string>(this);
 
 	@state()
-	private _translationSetting: Boolean = false
+	private _translationSetting: boolean = false
 
-    @state()
+	@state()
 	private _allDictionaries: DictionaryModel[] = [];
+
+	@state()
+	private _allDictionaryOptions: Array<Option>  = [];
 
 	@state()
 	private _item?: AutoDictionariesModel;
@@ -32,8 +37,15 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	@state()
 	private _isLoading = false;
 
+	@state()
+	private _selectedContent: StaticContentDto[] = [];
+
 	constructor() {
 		super();
+
+		this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
+			this._modalContext = _instance;
+		});
 
 		new UmbModalRouteRegistrationController(this, UMB_WORKSPACE_MODAL)
 			.addAdditionalPath('general/:entityType')
@@ -82,23 +94,109 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			repository.getAllDictionaryItems(),
 			repository.getTranslateSetting()
 		]);
+
+		this._allDictionaryOptions = [
+			{ value: '', name: 'Set parent for selected...', selected: true },
+				...this._allDictionaries.map(dict => ({
+					value: dict.key ?? '',
+					name: dict.key ?? '',
+					selected: false
+				}))]
 	}
+
+	//Selection
+	#toggleSelect(staticContet: StaticContentModel) {
+		const item = {
+			staticContent: staticContet.staticContent,
+			safeAlias: "",
+			parent: ""
+		} as StaticContentDto;
+
+		var pos = this._selectedContent.map(x => x.staticContent).indexOf(item.staticContent);
+
+		if (pos !== -1) {
+			this._selectedContent = [
+				...this._selectedContent.slice(0, pos),
+				...this._selectedContent.slice(pos + 1)
+			];
+		} else {
+			this._selectedContent = [...this._selectedContent, item];
+		}
+	}
+
+	#changeParent(staticContet: StaticContentModel, parent: string) {
+		var pos = this._selectedContent.map(x => x.staticContent).indexOf(staticContet.staticContent);
+		if (pos !== -1) {
+			this._selectedContent = [
+				...this._selectedContent.slice(0, pos),
+				{ ...this._selectedContent[pos], parent },
+				...this._selectedContent.slice(pos + 1)
+			];
+		}
+	}
+
+	#toggleSelectAll() {
+		if (this._selectedContent.length !== this._item?.staticContent?.length) {
+			this._selectedContent = this._item?.staticContent?.map(sc => ({
+					staticContent: sc.staticContent,
+					safeAlias: "",
+					parent: ""
+				} as StaticContentDto)) ?? []
+		} else {
+			this._selectedContent = [];
+		}
+	}
+
+	#changeAllParent(event: Event) {
+		const select = event.target as HTMLSelectElement;
+		this._selectedContent = this._selectedContent.map(sc => ({
+			staticContent: sc.staticContent,
+			parent: select.value
+		}))
+	}
+
+
+	//
+
+	async #openCreateDictionaryModal() {
+		const modalContext = await this._modalContext?.open(this, GENERATE_DICTIONARY_MODAL_TOKEN, {
+			data: {
+                staticContent: this._selectedContent,
+				autoDictionariesModel: this._item,
+				canTranslate: this._translationSetting
+			} as PreviewAddNewDictionaryItemToViewDto
+		});
+
+		//const result = await modalContext?.onSubmit();
+	}
+
 
 	private _renderStaticContent(staticContent: StaticContentModel) {
 		if (!staticContent) return;
-		const options = this._allDictionaries.map(dict => ({
-				value: dict.key ?? '',
-				name: dict.key ?? ''
-			}));
-		return html`<uui-table-row>
-						<uui-table-cell style="--uui-table-cell-padding: 0; text-align: center;"><uui-checkbox /></uui-table-cell>
+
+		const isSelected = this._selectedContent.map(x => x.staticContent).indexOf(staticContent.staticContent) !== -1;
+
+		return html`<uui-table-row selectable 
+									?selected=${isSelected}
+									@selected=${() => this.#toggleSelect(staticContent)}
+									@deselected=${() => this.#toggleSelect(staticContent)}>
+						<uui-table-cell style="--uui-table-cell-padding: 0; text-align: center;">
+							<uui-checkbox
+									?checked=${isSelected}
+									@click=${(e: Event) => e.stopPropagation()}
+									@change=${() => this.#toggleSelect(staticContent)}>
+							</uui-checkbox>
+						</uui-table-cell>
 						<uui-table-cell>${staticContent.staticContent}</uui-table-cell>
 						<uui-table-cell>${staticContent.used}</uui-table-cell>
 						<uui-table-cell>
 							<uui-select
-								label="Parent"
-								placeholder="None"
-								.options=${options}>
+								?disabled=${!isSelected}
+								.options=${this._allDictionaryOptions}
+								@click=${(e: Event) => e.stopPropagation()}
+								@change=${(e: Event) => {
+									const select = e.target as HTMLSelectElement;
+									this.#changeParent(staticContent, select.value);}}></uui-select>
 						</uui-table-cell>
 						<uui-table-cell>
 						</uui-table-cell>
@@ -114,9 +212,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						<uui-table-cell>${dictionary.guid}</uui-table-cell>
 						<uui-table-cell class="text-center">${dictionary.used}</uui-table-cell>
 						<uui-table-cell class="text-center">
-							${dictionary.translated ?
-							html`<uui-icon name="icon-check"></uui-icon>` :
-							html`<uui-icon name="icon-alert"></uui-icon>`}
+							<uui-icon name=${dictionary.translated ? "icon-check" : "icon-alert"}"></uui-icon>
 						</uui-table-cell>
 
 						<uui-table-cell style="text-align:right;">
@@ -129,12 +225,40 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						</uui-table-cell>
 						<uui-table-cell> 
 							<uui-button label="Open dictionary item" 
-							look="link"
-							href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
+								look="link"
+								href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
 						</uui-table-cell>
 					
-
 					</uui-table-row>`;
+	}
+
+	#renderSelectionActions() {
+		if (this._selectedContent.length === 0) return;
+
+		return html`
+			<div id="selection-actions-bar">
+				<div class="selection-info">
+					<uui-button 
+						label="Clear selection" 
+						look="secondary"
+						@click="${() => this._selectedContent = []}"></uui-button>
+
+					<span><strong>${this._selectedContent.length}</strong> of ${this._item?.staticContent?.length} selected</span>
+				</div>
+				<div class="selection-actions">
+					<uui-select
+						label="Set parent for all selected"
+						@change=${this.#changeAllParent}
+						.options=${this._allDictionaryOptions}>
+					</uui-select>
+						
+					<uui-button 
+						label="Generate (${this._selectedContent.length}) dictionaries"
+						look="secondary"
+						@click=${this.#openCreateDictionaryModal}></uui-button>
+				</div>
+			</div>
+		`;
 	}
 
 	render() {
@@ -162,14 +286,13 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 							${(this._item.dictionaries ?? []).length > 0 ?
 							html`				
-								<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+								<uui-table aria-label="" aria-describedby="">
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
-
 
 									<uui-table-head>
 										<uui-table-head-cell>Key</uui-table-head-cell>
@@ -186,25 +309,27 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 								${(this._item.staticContent ?? []).length > 0 ?
 								html`
 									<uui-icon name="icon-alert-alt"></uui-icon>` : null}
-									There are no dictionaries in this view`}
-
-		
+									There are no dictionaries in this view`}		
 						</uui-box>	
 			
 						<uui-box class=${(this._item.staticContent ?? []).length > 0 ? "no-padding" : ""} headline="Static Content">
 
 							${(this._item.staticContent ?? []).length > 0 ?
 							html`
-								<uui-table aria-label="Random Umbraco Words" aria-describedby="table-description">
+								<uui-table selectable aria-label="Static content" aria-describedby="table-description">
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
-
 
 									<uui-table-head>
-										<uui-table-head-cell style="--uui-table-cell-padding: 0; text-align: center;"><uui-checkbox /></uui-table-head-cell>
+										<uui-table-head-cell style="--uui-table-cell-padding: 0; text-align: center;">
+											<uui-checkbox
+												?checked=${this._selectedContent.length === this._item?.staticContent?.length}
+												@change=${() => this.#toggleSelectAll()}>
+											</uui-checkbox>
+										</uui-table-head-cell>
 										<uui-table-head-cell>Content</uui-table-head-cell>
 										<uui-table-head-cell>Used in view</uui-table-head-cell>
 										<uui-table-head-cell>Parent</uui-table-head-cell>
@@ -217,6 +342,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 		
 						</uui-box>
+
+						${this.#renderSelectionActions()}
 					</div>
 					
 					<uui-box headline="General">
@@ -260,12 +387,13 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						</div>
 
 						<div class="general-item">
-							<strong>Id</strong>
+							<strong>Key</strong>
 							<span>${this._item.key}</span>
 						</div>
 
 					</uui-box>
 				</div>
+
 			</umb-body-layout>
 		`;
 	}
@@ -280,7 +408,6 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 				gap: 20px 20px;
 				align-items: flex-start; 
 			}
-
 
 			#autoDictionaries-main{
 				display: flex;
@@ -313,6 +440,34 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 			.text-center{
 				text-align:center;
+			}
+
+			#selection-actions-bar {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: var(--uui-size-space-3) var(--uui-size-space-5);
+				margin-bottom: var(--uui-size-space-5);
+				background-color: var(--uui-color-selected);
+				border-radius: var(--uui-border-radius);
+				color: var(--uui-color-selected-contrast);
+				box-shadow: var(--uui-shadow-depth-1);
+			}
+
+			#selection-actions-bar .selection-info {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			#selection-actions-bar .selection-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			#selection-actions-bar .selection-actions uui-select {
+				min-width: 220px;
 			}
 		`,
 	];
