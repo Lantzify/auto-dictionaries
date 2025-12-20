@@ -1,9 +1,9 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, css, customElement, html, repeat, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalContext } from "@umbraco-cms/backoffice/modal";
-import { diffWords } from '@umbraco-cms/backoffice/utils';
 import AutoDictionariesRepository from "../repository/auto-dictionaries.repository";
 import { AddNewDictionaryItemToViewDto, PreviewAddNewDictionaryItemToViewDto, StaticContentDto } from "../api";
+import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 
 
 @customElement('generate-dictionaries-modal')
@@ -19,6 +19,15 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
     @state()
     private _diff: string[] | undefined;
 
+    @state()
+    private currentlyGenerating: string = "";
+
+    @state()
+    private generatingPercentage: number = 0;
+
+    @state()
+    private isGenerating: boolean = false;
+
     constructor() {
         super();
         this.#repository = new AutoDictionariesRepository(this);
@@ -32,6 +41,58 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
                 this._diff = await this.#repository.postPreviewAddNewDictionaryItem(this.data)
             }
         }
+    }
+
+    async #submit(shouldTranslate: boolean) {
+        if (!this.data?.staticContent || this.data.staticContent.length === 0) {
+            return;
+        }
+
+        this.isGenerating = true;
+        this.generatingPercentage = 0;
+
+        const percentage = 100 / this.data.staticContent.length;
+        let counter = 0;
+
+        const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+
+        const generateDictionary = async (staticContent: StaticContentDto): Promise<void> => {
+            this.currentlyGenerating = staticContent.staticContent ?? "";
+
+            try {
+                const payload: AddNewDictionaryItemToViewDto = {
+                    translate: shouldTranslate,
+                    autoDictionariesModel: this.data?.autoDictionariesModel,
+                    staticContent: staticContent
+                };
+              
+                const response = await this.#repository.postAddNewDictionaryItem(payload);
+                if (response) {
+                    this.generatingPercentage += percentage;
+                    counter += 1;
+
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    if (counter !== this.data!.staticContent!.length) {
+                        await generateDictionary(this.data!.staticContent![counter]);
+                    } else {
+                        const notification = { data: { message: "All dictionaries were created and added to the template successfully!" } };
+                        notificationContext?.peek('positive', notification);
+                        this.isGenerating = false;
+                        this.modalContext?.submit();
+                    }
+                } else {
+                    throw new Error("Failed to add dictionary to template");
+                }
+            } catch (error) {
+                const notification = { data: { message: "Failed to add dictionary to template" } };
+                notificationContext?.peek('danger', notification);
+                this.isGenerating = false;
+                this.modalContext?.reject();
+            }
+        };
+
+        await generateDictionary(this.data.staticContent[counter]);
     }
 
     #close() {
@@ -49,30 +110,32 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
     }
 
     render() {
-        const changes = diffWords(this._diff[0], this._diff[1]);
-
-        const changeHtml = changes.map((change: any) => {
-            if (change.added) {
-                return html`<ins>${change.value}</ins>`;
-            } else if (change.removed) {
-                return html`<del>${change.value}</del>`;
-            } else {
-                return html`<span>${change.value}</span>`;
-            }
-        });
-
         return html`
             <umb-body-layout>
 
                 <uui-box>
-                    <p>Are you sure you want to generate dictionaries for:</p>
-                    <ul>
-                        ${repeat(this.data?.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this.#renderSelectedContent(staticContent))}
-                    </ul>
-                    <p>This action can not be undone.</p>
+                    ${this.isGenerating ? 
+                        html`
+                            <div class="progress-container">
+                                <uui-icon name="icon-globe" style="font-size: 50px;"></uui-icon>
+                                <h2>Generating dictionaries... ${Math.round(this.generatingPercentage)}%</h2>
+                                <p>Currently processing: <strong>${this.currentlyGenerating}</strong></p>
+                                <uui-progress-bar progress=${Math.round(this.generatingPercentage)}></uui-progress-bar>
+                            </div>
+                        ` :
+                        html`
+                        
+                            <p>Are you sure you want to generate dictionaries for:</p>
+                            <ul>
+                                ${repeat(this.data?.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this.#renderSelectedContent(staticContent))}
+                            </ul>
+                            <p>This action can not be undone.</p>
 
-                  <pre><code>${changeHtml}</code></pre>
-                </uui-box>
+                            <auto-dictionaries-code .diffCode=${this._diff}></auto-dictionaries-code>
+
+                                                              
+                        `}  
+                  </uui-box>
               
 
 
@@ -88,13 +151,13 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
                             <uui-button
                                 look="secondary"
                                 label="Generate"
-						        @click="${this.#close}"></uui-button>
+						        @click="${() => this.#submit(false)}"></uui-button>
 
                                 <uui-button
 						            label="Generate and Translate"
                                     look="primary"
                                     color="positive"
-                                    @click="${this.#close}"></uui-button>
+                                    @click="${() => this.#submit(true)}"></uui-button>
                         ` : html`
                         <uui-button
 						    label="general_submit"
@@ -108,34 +171,17 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
 
     static styles = [
         css`
-            pre ins{
-                color: #2bc37c;
+            .progress-container {
+                text-align:center;   
             }
 
-            pre del {
-	            color: #d42054;
+            .progress-container h2{
+                margin-bottom:0;
             }
 
-            pre {
-                background-color: var(--uui-color-surface-alt);
-                padding: var(--uui-size-space-4);
-                border: 1px solid #d8d7d9;
-                border-radius: 3px;
-                overflow-x: auto;
-                margin: 0;
-                white-space: pre-wrap;
+            .progress-container p {
+                margin-top:0;
             }
-
-            code {
-                font-family: var(--uui-font-family-monospace);
-                font-size: 14px;
-                line-height: 1.5;
-                color: var(--uui-color-text);
-            }
-            #footer{
-                
-            }
-            
         `
     ];
 }

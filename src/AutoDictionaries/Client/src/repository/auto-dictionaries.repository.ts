@@ -1,9 +1,13 @@
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbRepositoryBase } from "@umbraco-cms/backoffice/repository";
 import { tryExecute } from "@umbraco-cms/backoffice/resources";
-import { AutoDictionariesService, PreviewAddNewDictionaryItemToViewDto } from "../api";
+import {
+    AddExistingDictionaryItemToViewDto,
+    AddNewDictionaryItemToViewDto,
+    AutoDictionariesService,
+    PreviewAddNewDictionaryItemToViewDto
+} from "../api";
 import { UmbApi } from "@umbraco-cms/backoffice/extension-api";
-
 
 export class AutoDictionariesRepository extends UmbRepositoryBase implements UmbApi {
     constructor(host: UmbControllerHost) {
@@ -89,12 +93,68 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
             AutoDictionariesService.postPreviewAddNewDictionaryItem({
                 body: {
                     autoDictionariesModel: dto.autoDictionariesModel,
+                    staticContent: dto.staticContent,
+                    canTranslate: dto.canTranslate
+                }
+            })
+        );
+
+        return data;
+    }
+
+    async postAddNewDictionaryItem(dto: AddNewDictionaryItemToViewDto) {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.postAddNewDictionaryItem({
+                body: {
+                    autoDictionariesModel: dto.autoDictionariesModel,
+                    staticContent: dto.staticContent,
+                    translate: dto.translate
+                }
+            })
+        );
+
+        return data;
+    }
+
+
+    async postPreviewAddExistingDictionaryItem(dto: AddExistingDictionaryItemToViewDto) {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.postPreviewAddExistingDictionaryItem({
+                body: {
+                    autoDictionariesModel: dto.autoDictionariesModel,
+                    dictionaryKey: dto.dictionaryKey,
                     staticContent: dto.staticContent
                 }
             })
         );
 
         return data;
+    }
+
+    async postAddExistingDictionaryItem(dto: AddExistingDictionaryItemToViewDto) {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.postAddExistingDictionaryItem({
+                body: {
+                    autoDictionariesModel: dto.autoDictionariesModel,
+                    dictionaryKey: dto.dictionaryKey,
+                    staticContent: dto.staticContent
+                }
+            })
+        );
+
+        return data;
+    }
+
+    async getTranslateDictionaryItem(id: string) {
+        const { data, error } = await tryExecute(
+            this._host,
+            AutoDictionariesService.getTranslateDictionaryItemById({ path: { id } })
+        );
+
+        return data ?? false;
     }
 }
 

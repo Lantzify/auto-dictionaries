@@ -1,9 +1,10 @@
-﻿using Umbraco.Cms.Core.Models;
+﻿using Serilog.Events;
 using AutoDictionaries.Models;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
-using Microsoft.AspNetCore.Hosting;
 using AutoDictionaries.Core.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using AutoDictionaries.Core.Services.Interfaces;
@@ -77,9 +78,9 @@ namespace AutoDictionaries.Services
 		public async Task<List<DictionaryModel>> GetDictionariesFromView(string viewContent)
 		{
 			var dictionariesCount = Regex.Matches(viewContent, "GetDictionaryValue").Count;
-			var dictionaries = Regex.Matches(viewContent, @"(?<=GetDictionaryValue[(])(.*)(?=[)])");
+			var dictionaries = Regex.Matches(viewContent, @"\bGetDictionaryValue\s*\(\s*(['""])(?<key>[^'""]+)\1\s*\)");
 			var listDictionariesModel = await GetDictionaryItems(dictionaries.Cast<Match>()
-													.Select(m => m.Value)
+													.Select(m => m.Groups["key"].Value)
 													.Distinct()
 													.ToArray());
 
@@ -167,22 +168,45 @@ namespace AutoDictionaries.Services
 			return null;
 		}
 
-		//public DictionaryModel CreateDictionaryItem(string dictionaryName, string dictionaryValue, int? parentId = null)
-		//{
-		//	return MapToDictionaryModel(_dictionaryItemService.CreateAsync(dictionaryName, await GetDictionaryItem(parentId ?? -1)?.Guid, dictionaryValue));
-		//}
+		public async Task<DictionaryModel> CreateDictionaryItem(string dictionaryName, string dictionaryValue, Guid userKey, DictionaryModel? parent = null)
+		{
+			DictionaryItem dictionaryItem = new DictionaryItem(dictionaryName)
+			{
+				ParentId = parent?.Guid ?? null,
+				Translations = new List<DictionaryTranslation>
+				{
+					new DictionaryTranslation(await _languageService.GetDefaultLanguageAsync(), dictionaryValue)
+				} 
+			};
 
-		//public async Task<DictionaryModel> CreateDictionaryItem(string dictionaryName, List<TranslateModel> translations, int? parentId = null)
-		//{
-		//	var dictionaryItem = _dictionaryItemService.CreateDictionaryItemWithIdentity(dictionaryName, GetDictionaryItem(parentId ?? -1)?.Guid);
+			var attempt = await _dictionaryItemService.CreateAsync(dictionaryItem, userKey);
 
-		//	foreach (var translation in translations)
-		//		_localizationService.AddOrUpdateDictionaryValue(dictionaryItem, translation.Language, translation.TranslatedText);
+			if (!attempt.Success)
+				return null;
 
-		//	await _dictionaryItemService.UpdateAsync(dictionaryItem);
+			return await MapToDictionaryModel(attempt.Result);
+		}
 
-		//	return MapToDictionaryModel(dictionaryItem);
-		//}
+		public async Task<DictionaryModel> CreateDictionaryItem(string dictionaryName, List<TranslateModel> translations, Guid userKey, DictionaryModel? parent = null)
+		{
+			var dicTranslations = new List<DictionaryTranslation>();
+
+			foreach (var translation in translations)
+				dicTranslations.Add(new DictionaryTranslation(translation.Language, translation.TranslatedText));
+
+			DictionaryItem dictionaryItem = new DictionaryItem(dictionaryName)
+			{
+				ParentId = parent?.Guid ?? null,
+				Translations = dicTranslations
+			};
+
+			var attempt = await _dictionaryItemService.CreateAsync(dictionaryItem, userKey);
+			
+			if (!attempt.Success)
+				return null;
+
+			return await MapToDictionaryModel(attempt.Result);
+		}
 
 		public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
 		{

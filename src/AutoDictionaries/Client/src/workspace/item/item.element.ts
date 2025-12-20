@@ -2,25 +2,27 @@ import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { LitElement, customElement, html, css, repeat, state, ifDefined } from '@umbraco-cms/backoffice/external/lit';
 import { UMB_WORKSPACE_CONTEXT, UMB_WORKSPACE_MODAL } from '@umbraco-cms/backoffice/workspace';
-import { PreviewAddNewDictionaryItemToViewDto, StaticContentDto, type AutoDictionariesModel, type DictionaryModel, type StaticContentModel } from '../../api';
+import { PreviewAddNewDictionaryItemToViewDto, StaticContentDto, type AutoDictionariesModel, type DictionaryModel, type StaticContentModel, AddExistingDictionaryItemToViewDto } from '../../api';
 import type { AutoDictionariesItemWorkspaceContext } from './workspace.context';
 import { UMB_TEMPLATE_ENTITY_TYPE } from '@umbraco-cms/backoffice/template';
 import { UmbModalRouteRegistrationController, type UmbModalRouteBuilder } from '@umbraco-cms/backoffice/router';
 import { UMB_PARTIAL_VIEW_ENTITY_TYPE } from '@umbraco-cms/backoffice/partial-view';
 import { UmbServerFilePathUniqueSerializer } from '@umbraco-cms/backoffice/server-file-system';
 import { UMB_DICTIONARY_ENTITY_TYPE } from '@umbraco-cms/backoffice/dictionary';
-import { UmbSelectionManager } from '@umbraco-cms/backoffice/utils';
 import { GENERATE_DICTIONARY_MODAL_TOKEN } from '../../sidebar/generate-dictionaries-modal-tokent';
-import { UMB_MODAL_MANAGER_CONTEXT, UmbModalContext, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
+import { UMB_CONFIRM_MODAL, UMB_MODAL_MANAGER_CONTEXT, UmbModalContext, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
+import { MATCH_DICTIONARY_MODAL_TOKEN } from '../../sidebar/match-dictionaries-modal-tokent';
+import { UMB_NOTIFICATION_CONTEXT, UmbNotificationContext } from "@umbraco-cms/backoffice/notification";
 
 @customElement("auto-dictionaries-item-edit")
 export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement) {
 	private _routeBuilder?: UmbModalRouteBuilder;
 	private _modalContext?: UmbModalManagerContext;
+	private _modalManagerContext?: UmbModalManagerContext;
 
 	#workspaceContext?: AutoDictionariesItemWorkspaceContext;
 	#serverFilePathUniqueSerializer = new UmbServerFilePathUniqueSerializer();
-	#selectionManager = new UmbSelectionManager<string>(this);
+	#notificationContext?: UmbNotificationContext;
 
 	@state()
 	private _translationSetting: boolean = false
@@ -35,17 +37,10 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	private _item?: AutoDictionariesModel;
 
 	@state()
-	private _isLoading = false;
-
-	@state()
 	private _selectedContent: StaticContentDto[] = [];
 
 	constructor() {
 		super();
-
-		this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
-			this._modalContext = _instance;
-		});
 
 		new UmbModalRouteRegistrationController(this, UMB_WORKSPACE_MODAL)
 			.addAdditionalPath('general/:entityType')
@@ -55,6 +50,10 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			.observeRouteBuilder((routeBuilder) => {
 				this._routeBuilder = routeBuilder;
 			});
+
+		this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
+			this._modalContext = _instance;
+		});
 
 		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
 			this.#workspaceContext = context as AutoDictionariesItemWorkspaceContext;
@@ -70,9 +69,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			this._item = item;
 		});
 
-		// Observe loading state
-		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
-			this._isLoading = isLoading;
+		this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
+			this._modalManagerContext = _instance;
 		});
 	}
 
@@ -83,6 +81,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	}
 
 	async #loadData() {
+		this.#notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+
 		if (!this.#workspaceContext) return;
 
 		const repository = this.#workspaceContext.getRepository();
@@ -96,7 +96,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		]);
 
 		this._allDictionaryOptions = [
-			{ value: '', name: 'Set parent for selected...', selected: true },
+			{ value: '', name: 'None', selected: true },
 				...this._allDictionaries.map(dict => ({
 					value: dict.key ?? '',
 					name: dict.key ?? '',
@@ -167,9 +167,160 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			} as PreviewAddNewDictionaryItemToViewDto
 		});
 
-		//const result = await modalContext?.onSubmit();
+		await modalContext?.onSubmit().then(async () => {
+			try {
+				// Clear selection after successful generation
+				this._selectedContent = [];
+
+				// Reload the item to get updated dictionaries and static content
+				await this.#refreshItem();
+
+				const notification = {
+					data: {
+						message: "View has been updated. Dictionaries have been generated and static content replaced."
+					}
+				};
+				this.#notificationContext?.peek('positive', notification);
+			} catch (error) {
+				const notification = {
+					data: {
+						message: "Failed to refresh view after dictionary generation"
+					}
+				};
+				this.#notificationContext?.peek('danger', notification);
+			}
+		}).catch(() => {
+			// Modal was rejected/cancelled - no action needed
+		});
 	}
 
+	async #openMatchDictionaryModal(staticContent: StaticContentModel) {
+		const modalContext = await this._modalContext?.open(this, MATCH_DICTIONARY_MODAL_TOKEN, {
+			data: {
+				staticContent: staticContent.staticContent,
+				dictionaryKey: staticContent.dictionary?.guid,
+				autoDictionariesModel: this._item
+			} as AddExistingDictionaryItemToViewDto
+		});
+
+		await modalContext?.onSubmit().then(async () => {
+			try {
+				// Reload the item to get updated dictionaries and static content
+				await this.#refreshItem();
+
+				const notification = {
+					data: {
+						message: `Successfully matched "${staticContent.staticContent}" to existing dictionary item`
+					}
+				};
+				this.#notificationContext?.peek('positive', notification);
+			} catch (error) {
+				const notification = {
+					data: {
+						message: "Failed to refresh view after matching dictionary"
+					}
+				};
+				this.#notificationContext?.peek('danger', notification);
+			}
+		}).catch(() => {
+			// Modal was rejected/cancelled - no action needed
+		});
+	}
+
+	async #refreshItem() {
+		if (!this.#workspaceContext || !this._item?.key) return;
+
+		const repository = this.#workspaceContext.getRepository();
+
+		// Reload the current item to get updated state
+		const updatedItem = await repository.getView(this._item.key.toString());
+		if (updatedItem) {
+			this._item = updatedItem;
+		}
+
+		// Reload all dictionaries for the dropdown options
+		this._allDictionaries = await repository.getAllDictionaryItems();
+		this._allDictionaryOptions = [
+			{ value: '', name: 'None', selected: true },
+			...this._allDictionaries.map(dict => ({
+				value: dict.key ?? '',
+				name: dict.key ?? '',
+				selected: false
+			}))
+		];
+	}
+
+	#translateMissing(dictionary: DictionaryModel) {
+
+
+		const modalContext = this._modalManagerContext?.open(
+			this, UMB_CONFIRM_MODAL, {
+			data: {
+					headline: `Translate: "${dictionary.key}"`,
+					content: "Are you sure you want to translate this dictionary item?",
+					color: "positive",
+					confirmLabel: "Translate"
+			}
+		}
+		);
+		modalContext?.onSubmit().then(async () => {
+			const result = await this.#workspaceContext?.getRepository().getTranslateDictionaryItem(dictionary.guid);
+
+			if (result) {
+				const notification = { data: { message: `Successfully translated dictionary item: ${dictionary.key}` } };
+				this.#notificationContext?.peek('positive', notification);
+				if (this._item?.dictionaries) {
+					const index = this._item.dictionaries.findIndex(d => d.guid === dictionary.guid);
+					if (index !== -1) {
+						const updatedDictionaries = [...this._item.dictionaries];
+						updatedDictionaries[index] = {
+							...updatedDictionaries[index],
+							translated: true
+						};
+
+						this._item = {
+							...this._item,
+							dictionaries: updatedDictionaries
+						};
+					}
+				}
+
+			} else {
+				const notification = { data: { message: `Failed to translate dictionary item: ${dictionary.key}. Check logs for futher details.` } };
+				this.#notificationContext?.peek('danger', notification);
+			}
+		})
+	}
+
+
+	private _renderDictionaries(dictionary: DictionaryModel) {
+		if (!dictionary) return;
+
+		return html`<uui-table-row>
+						<uui-table-cell>${dictionary.key}</uui-table-cell>
+						<uui-table-cell>${dictionary.guid}</uui-table-cell>
+						<uui-table-cell class="text-center">${dictionary.used}</uui-table-cell>
+						<uui-table-cell class="text-center">
+							<uui-icon name=${dictionary.translated ? "icon-check" : "icon-alert"}></uui-icon>
+						</uui-table-cell>
+
+						<uui-table-cell style="text-align:right;">
+							${!dictionary.translated && this._translationSetting ?
+							html`	
+								<uui-button label="Translate missing" 
+								look="primary"
+								@click=${() => this.#translateMissing(dictionary)}></uui-button>
+							` :
+							null}
+						</uui-table-cell>
+						<uui-table-cell> 
+							<uui-button label="Open dictionary item" 
+								look="link"
+								href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
+						</uui-table-cell>
+					
+					</uui-table-row>`;
+	}
 
 	private _renderStaticContent(staticContent: StaticContentModel) {
 		if (!staticContent) return;
@@ -195,38 +346,17 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 								.options=${this._allDictionaryOptions}
 								@click=${(e: Event) => e.stopPropagation()}
 								@change=${(e: Event) => {
-									const select = e.target as HTMLSelectElement;
-									this.#changeParent(staticContent, select.value);}}></uui-select>
+											const select = e.target as HTMLSelectElement;
+											this.#changeParent(staticContent, select.value);
+										}}></uui-select>
 						</uui-table-cell>
 						<uui-table-cell>
-						</uui-table-cell>
-					
-					</uui-table-row>`;
-	}
-
-	private _renderDictionaries(dictionary: DictionaryModel) {
-		if (!dictionary) return;
-
-		return html`<uui-table-row>
-						<uui-table-cell>${dictionary.key}</uui-table-cell>
-						<uui-table-cell>${dictionary.guid}</uui-table-cell>
-						<uui-table-cell class="text-center">${dictionary.used}</uui-table-cell>
-						<uui-table-cell class="text-center">
-							<uui-icon name=${dictionary.translated ? "icon-check" : "icon-alert"}"></uui-icon>
-						</uui-table-cell>
-
-						<uui-table-cell style="text-align:right;">
-							${!dictionary.translated && this._translationSetting ?
-							html`	
-								<uui-button label="Translate missing" 
-								look="secondary"></uui-button>
-							` :
-							null}
-						</uui-table-cell>
-						<uui-table-cell> 
-							<uui-button label="Open dictionary item" 
-								look="link"
-								href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
+							${staticContent.dictionary ?
+								html`<uui-button
+										look="primary"
+										label="Convert into existing dictionary item"
+										@click=${() => this.#openMatchDictionaryModal(staticContent)}
+									</uui-button>` : null}
 						</uui-table-cell>
 					
 					</uui-table-row>`;
@@ -262,14 +392,6 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	}
 
 	render() {
-		if (this._isLoading) {
-			return html`
-				<umb-body-layout header-transparent>
-					<uui-loader></uui-loader>
-				</umb-body-layout>
-			`;
-		}
-
 		if (!this._item) {
 			return html`
 				<umb-body-layout header-transparent>

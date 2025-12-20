@@ -1,8 +1,8 @@
 ﻿using Asp.Versioning;
-using System.Threading.Tasks;
+using Umbraco.Cms.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Strings;
-using Microsoft.AspNetCore.Http;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using AutoDictionaries.Core.Models;
@@ -11,7 +11,6 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Umbraco.Cms.Web.Common.Authorization;
 using AutoDictionaries.Core.Services.Interfaces;
-using Umbraco.Cms.Api.Management.ViewModels.Tree;
 using Umbraco.Cms.Api.Common.ViewModels.Pagination;
 
 namespace AutoDictionaries.Core.Controllers
@@ -25,29 +24,35 @@ namespace AutoDictionaries.Core.Controllers
     {
 
         private readonly ILogger<AutoDictionariesApiController> _logger;
-        private readonly IShortStringHelper _shortStringHelper;
-        private readonly IADTemplateService _adTemplateService;
-        private readonly ILocalizationService _localizationService;
+		private readonly ILanguageService _languageService;
+		private readonly IShortStringHelper _shortStringHelper;
+        private readonly IADTemplateService _adTemplateService;      
         private readonly IADTranslationService _adTranslationService;
         private readonly IADPartialViewService _adPartialViewService;
-        private readonly IAutoDictionariesService _autoDictionariesService;
+		private readonly IDictionaryItemService _dictionaryItemService;
+		private readonly IAutoDictionariesService _autoDictionariesService;
+		private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
 
-        public AutoDictionariesApiController(ILogger<AutoDictionariesApiController> logger,
-            IShortStringHelper shortStringHelper,
+		public AutoDictionariesApiController(ILogger<AutoDictionariesApiController> logger,
+			ILanguageService languageService,
+			IShortStringHelper shortStringHelper,
             IADTemplateService adTemplateService,
-            ILocalizationService localizationService,
             IADTranslationService adTranslationService,
             IADPartialViewService adPartialViewService,
-            IAutoDictionariesService autoDictionariesService)
+			IDictionaryItemService dictionaryItemService,
+			IAutoDictionariesService autoDictionariesService,
+			IBackOfficeSecurityAccessor backOfficeSecurityAccessor)
         {
             _logger = logger;
+			_languageService = languageService;
             _shortStringHelper = shortStringHelper;
             _adTemplateService = adTemplateService;
-            _localizationService = localizationService;
             _adTranslationService = adTranslationService;
             _adPartialViewService = adPartialViewService;
+            _dictionaryItemService = dictionaryItemService;
             _autoDictionariesService = autoDictionariesService;
-        }
+			_backOfficeSecurityAccessor = backOfficeSecurityAccessor;
+		}
 
         [HttpGet("get-all-views")]
         public async Task<List<AutoDictionariesModel>> GetAllViews() 
@@ -138,7 +143,7 @@ namespace AutoDictionaries.Core.Controllers
         public async Task<string[]> PreviewAddNewDictionaryItemToView(PreviewAddNewDictionaryItemToViewDto dto)
         {
             foreach (var staticContent in dto.StaticContent)
-                staticContent.SafeAlias = $"{(staticContent.Parent != "0" ? staticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(staticContent.StaticContent)}";
+                staticContent.SafeAlias = $"{(!string.IsNullOrEmpty(staticContent.Parent) ? staticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(staticContent.StaticContent)}";
 
             PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
@@ -154,26 +159,25 @@ namespace AutoDictionaries.Core.Controllers
         {
             try
             {
-                var parent = _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
-                var dictionaryName = $"{(dto.StaticContent.Parent != "0" ? dto.StaticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(dto.StaticContent.StaticContent)}";
+                var parent = await _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
+                var dictionaryName = $"{(dto.StaticContent.Parent != "" ? dto.StaticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(dto.StaticContent.StaticContent)}";
                 DictionaryModel dictionary;
 
-
-                //if (!dto.Tanslate)
-                //{
-                //    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, parent?.Id);
-                //}
-                //else
-                //{
-                //    dictionary = _autoDictionariesService.CreateDictionaryItem(dictionaryName, _adTranslationService.Translate(dto.StaticContent.StaticContent), parent?.Id);
-                //}
+				if (!dto.Translate)
+                {
+                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key, parent);
+                }
+                else
+                {
+                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(dto.StaticContent.StaticContent), _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key, parent);
+                }
 
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                //if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
-                //{
-                //    return false;
-                //}
+                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -185,34 +189,31 @@ namespace AutoDictionaries.Core.Controllers
         }
 
         [HttpGet("translate-dictionary-item/{id}")]
-        public bool TranslateDictionaryItem(int id)
+        public async Task<bool> TranslateDictionaryItem(Guid id)
         {
             try
             {
-                var defaultLang = _localizationService.GetDefaultLanguageIsoCode();
+				var defaultLang = await _languageService.GetDefaultIsoCodeAsync();
 
-                var item = _localizationService.GetDictionaryItemById(id);
+                var item = await _dictionaryItemService.GetAsync(id);
 
                 var defaultText = item.Translations.FirstOrDefault(x => x.LanguageIsoCode == defaultLang);
 
-                if (string.IsNullOrEmpty(defaultText.Value))
+                if (string.IsNullOrEmpty(defaultText?.Value))
                     return false;
 
+                var newTranslations = await _adTranslationService.Translate(defaultText.Value);
 
-                var translations = _adTranslationService.Translate(defaultText.Value);
+                var translations = item.Translations.ToList();
+				translations.AddRange(newTranslations.Where(x => x.Language.CultureInfo.Name != defaultLang).Select(x => new DictionaryTranslation(x.Language, x.TranslatedText)));
 
-                var fieldsWithNoTranslations = item.Translations.Where(x => string.IsNullOrEmpty(x.Value));
-                foreach (var field in fieldsWithNoTranslations)
-                {
-                    var matchingTranslaion = translations.FirstOrDefault(x => x.Language.IsoCode == field.LanguageIsoCode);
-                    if (matchingTranslaion == null)
-                        return false;
+                item.Translations = translations;
 
-                    if (string.IsNullOrEmpty(field.Value))
-                        field.Value = matchingTranslaion.TranslatedText;
-                }
+               
 
-                _localizationService.Save(item);
+				var attempt = await _dictionaryItemService.UpdateAsync(item, _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key);
+                if (!attempt.Success)
+                    return false;
             }
             catch (Exception ex)
             {

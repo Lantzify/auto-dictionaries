@@ -1,0 +1,1 @@
+export * from './auto-dictionaries-code.js';

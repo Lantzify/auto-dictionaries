@@ -11,7 +11,7 @@ export type AddExistingDictionaryItemToViewDto = {
 };
 
 export type AddNewDictionaryItemToViewDto = {
-    tanslate: boolean;
+    translate: boolean;
     autoDictionariesModel?: AutoDictionariesModel | null;
     staticContent?: StaticContentDto | null;
 };
@@ -300,7 +300,7 @@ export type PostPreviewAddNewDictionaryItemResponse = PostPreviewAddNewDictionar
 export type GetTranslateDictionaryItemByIdData = {
     body?: never;
     path: {
-        id: number;
+        id: string;
     };
     query?: never;
     url: '/translate-dictionary-item/{id}';

@@ -3,6 +3,8 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { client } from './api/client.gen.js';
 import { manifests } from './manifests.js';
 
+export * from './components/index.js';
+
 export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
 
 	extensionRegistry.registerMany(manifests);
