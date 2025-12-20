@@ -374,8 +374,8 @@ namespace AutoDictionaries.Tests
         {
             // Arrange
             var viewContent = @"
-                <div>
                     <h1>Main Header</h1>
+                <div>
                     <div>
                         <p>Nested paragraph</p>
                         <span>
@@ -524,5 +524,134 @@ namespace AutoDictionaries.Tests
             helloItem.Should().NotBeNull();
             helloItem!.Dictionary.Should().BeNull(); // No matching dictionary
         }
-    }
+
+
+		[Test]
+		public async Task GetStaticContentFromView_DontFindInIfStatement()
+		{
+			// Arrange
+			var viewContent = @"@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Search>
+
+@using Clean.Core.Models.ViewModels
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core
+@using Clean.Core.Extensions
+@inject Umbraco.Cms.Core.IPublishedContentQuery publishedContentQuery
+
+@{
+    Layout = ""master.cshtml"";
+    var searchQuery = Context.Request.Query[""q""];
+    var docTypesToIgnore = new[] { Category.ModelTypeAlias, CategoryList.ModelTypeAlias, Error.ModelTypeAlias, Search.ModelTypeAlias, XMlsitemap.ModelTypeAlias };
+}
+
+@await Html.PartialAsync(""~/Views/Partials/pageHeader.cshtml"", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+
+<div class=""container"">
+    <form action=""@Model.Url()"" method=""GET"" id=""search"">
+        <div class=""row"">
+            <div class=""col-lg-8 col-md-10 mx-auto"">
+                <div class=""form-group controls"">
+                    <input type=""text"" class=""form-control col-xs-6"" placeholder=""@Umbraco.GetDictionaryValue(""Search.Placeholder"")"" name=""q"" value=""@searchQuery"" />
+                </div>
+            </div>
+            <div class=""col-lg-8 col-md-10 mx-auto my-3"">
+                <div class=""form-group"">
+                    <button class=""btn btn-primary search-button float-end"">@Umbraco.GetDictionaryValue(""Search.SearchButton"") <i class=""fa fa-search""></i></button>
+                </div>
+            </div>
+            <div class=""col-lg-8 col-md-10 mx-auto"">
+                @if (!string.IsNullOrWhiteSpace(searchQuery))
+                {
+                    var results = publishedContentQuery.Search(searchQuery).Where(x => !docTypesToIgnore.Contains(x.Content.ContentType.Alias));
+                    long resultCount = results != null && results.Any() ? results.Count() : 0;
+                    @Html.Raw(string.Format(Umbraco.GetDictionaryValue(""Search.Results""), resultCount, searchQuery.ToString().StripHtml()))
+                    if (resultCount > 0)
+                    {
+                        foreach (var result in results)
+                        {
+                            <div class=""post-preview"">
+                                <a href=""@result.Content.Url()"">
+                                    <h2 class=""post-title"">
+                                        @(result.Content.HasProperty(""title"") && result.Content.HasValue(""title"") && !string.IsNullOrWhiteSpace(result.Content.Value<string>(""title"")) ? result.Content.Value(""title"") : result.Content.Name)
+                                    </h2>
+                                    @if (result.Content.HasProperty(""subtitle"") && result.Content.HasValue(""subtitle"") && !string.IsNullOrWhiteSpace(result.Content.Value<string>(""subtitle"")))
+                                    {
+                                        <h3 class=""post-subtitle"">@(result.Content.Value<string>(""subtitle""))</h3>
+                                    }
+                                </a>
+                                @if (result.Content is IArticleControls article && ((result.Content.HasProperty(""author"") && result.Content.HasValue(""author""))
+                               || (result.Content.HasProperty(""articleDate"") && result.Content.HasValue(""articleDate"") && result.Content.Value<DateTime>(""articleDate"") > DateTime.MinValue)))
+                                {
+                                    var author = article.Author;
+                                    <p class=""post-meta"">
+                                        @Umbraco.GetDictionaryValue(""Article.Posted"")
+                                        @Umbraco.GetDictionaryValue(""Article.By"")@Html.Raw(""&nbsp;"")@(author.Name)
+
+                                        @if (article.ArticleDate != null && article.ArticleDate > DateTime.MinValue)
+                                        {
+                                            @Umbraco.GetDictionaryValue(""Article.On"")
+
+                                            @:&nbsp;@(article.ArticleDate.ToString(""MMMM dd, yyyy""))
+                                        }
+                                    </p>
+                                }
+                            </div>
+                        }
+                        <hr>
+                    }
+                }
+            </div>
+        </div>
+    </form>
+</div>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_ShouldFindTextThatsBetweenHtmlTags()
+		{
+			// Arrange
+			var viewContent = @"@inherits UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@{
+    var homePage = Model.AncestorOrSelf<ContentModels.Home>();
+}
+
+<!-- Footer-->
+<footer>
+    <div class=""container px-4 px-lg-5"">
+        <div class=""row gx-4 gx-lg-5 justify-content-center"">
+            <div class=""col-md-10 col-lg-8 col-xl-7"">
+                @if (homePage.SocialIconLinks != null && homePage.SocialIconLinks.Any())
+                {
+                    <ul class=""list-inline text-center"">
+                        @Html.GetBlockListHtml(homePage.SocialIconLinks)
+                    </ul>
+                }
+                <p class=""small text-center text-muted fst-italic"">@Umbraco.GetDictionaryValue(""Footer.CopyrightTitle"") &copy; @DateTime.Now.Year @Umbraco.GetDictionaryValue(""Footer.CopyrightStatement"")</p>
+                <p class=""small text-center text-muted fst-italic"">Theme by <a href=""https://startbootstrap.com/"" target=""_blank"" rel=""noopener"">Start Bootstrap</a>, implemented in Umbraco by Paul Seal from <a href=""https://codeshare.co.uk"" target=""_blank"" rel=""noopener"">codeshare.co.uk</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(3);
+			result[0].StaticContent.Should().Be("Theme by");
+            result[1].StaticContent.Should().Be("Start Bootstrap");
+            result[2].StaticContent.Should().Be("implemented in Umbraco by Paul Seal from");
+		}
+	}
 }
