@@ -35,7 +35,33 @@ export class MatchDictionariesElement extends UmbElementMixin(LitElement) {
     }
 
     async #submit() {
+        const payload: AddExistingDictionaryItemToViewDto = {
+            autoDictionariesModel: this.data?.autoDictionariesModel,
+            dictionaryKey: this.data?.dictionaryKey ?? "",
+            staticContent: this.data?.staticContent
+        };
 
+        const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+
+        const response = await this.#repository.postAddExistingDictionaryItem(payload);
+
+        if (response) {
+            const notification = {
+                data: {
+                    message: `Successfully matched "${payload.staticContent}" to existing dictionary item`
+                }
+            };
+            notificationContext?.peek('positive', notification);
+        } else {
+            const notification = {
+                data: {
+                    message: `Failed to match "${payload.staticContent}" to existing dictionary item`
+                }
+            };
+            notificationContext?.peek('danger', notification);
+        }
+
+        this.modalContext?.submit();
     }
 
     #close() {
@@ -51,8 +77,6 @@ export class MatchDictionariesElement extends UmbElementMixin(LitElement) {
                     <auto-dictionaries-code .diffCode=${this._diff}></auto-dictionaries-code>                               
                   </uui-box>
               
-
-
                 <div slot="actions">
       
 					<uui-button
@@ -60,10 +84,10 @@ export class MatchDictionariesElement extends UmbElementMixin(LitElement) {
 						@click="${this.#close}"></uui-button>
 
                 <uui-button
-					label="general_submit"
+					label=${this.localize.term("general_submit")}
                     look="primary"
                     color="positive"
-					@click="${this.#close}"></uui-button>
+					@click="${this.#submit()}"></uui-button>
 
 				</div>
             </umb-body-layout>`;

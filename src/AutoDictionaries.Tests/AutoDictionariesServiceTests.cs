@@ -343,7 +343,7 @@ namespace AutoDictionaries.Tests
         public async Task GetStaticContentFromView_WithIfStatement_FiltersOut()
         {
             // Arrange
-            var viewContent = @"<div>@if (condition) { Some text }</div>";
+            var viewContent = @"<div>@if (condition) { <p>Some text<p> }</div>";
 
             // Act
             var result = await _service.GetStaticContentFromView(viewContent);
@@ -358,7 +358,7 @@ namespace AutoDictionaries.Tests
 		public async Task GetStaticContentFromView_WithForLoop_FiltersOut()
 		{
 			// Arrange
-			var viewContent = @"<div>@for (var item in items) { Some text }</div>";
+			var viewContent = @"<div>@for (var item in items) { <p>Some text</p> }</div>";
 
 			// Act
 			var result = await _service.GetStaticContentFromView(viewContent);

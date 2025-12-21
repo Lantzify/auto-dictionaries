@@ -14,7 +14,7 @@ export default {
         key: "Key",
         parent: "Parent",
         used_in_view: "Used in view",
-        translated: "translated",
+        translated: "Translated",
 
         no_dictionaries: "There are no dictionaries in this view",
         no_static_content: "There is no static content in this view",

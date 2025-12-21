@@ -10,7 +10,7 @@ import { UMB_PARTIAL_VIEW_ENTITY_TYPE } from '@umbraco-cms/backoffice/partial-vi
 import { UmbServerFilePathUniqueSerializer } from '@umbraco-cms/backoffice/server-file-system';
 import { UMB_DICTIONARY_ENTITY_TYPE } from '@umbraco-cms/backoffice/dictionary';
 import { GENERATE_DICTIONARY_MODAL_TOKEN } from '../../sidebar/generate-dictionaries-modal-tokent';
-import { UMB_CONFIRM_MODAL, UMB_MODAL_MANAGER_CONTEXT, UmbModalContext, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
+import { UMB_CONFIRM_MODAL, UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 import { MATCH_DICTIONARY_MODAL_TOKEN } from '../../sidebar/match-dictionaries-modal-tokent';
 import { UMB_NOTIFICATION_CONTEXT, UmbNotificationContext } from "@umbraco-cms/backoffice/notification";
 
@@ -64,7 +64,6 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	#observeContext() {
 		if (!this.#workspaceContext) return;
 
-		// Observe the current item
 		this.observe(this.#workspaceContext.currentItem, (item) => {
 			this._item = item;
 		});
@@ -155,7 +154,6 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		}))
 	}
 
-
 	//
 
 	async #openCreateDictionaryModal() {
@@ -168,29 +166,9 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		});
 
 		await modalContext?.onSubmit().then(async () => {
-			try {
-				// Clear selection after successful generation
-				this._selectedContent = [];
+			this._selectedContent = [];
 
-				// Reload the item to get updated dictionaries and static content
-				await this.#refreshItem();
-
-				const notification = {
-					data: {
-						message: "View has been updated. Dictionaries have been generated and static content replaced."
-					}
-				};
-				this.#notificationContext?.peek('positive', notification);
-			} catch (error) {
-				const notification = {
-					data: {
-						message: "Failed to refresh view after dictionary generation"
-					}
-				};
-				this.#notificationContext?.peek('danger', notification);
-			}
-		}).catch(() => {
-			// Modal was rejected/cancelled - no action needed
+			await this.#refreshItem();
 		});
 	}
 
@@ -204,41 +182,20 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		});
 
 		await modalContext?.onSubmit().then(async () => {
-			try {
-				// Reload the item to get updated dictionaries and static content
-				await this.#refreshItem();
-
-				const notification = {
-					data: {
-						message: `Successfully matched "${staticContent.staticContent}" to existing dictionary item`
-					}
-				};
-				this.#notificationContext?.peek('positive', notification);
-			} catch (error) {
-				const notification = {
-					data: {
-						message: "Failed to refresh view after matching dictionary"
-					}
-				};
-				this.#notificationContext?.peek('danger', notification);
-			}
-		}).catch(() => {
-			// Modal was rejected/cancelled - no action needed
-		});
+			await this.#refreshItem();
+		})
 	}
 
 	async #refreshItem() {
-		if (!this.#workspaceContext || !this._item?.key) return;
+		if (!this.#workspaceContext) return;
 
 		const repository = this.#workspaceContext.getRepository();
 
-		// Reload the current item to get updated state
-		const updatedItem = await repository.getView(this._item.key.toString());
+		const updatedItem = await repository.getViewById(this.#workspaceContext?.getUnique() ?? "");
 		if (updatedItem) {
 			this._item = updatedItem;
 		}
 
-		// Reload all dictionaries for the dropdown options
 		this._allDictionaries = await repository.getAllDictionaryItems();
 		this._allDictionaryOptions = [
 			{ value: '', name: 'None', selected: true },
@@ -251,18 +208,17 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	}
 
 	#translateMissing(dictionary: DictionaryModel) {
-
-
 		const modalContext = this._modalManagerContext?.open(
 			this, UMB_CONFIRM_MODAL, {
 			data: {
 					headline: `Translate: "${dictionary.key}"`,
 					content: "Are you sure you want to translate this dictionary item?",
 					color: "positive",
-					confirmLabel: "Translate"
+					confirmLabel: this.localize.term("actions_translate"),
+					cancelLabel: this.localize.term("general_close") 
 			}
-		}
-		);
+		});
+
 		modalContext?.onSubmit().then(async () => {
 			const result = await this.#workspaceContext?.getRepository().getTranslateDictionaryItem(dictionary.guid);
 
@@ -284,12 +240,11 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						};
 					}
 				}
-
 			} else {
-				const notification = { data: { message: `Failed to translate dictionary item: ${dictionary.key}. Check logs for futher details.` } };
+				const notification = { data: { message: `Failed to fully translate dictionary item: ${dictionary.key}. Check logs for futher details.` } };
 				this.#notificationContext?.peek('danger', notification);
 			}
-		})
+		});
 	}
 
 
@@ -307,14 +262,14 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						<uui-table-cell style="text-align:right;">
 							${!dictionary.translated && this._translationSetting ?
 							html`	
-								<uui-button label="Translate missing" 
-								look="primary"
+								<uui-button label=${this.localize.term("actions_translate")}
+								look="secondary"
 								@click=${() => this.#translateMissing(dictionary)}></uui-button>
 							` :
 							null}
 						</uui-table-cell>
 						<uui-table-cell> 
-							<uui-button label="Open dictionary item" 
+							<uui-button label=${this.localize.term("general_open")}
 								look="link"
 								href=${this._routeBuilder?.({ entityType: UMB_DICTIONARY_ENTITY_TYPE }) + 'edit/' + dictionary.guid}></uui-button>
 						</uui-table-cell>
@@ -325,15 +280,15 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	private _renderStaticContent(staticContent: StaticContentModel) {
 		if (!staticContent) return;
 
-		const isSelected = this._selectedContent.map(x => x.staticContent).indexOf(staticContent.staticContent) !== -1;
+		const selectedItem = this._selectedContent.find(x => x.staticContent === staticContent.staticContent);
 
 		return html`<uui-table-row selectable 
-									?selected=${isSelected}
+									?selected=${!!selectedItem}
 									@selected=${() => this.#toggleSelect(staticContent)}
 									@deselected=${() => this.#toggleSelect(staticContent)}>
 						<uui-table-cell style="--uui-table-cell-padding: 0; text-align: center;">
 							<uui-checkbox
-									?checked=${isSelected}
+									?checked=${!!selectedItem}
 									@click=${(e: Event) => e.stopPropagation()}
 									@change=${() => this.#toggleSelect(staticContent)}>
 							</uui-checkbox>
@@ -342,7 +297,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						<uui-table-cell>${staticContent.used}</uui-table-cell>
 						<uui-table-cell>
 							<uui-select
-								?disabled=${!isSelected}
+								?disabled=${!!!selectedItem}
+								.value=${ifDefined(selectedItem?.parent)}
 								.options=${this._allDictionaryOptions}
 								@click=${(e: Event) => e.stopPropagation()}
 								@change=${(e: Event) => {

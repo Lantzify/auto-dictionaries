@@ -146,7 +146,7 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
 						@click="${this.#close}"></uui-button>
 
        
-                    ${this.data.canTranslate ?
+                    ${this.data?.canTranslate ?
                         html`
                             <uui-button
                                 look="secondary"
@@ -160,7 +160,7 @@ export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
                                     @click="${() => this.#submit(true)}"></uui-button>
                         ` : html`
                         <uui-button
-						    label="general_submit"
+						    label=${this.localize.term("general_submit")}
                             look="primary"
                             color="positive"
 						    @click="${this.#close}"></uui-button>`}
