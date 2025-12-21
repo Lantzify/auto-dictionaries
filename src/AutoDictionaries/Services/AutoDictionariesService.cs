@@ -1,6 +1,7 @@
 ﻿using Serilog.Events;
 using AutoDictionaries.Models;
 using Umbraco.Cms.Core.Models;
+using AutoDictionaries.Helpers;
 using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Dtos;
 using AutoDictionaries.Core.Models;
@@ -97,14 +98,8 @@ namespace AutoDictionaries.Services
 
 		public async Task<List<StaticContentModel>> GetStaticContentFromView(string viewContent)
 		{
-			var staticContents = Regex.Matches(viewContent, @"(?<!(=>))(?<=>)(?![.,])([\s\w,.&?!'#\(]+)(.*?)")
-										.Cast<Match>()
-										.Where(x => !string.IsNullOrWhiteSpace(x.Value) &&
-													Regex.Match(x.Value, @"\D+").Length > 1 &&
-													!Regex.IsMatch(x.Value.Trim()[0].ToString(), @"\W") &&
-													!Regex.IsMatch(x.Value, @"(if *\()"))
-										.Select(m => m.Value.Trim())
-										.ToList();
+			var staticContents = FindStaticContentHelper.ExtractStaticContent(viewContent);
+
 			var groupedContent = staticContents.GroupBy(x => x);
 
 			List<StaticContentModel> staticContentModelList = new();

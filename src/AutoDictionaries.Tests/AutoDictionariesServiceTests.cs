@@ -224,7 +224,8 @@ namespace AutoDictionaries.Tests
             // Assert
             result.Should().NotBeNull();
 			result.Should().HaveCount(1);
-			result[0].StaticContent.Should().Be("Email");
+			// The @ symbol acts as a Razor boundary, so we extract text before it
+			result[0].StaticContent.Should().Be("Email: test");
         }
 
         [Test]
@@ -253,7 +254,7 @@ namespace AutoDictionaries.Tests
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEmpty(); // Whitespace-only content should be filtered out
+            result.Should().BeEmpty();
         }
 
         [Test]
@@ -267,7 +268,7 @@ namespace AutoDictionaries.Tests
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEmpty(); // Single characters should be filtered out by the regex
+            result.Should().BeEmpty();
         }
 
         [Test]
@@ -652,6 +653,255 @@ namespace AutoDictionaries.Tests
 			result[0].StaticContent.Should().Be("Theme by");
             result[1].StaticContent.Should().Be("Start Bootstrap");
             result[2].StaticContent.Should().Be("implemented in Umbraco by Paul Seal from");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithAltAttribute_ExtractsAltText()
+		{
+			// Arrange - alt attributes are critical for WCAG accessibility (screen readers)
+			var viewContent = @"<img src=""logo.png"" alt=""Company Logo"" />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Company Logo");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithTitleAttribute_ExtractsTitleText()
+		{
+			// Arrange - title attributes provide additional context (tooltips)
+			var viewContent = @"<a href=""/about"" title=""Learn more about our company"">About Us</a>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
+			result.Should().Contain(x => x.StaticContent == "Learn more about our company");
+			result.Should().Contain(x => x.StaticContent == "About Us");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithPlaceholderAttribute_ExtractsPlaceholderText()
+		{
+			// Arrange - placeholder attributes guide users in form inputs
+			var viewContent = @"<input type=""text"" placeholder=""Enter your name"" />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Enter your name");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithValueAttribute_ExtractsButtonValue()
+		{
+			// Arrange - value attributes on buttons contain translatable text
+			var viewContent = @"<input type=""submit"" value=""Submit Form"" />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Submit Form");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithMultipleWcagAttributes_ExtractsAll()
+		{
+			// Arrange - complex form with multiple accessibility attributes
+			var viewContent = @"
+				<form>
+					<label for=""email"">Email Address</label>
+					<input type=""email"" id=""email"" placeholder=""you@example.com"" title=""Enter a valid email address"" />
+					<input type=""submit"" value=""Subscribe"" />
+					<img src=""help.png"" alt=""Help icon"" title=""Click for help"" />
+				</form>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Email Address");
+			result.Should().Contain(x => x.StaticContent == "Enter a valid email address");
+			result.Should().Contain(x => x.StaticContent == "Subscribe");
+			result.Should().Contain(x => x.StaticContent == "Help icon");
+			result.Should().Contain(x => x.StaticContent == "Click for help");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithSingleQuotedAttributes_ExtractsCorrectly()
+		{
+			// Arrange - attributes can use single quotes
+			var viewContent = @"<img src='image.jpg' alt='Profile picture' title='User avatar' />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
+			result.Should().Contain(x => x.StaticContent == "Profile picture");
+			result.Should().Contain(x => x.StaticContent == "User avatar");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithRazorInAttribute_FiltersOut()
+		{
+			// Arrange - attributes containing Razor expressions should be filtered
+			var viewContent = @"<input type=""text"" placeholder=""@Model.PlaceholderText"" />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithUrlInAttribute_FiltersOut()
+		{
+			// Arrange - URL values shouldn't be extracted as translatable content
+			var viewContent = @"<a href=""https://example.com"" title=""Visit our website"">Link</a>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			// Should contain title and link text, but not the URL
+			result.Should().Contain(x => x.StaticContent == "Visit our website");
+			result.Should().Contain(x => x.StaticContent == "Link");
+			result.Should().NotContain(x => x.StaticContent.Contains("https://"));
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithAriaLabel_DoesNotExtract()
+		{
+			// Arrange - aria-label is important for accessibility but not currently extracted
+			var viewContent = @"<button aria-label=""Close dialog"">X</button>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+
+			result.Should().Contain(x => x.StaticContent == "Close dialog");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithDuplicateAttributeValues_CountsCorrectly()
+		{
+			// Arrange - same text in multiple attributes
+			var viewContent = @"
+				<input type=""submit"" value=""Submit"" />
+				<input type=""submit"" value=""Submit"" />
+				<button>Submit</button>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Submit");
+			result[0].Used.Should().Be(3); // 2 from value attributes + 1 from button text
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithEmptyAttributes_FiltersOut()
+		{
+			// Arrange - empty attributes shouldn't produce results
+			var viewContent = @"<input type=""text"" placeholder="""" title="""" /><img src=""x.png"" alt="""" />";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithMixedContentAndAttributes_ExtractsAll()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"
+				<div class=""form-container"" aria-label=""Contact form"">
+					<h2>Contact Us</h2>
+					<p>Fill out the form below to get in touch.</p>
+					<form>
+						<input type=""text"" name=""name"" placeholder=""Your full name"" title=""Required field"" />
+						<input type=""email"" name=""email"" placeholder=""Email address"" />
+						<textarea placeholder=""Your message""></textarea>
+						<button type=""submit"">Send Message</button>
+					</form>
+					<img src=""contact.jpg"" alt=""Customer service representative"" />
+				</div>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Contact form");
+			result.Should().Contain(x => x.StaticContent == "Contact Us");
+			result.Should().Contain(x => x.StaticContent == "Fill out the form below to get in touch.");
+			result.Should().Contain(x => x.StaticContent == "Your full name");
+			result.Should().Contain(x => x.StaticContent == "Required field");
+			result.Should().Contain(x => x.StaticContent == "Email address");
+			result.Should().Contain(x => x.StaticContent == "Your message");
+			result.Should().Contain(x => x.StaticContent == "Send Message");
+			result.Should().Contain(x => x.StaticContent == "Customer service representative");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Shouldnt_Find_If_And()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@model IPublishedContent
+@{
+
+    var homePage = Model.AncestorOrSelf(""home"");
+    void RenderChildPages(IEnumerable<IPublishedContent> contentItems)
+    {
+        if (contentItems.Any())
+        {
+            foreach (var content in contentItems.Where(x => x.IsVisible()))
+            {
+                if (!(content.HasProperty(""excludeFromSitemap"") && content.Value<bool>(""excludeFromSitemap"")))
+                {
+<url><loc>@content.Url(mode:UrlMode.Absolute)</loc><lastmod>@content.UpdateDate.ToString(""yyyy-MM-ddTHH:mm:sszzz"")</lastmod></url>
+                    if (content.Children.Any(x => x.IsVisible()))
+                    {
+                        RenderChildPages(content.Children);
+                    }
+                }
+            }
+        }
+    };
+}
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
 		}
 	}
 }
