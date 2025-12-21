@@ -256,7 +256,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						<uui-table-cell>${dictionary.guid}</uui-table-cell>
 						<uui-table-cell class="text-center">${dictionary.used}</uui-table-cell>
 						<uui-table-cell class="text-center">
-							<uui-icon name=${dictionary.translated ? "icon-check" : "icon-alert"}></uui-icon>
+							<uui-icon name=${dictionary.translated ? "icon-check" : "icon-alert"} title=${this.localize.term(dictionary.translated ? "autoDictionaries_single_fully_translated" : "autoDictionaries_single_not_fully_translated") }></uui-icon>
 						</uui-table-cell>
 
 						<uui-table-cell style="text-align:right;">

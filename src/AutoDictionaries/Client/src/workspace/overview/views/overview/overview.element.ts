@@ -78,7 +78,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		const query = (e.target as HTMLInputElement).value;
 
 		if (query) {
-			this._filterdViews = this._views?.filter(view => view.name.toLowerCase().includes(query.toLowerCase()));
+			this._filterdViews = this._views?.filter(view => view?.name?.toLowerCase().includes(query.toLowerCase()));
 		} else {
 			this._filterdViews = this._views;
 		}
@@ -117,9 +117,9 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 								""
 							}
 
-							${view.staticContent?.length == 0 && view.dictionaries?.every((dictionary) => dictionary.translated) ?
-								html`<uui-icon name="icon-check"></uui-icon>` :
-								html`<uui-icon name="icon-alert"></uui-icon>`}
+							${view.dictionaries?.every((dictionary) => dictionary.translated) ?
+								html`<uui-icon name="icon-check" title=${this.localize.term("autoDictionaries_fully_translated")}"></uui-icon>` :
+								html`<uui-icon name="icon-alert" title=${this.localize.term("autoDictionaries_not_fully_translated")}></uui-icon>`}
 						</uui-table-cell>
 						<uui-table-cell>${view.matchDictionaries > 0 ? view.matchDictionaries : ""}</uui-table-cell>
 					</uui-table-row>`;

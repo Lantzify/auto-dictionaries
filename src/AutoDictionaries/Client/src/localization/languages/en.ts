@@ -16,8 +16,14 @@ export default {
         used_in_view: "Used in view",
         translated: "Translated",
 
+
+        fully_translated: "Dictionraies used are fully translated",
+        single_fully_translated: "Dictionry item is fully translated",
+        not_fully_translated: "Dictionraies used are not fully translated",
+        single_not_fully_translated: "Dictionry item is not fully translated",
         no_dictionaries: "There are no dictionaries in this view",
         no_static_content: "There is no static content in this view",
+        has_static_content: "This view contain static content",
 
         settings_translate: "If auto dictionary should add the option to translate dictionary items",
         settings_translator: "Which translator to use. Thease are currently available (Case sensitive)",
