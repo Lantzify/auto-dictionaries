@@ -2,6 +2,7 @@ export default {
     autoDictionaries: {
         overview: "Overview",
         default_settings: "Default settings",
+        general: "General",
 
         viewName: "View name",
         type: "Type",
@@ -10,6 +11,13 @@ export default {
         dictionaries: "Dictionaries",
         match_dictionaries: "Match dictionaries",
         partial_view: "Partial view",
+        key: "Key",
+        parent: "Parent",
+        used_in_view: "Used in view",
+        translated: "translated",
+
+        no_dictionaries: "There are no dictionaries in this view",
+        no_static_content: "There is no static content in this view",
 
         settings_translate: "If auto dictionary should add the option to translate dictionary items",
         settings_translator: "Which translator to use. Thease are currently available (Case sensitive)",

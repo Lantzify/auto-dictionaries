@@ -20,7 +20,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 			value: "Template"
 		},
 		{
-			name: "Partial views",
+			name: this.localize.term("autoDictionaries_partial_view"),
 			value: "Partial view"
 		}
 	];
@@ -157,7 +157,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 							<umb-localize key="autoDictionaries_type"></umb-localize>					
 						</uui-table-head-cell>
 						<uui-table-head-cell>
-							<umb-localize key="autoDictionaries_path"></umb-localize>
+							<umb-localize key="general_path"></umb-localize>
 						</uui-table-head-cell>
 						<uui-table-head-cell>
 							<umb-localize key="autoDictionaries_static_content"></umb-localize>

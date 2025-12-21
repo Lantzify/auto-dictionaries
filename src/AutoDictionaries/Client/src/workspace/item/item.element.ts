@@ -417,10 +417,18 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 									<uui-table-column></uui-table-column>
 
 									<uui-table-head>
-										<uui-table-head-cell>Key</uui-table-head-cell>
-										<uui-table-head-cell>Id</uui-table-head-cell>
-										<uui-table-head-cell class="text-center">Used in view</uui-table-head-cell>
-										<uui-table-head-cell class="text-center">Translated</uui-table-head-cell>
+										<uui-table-head-cell>
+											<umb-localize key="autoDictionaries_key"></umb-localize>
+										</uui-table-head-cell>
+										<uui-table-head-cell>
+											<umb-localize key="template_id"></umb-localize>
+										</uui-table-head-cell>
+										<uui-table-head-cell class="text-center">
+											<umb-localize key="autoDictionaries_used_in_view"></umb-localize>
+										</uui-table-head-cell>
+										<uui-table-head-cell class="text-center">
+											<umb-localize key="autoDictionaries_translated"></umb-localize>
+										</uui-table-head-cell>
 										<uui-table-head-cell></uui-table-head-cell>
 										<uui-table-head-cell></uui-table-head-cell>
 									</uui-table-head>
@@ -431,10 +439,10 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 								${(this._item.staticContent ?? []).length > 0 ?
 								html`
 									<uui-icon name="icon-alert-alt"></uui-icon>` : null}
-									There are no dictionaries in this view`}		
+									<umb-localize key="autoDictionaries_no_dictionaries"></umb-localize>`}		
 						</uui-box>	
 			
-						<uui-box class=${(this._item.staticContent ?? []).length > 0 ? "no-padding" : ""} headline="Static Content">
+						<uui-box class=${(this._item.staticContent ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_static_content")}>
 
 							${(this._item.staticContent ?? []).length > 0 ?
 							html`
@@ -452,15 +460,21 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 												@change=${() => this.#toggleSelectAll()}>
 											</uui-checkbox>
 										</uui-table-head-cell>
-										<uui-table-head-cell>Content</uui-table-head-cell>
-										<uui-table-head-cell>Used in view</uui-table-head-cell>
-										<uui-table-head-cell>Parent</uui-table-head-cell>
+										<uui-table-head-cell>
+											<umb-localize key="sections_content"></umb-localize>
+										</uui-table-head-cell>
+										<uui-table-head-cell>
+											<umb-localize key="autoDictionaries_used_in_view"></umb-localize>
+										</uui-table-head-cell>
+										<uui-table-head-cell>
+											<umb-localize key="autoDictionaries_parent"></umb-localize>
+										</uui-table-head-cell>
 										<uui-table-head-cell></uui-table-head-cell>
 									</uui-table-head>
 
 									${repeat(this._item.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this._renderStaticContent(staticContent))}
 								</uui-table>` :
-							html`There is no static content in this view`}
+							html`<umb-localize key="autoDictionaries_no_static_content"></umb-localize>`}
 
 		
 						</uui-box>
@@ -471,24 +485,32 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 					<uui-box headline="General">
 
 						<div class="general-item">
-							<strong>Name</strong>
+							<strong>
+								<umb-localize key="general_name"></umb-localize>
+							</strong>
 							<span>${this._item.name}</span>
 						</div>
 
 						<div class="general-item">
-							<strong>Alias</strong>
+							<strong>
+								<umb-localize key="content_alias"></umb-localize>
+							</strong>
 							<span>${this._item.alias}</span>
 						</div>
 
 						<div class="general-item">
-							<strong>Type</strong>
+							<strong>
+								<umb-localize key="autoDictionaries_type"></umb-localize>
+							</strong>
 							<span>${this._item.type}</span>
 						</div>
 
 					
 
 						<div class="general-item">
-							<strong>View</strong>
+							<strong>
+								<umb-localize key="autoDictionaries_view"></umb-localize>
+							</strong>
 							<span>
 								<uui-ref-node standalone name=${this._item.name} detail="${this._item.path}" 
 									href=${ifDefined(this._item.type === "Template" ?
@@ -504,12 +526,16 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						</div>
 
 						<div class="general-item">
-							<strong>Id</strong>
+							<strong>
+								<umb-localize key="template_id"></umb-localize>
+							</strong>
 							<span>${this._item.id}</span>
 						</div>
 
 						<div class="general-item">
-							<strong>Key</strong>
+							<strong>
+								<umb-localize key="autoDictionaries_key"></umb-localize>
+							</strong>
 							<span>${this._item.key}</span>
 						</div>
 
