@@ -1,281 +1,282 @@
 using AutoDictionaries.Models;
+using FluentAssertions.Common;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Services;
+using Umbraco.Cms.Core.Services;
 using AutoDictionaries.Core.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace AutoDictionaries.Tests
 {
-    [TestFixture]
-    public class AutoDictionariesServiceTests
-    {
-        private Mock<ILanguageService> _languageServiceMock;
-        private Mock<IDictionaryItemService> _dictionaryItemServiceMock;
-        private Mock<IWebHostEnvironment> _webHostEnvironmentMock;
-        private Mock<IOptions<AutoDictionariesSettings>> _adSettingsMock;
-        private AutoDictionariesService _service;
+	[TestFixture]
+	public class AutoDictionariesServiceTests
+	{
+		private Mock<ILanguageService> _languageServiceMock;
+		private Mock<IDictionaryItemService> _dictionaryItemServiceMock;
+		private Mock<IWebHostEnvironment> _webHostEnvironmentMock;
+		private Mock<IOptions<AutoDictionariesSettings>> _adSettingsMock;
+		private AutoDictionariesService _service;
 
-        [SetUp]
-        public void Setup()
-        {
-            _languageServiceMock = new Mock<ILanguageService>();
-            _dictionaryItemServiceMock = new Mock<IDictionaryItemService>();
-            _webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
-            _adSettingsMock = new Mock<IOptions<AutoDictionariesSettings>>();
+		[SetUp]
+		public void Setup()
+		{
+			_languageServiceMock = new Mock<ILanguageService>();
+			_dictionaryItemServiceMock = new Mock<IDictionaryItemService>();
+			_webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
+			_adSettingsMock = new Mock<IOptions<AutoDictionariesSettings>>();
 
-            // Setup default mocks
-            var settings = new AutoDictionariesSettings();
-            _adSettingsMock.Setup(x => x.Value).Returns(settings);
+			// Setup default mocks
+			var settings = new AutoDictionariesSettings();
+			_adSettingsMock.Setup(x => x.Value).Returns(settings);
 
-            var mockLanguages = new List<ILanguage>
-            {
-                CreateMockLanguage("en-US"),
-                CreateMockLanguage("de-DE")
-            };
+			var mockLanguages = new List<ILanguage>
+			{
+				CreateMockLanguage("en-US"),
+				CreateMockLanguage("de-DE")
+			};
 
-            _languageServiceMock.Setup(x => x.GetAllAsync()).ReturnsAsync(mockLanguages);
-            _dictionaryItemServiceMock.Setup(x => x.GetAtRootAsync()).ReturnsAsync(new List<IDictionaryItem>());
+			_languageServiceMock.Setup(x => x.GetAllAsync()).ReturnsAsync(mockLanguages);
+			_dictionaryItemServiceMock.Setup(x => x.GetAtRootAsync()).ReturnsAsync(new List<IDictionaryItem>());
 
-            _service = new AutoDictionariesService(_languageServiceMock.Object, _webHostEnvironmentMock.Object, _adSettingsMock.Object, _dictionaryItemServiceMock.Object);
-        }
+			_service = new AutoDictionariesService(_languageServiceMock.Object, _webHostEnvironmentMock.Object, _adSettingsMock.Object, _dictionaryItemServiceMock.Object);
+		}
 
-        private static ILanguage CreateMockLanguage(string isoCode)
-        {
-            var mock = new Mock<ILanguage>();
-            mock.Setup(x => x.IsoCode).Returns(isoCode);
-            return mock.Object;
-        }
+		private static ILanguage CreateMockLanguage(string isoCode)
+		{
+			var mock = new Mock<ILanguage>();
+			mock.Setup(x => x.IsoCode).Returns(isoCode);
+			return mock.Object;
+		}
 
-        private static IDictionaryItem CreateMockDictionaryItem(Guid key, string itemKey, params string[] translations)
-        {
-            var mock = new Mock<IDictionaryItem>();
-            mock.Setup(x => x.Key).Returns(key);
-            mock.Setup(x => x.ItemKey).Returns(itemKey);
-            mock.Setup(x => x.Id).Returns(1);
-            
-            var dictionaryTranslations = new List<IDictionaryTranslation>();
-            foreach (var translation in translations)
-            {
-                var translationMock = new Mock<IDictionaryTranslation>();
-                translationMock.Setup(x => x.Value).Returns(translation);
-                dictionaryTranslations.Add(translationMock.Object);
-            }
-            mock.Setup(x => x.Translations).Returns(dictionaryTranslations);
-            
-            return mock.Object;
-        }
+		private static IDictionaryItem CreateMockDictionaryItem(Guid key, string itemKey, params string[] translations)
+		{
+			var mock = new Mock<IDictionaryItem>();
+			mock.Setup(x => x.Key).Returns(key);
+			mock.Setup(x => x.ItemKey).Returns(itemKey);
+			mock.Setup(x => x.Id).Returns(1);
 
-        private AutoDictionariesService CreateServiceWithPreloadedDictionaries(List<DictionaryModel> dictionaries)
-        {
-            // Create mock dictionary items from the DictionaryModels
-            var mockDictionaryItems = dictionaries.Select(d => 
-                CreateMockDictionaryItem(d.Guid, d.Key, d.Translations.ToArray())
-            ).ToList();
+			var dictionaryTranslations = new List<IDictionaryTranslation>();
+			foreach (var translation in translations)
+			{
+				var translationMock = new Mock<IDictionaryTranslation>();
+				translationMock.Setup(x => x.Value).Returns(translation);
+				dictionaryTranslations.Add(translationMock.Object);
+			}
+			mock.Setup(x => x.Translations).Returns(dictionaryTranslations);
 
-            // Setup the mock to return these at root level
-            _dictionaryItemServiceMock.Setup(x => x.GetAtRootAsync()).ReturnsAsync(mockDictionaryItems);
-            
-            // Setup GetAsync for each dictionary item
-            foreach (var dict in dictionaries)
-            {
-                var mockItem = CreateMockDictionaryItem(dict.Guid, dict.Key, dict.Translations.ToArray());
-                _dictionaryItemServiceMock.Setup(x => x.GetAsync(dict.Guid)).ReturnsAsync(mockItem);
-                _dictionaryItemServiceMock.Setup(x => x.GetAsync(dict.Key)).ReturnsAsync(mockItem);
-            }
-            
-            // Setup GetChildrenAsync to return empty list (no nested items for these tests)
-            _dictionaryItemServiceMock.Setup(x => x.GetChildrenAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(new List<IDictionaryItem>());
-            
-            return new AutoDictionariesService(_languageServiceMock.Object, _webHostEnvironmentMock.Object, _adSettingsMock.Object, _dictionaryItemServiceMock.Object);
-        }
+			return mock.Object;
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithEmptyContent_ReturnsEmptyList()
-        {
-            // Arrange
-            var viewContent = "";
+		private AutoDictionariesService CreateServiceWithPreloadedDictionaries(List<DictionaryModel> dictionaries)
+		{
+			// Create mock dictionary items from the DictionaryModels
+			var mockDictionaryItems = dictionaries.Select(d =>
+				CreateMockDictionaryItem(d.Guid, d.Key, d.Translations.ToArray())
+			).ToList();
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Setup the mock to return these at root level
+			_dictionaryItemServiceMock.Setup(x => x.GetAtRootAsync()).ReturnsAsync(mockDictionaryItems);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
-        }
+			// Setup GetAsync for each dictionary item
+			foreach (var dict in dictionaries)
+			{
+				var mockItem = CreateMockDictionaryItem(dict.Guid, dict.Key, dict.Translations.ToArray());
+				_dictionaryItemServiceMock.Setup(x => x.GetAsync(dict.Guid)).ReturnsAsync(mockItem);
+				_dictionaryItemServiceMock.Setup(x => x.GetAsync(dict.Key)).ReturnsAsync(mockItem);
+			}
 
-        [Test]
-        public void GetStaticContentFromView_WithNullContent_ThrowsException()
-        {
-            // Arrange
-            string viewContent = null;
+			// Setup GetChildrenAsync to return empty list (no nested items for these tests)
+			_dictionaryItemServiceMock.Setup(x => x.GetChildrenAsync(It.IsAny<Guid>()))
+				.ReturnsAsync(new List<IDictionaryItem>());
 
-            // Act & Assert
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.GetStaticContentFromView(viewContent));
-        }
+			return new AutoDictionariesService(_languageServiceMock.Object, _webHostEnvironmentMock.Object, _adSettingsMock.Object, _dictionaryItemServiceMock.Object);
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithSimpleStaticContent_ReturnsCorrectStaticContent()
-        {
-            // Arrange
-            var viewContent = @"<div>Hello World</div>";
+		[Test]
+		public async Task GetStaticContentFromView_WithEmptyContent_ReturnsEmptyList()
+		{
+			// Arrange
+			var viewContent = "";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result[0].StaticContent.Should().Be("Hello World");
-            result[0].Used.Should().Be(1);
-            result[0].Dictionary.Should().BeNull(); // No matching dictionary
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithMultipleStaticContent_ReturnsAllContent()
-        {
-            // Arrange
-            var viewContent = @"<div>Welcome</div><p>Thank you</p><span>Goodbye</span>";
+		[Test]
+		public void GetStaticContentFromView_WithNullContent_ThrowsException()
+		{
+			// Arrange
+			string viewContent = null;
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act & Assert
+			Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.GetStaticContentFromView(viewContent));
+		}
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(3);
-            result.Should().Contain(x => x.StaticContent == "Welcome");
-            result.Should().Contain(x => x.StaticContent == "Thank you");
-            result.Should().Contain(x => x.StaticContent == "Goodbye");
-            result.All(x => x.Used == 1).Should().BeTrue();
-        }
+		[Test]
+		public async Task GetStaticContentFromView_WithSimpleStaticContent_ReturnsCorrectStaticContent()
+		{
+			// Arrange
+			var viewContent = @"<div>Hello World</div>";
 
-        [Test]
-        public async Task GetStaticContentFromView_WithDuplicateContent_CountsCorrectly()
-        {
-            // Arrange
-            var viewContent = @"<div>Hello</div><p>Hello</p><span>Hello</span>";
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Hello World");
+			result[0].Used.Should().Be(1);
+			result[0].Dictionary.Should().BeNull(); // No matching dictionary
+		}
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result[0].StaticContent.Should().Be("Hello");
-            result[0].Used.Should().Be(3);
-        }
+		[Test]
+		public async Task GetStaticContentFromView_WithMultipleStaticContent_ReturnsAllContent()
+		{
+			// Arrange
+			var viewContent = @"<div>Welcome</div><p>Thank you</p><span>Goodbye</span>";
 
-        [Test]
-        public async Task GetStaticContentFromView_WithSpecialCharacters_HandlesCorrectly()
-        {
-            // Arrange
-            var viewContent = @"<div>Hello, World!</div><p>What's up?</p>";
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(3);
+			result.Should().Contain(x => x.StaticContent == "Welcome");
+			result.Should().Contain(x => x.StaticContent == "Thank you");
+			result.Should().Contain(x => x.StaticContent == "Goodbye");
+			result.All(x => x.Used == 1).Should().BeTrue();
+		}
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.Should().Contain(x => x.StaticContent == "Hello, World!");
-            result.Should().Contain(x => x.StaticContent == "What's up?");
-        }
+		[Test]
+		public async Task GetStaticContentFromView_WithDuplicateContent_CountsCorrectly()
+		{
+			// Arrange
+			var viewContent = @"<div>Hello</div><p>Hello</p><span>Hello</span>";
 
-        [Test]
-        public async Task GetStaticContentFromView_WithExistingDictionary_FindsMatchingDictionary()
-        {
-            // Arrange
-            var dictionaries = new List<DictionaryModel>
-            {
-                new DictionaryModel
-                {
-                    Id = 1,
-                    Key = "welcome_message",
-                    Guid = Guid.NewGuid(),
-                    Translations = new List<string> { "Welcome", "Willkommen" }
-                }
-            };
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
-            var viewContent = @"<div>Welcome</div>";
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Hello");
+			result[0].Used.Should().Be(3);
+		}
 
-            // Act
-            var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
+		[Test]
+		public async Task GetStaticContentFromView_WithSpecialCharacters_HandlesCorrectly()
+		{
+			// Arrange
+			var viewContent = @"<div>Hello, World!</div><p>What's up?</p>";
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result[0].StaticContent.Should().Be("Welcome");
-            result[0].Dictionary.Should().NotBeNull();
-            result[0].Dictionary.Key.Should().Be("welcome_message");
-        }
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-        [Test]
-        public async Task GetStaticContentFromView_WithEmailAddress_ExtractsPartially()
-        {
-            // Arrange
-            var viewContent = @"<span>Email: test@example.com</span>";
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
+			result.Should().Contain(x => x.StaticContent == "Hello, World!");
+			result.Should().Contain(x => x.StaticContent == "What's up?");
+		}
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+		[Test]
+		public async Task GetStaticContentFromView_WithExistingDictionary_FindsMatchingDictionary()
+		{
+			// Arrange
+			var dictionaries = new List<DictionaryModel>
+			{
+				new DictionaryModel
+				{
+					Id = 1,
+					Key = "welcome_message",
+					Guid = Guid.NewGuid(),
+					Translations = new List<string> { "Welcome", "Willkommen" }
+				}
+			};
 
-            // Assert
-            result.Should().NotBeNull();
+			var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
+			var viewContent = @"<div>Welcome</div>";
+
+			// Act
+			var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Welcome");
+			result[0].Dictionary.Should().NotBeNull();
+			result[0].Dictionary.Key.Should().Be("welcome_message");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_WithEmailAddress_ExtractsPartially()
+		{
+			// Arrange
+			var viewContent = @"<span>Email: test@example.com</span>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
 			result.Should().HaveCount(1);
 			// The @ symbol acts as a Razor boundary, so we extract text before it
 			result[0].StaticContent.Should().Be("Email: test");
-        }
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithRazorCode_FiltersCorrectly()
-        {
-            // Arrange
-            var viewContent = @"<div>Welcome</div><div>@Model.Title</div>";
+		[Test]
+		public async Task GetStaticContentFromView_WithRazorCode_FiltersCorrectly()
+		{
+			// Arrange
+			var viewContent = @"<div>Welcome</div><div>@Model.Title</div>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().Contain(x => x.StaticContent == "Welcome");
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Welcome");
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithWhitespaceOnly_FiltersOut()
-        {
-            // Arrange
-            var viewContent = @"<div>   </div><p>
+		[Test]
+		public async Task GetStaticContentFromView_WithWhitespaceOnly_FiltersOut()
+		{
+			// Arrange
+			var viewContent = @"<div>   </div><p>
             </p><span>	</span>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithSingleCharacter_FiltersOut()
-        {
-            // Arrange
-            var viewContent = @"<div>A</div><p>B</p><span>C</span>";
+		[Test]
+		public async Task GetStaticContentFromView_WithSingleCharacter_FiltersOut()
+		{
+			// Arrange
+			var viewContent = @"<div>A</div><p>B</p><span>C</span>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithComplexHtmlStructure_ExtractsCorrectContent()
-        {
-            // Arrange
-            var viewContent = @"
+		[Test]
+		public async Task GetStaticContentFromView_WithComplexHtmlStructure_ExtractsCorrectContent()
+		{
+			// Arrange
+			var viewContent = @"
                 <div class='header'>
                     <h1>Main Title</h1>
                     <nav>
@@ -291,69 +292,69 @@ namespace AutoDictionaries.Tests
                     <button>Click here</button>
                 </main>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().Contain(x => x.StaticContent == "Main Title");
-            result.Should().Contain(x => x.StaticContent == "Home");
-            result.Should().Contain(x => x.StaticContent == "About Us");
-            result.Should().Contain(x => x.StaticContent == "Contact");
-            result.Should().Contain(x => x.StaticContent == "This is the main content area");
-            result.Should().Contain(x => x.StaticContent == "Click here");
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Main Title");
+			result.Should().Contain(x => x.StaticContent == "Home");
+			result.Should().Contain(x => x.StaticContent == "About Us");
+			result.Should().Contain(x => x.StaticContent == "Contact");
+			result.Should().Contain(x => x.StaticContent == "This is the main content area");
+			result.Should().Contain(x => x.StaticContent == "Click here");
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithMixedContentAndRazor_ExtractsOnlyStaticContent()
-        {
-            // Arrange
-            var viewContent = @"
+		[Test]
+		public async Task GetStaticContentFromView_WithMixedContentAndRazor_ExtractsOnlyStaticContent()
+		{
+			// Arrange
+			var viewContent = @"
                 <h1>@Model.Title</h1>
                 <p>Welcome to our site</p>
                 <span>Copyright 2024</span>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().Contain(x => x.StaticContent == "Welcome to our site");
-            result.Should().Contain(x => x.StaticContent == "Copyright 2024");
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Welcome to our site");
+			result.Should().Contain(x => x.StaticContent == "Copyright 2024");
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithValidContent_ReturnsExpectedResults()
-        {
-            // Arrange
-            var viewContent = @"
+		[Test]
+		public async Task GetStaticContentFromView_WithValidContent_ReturnsExpectedResults()
+		{
+			// Arrange
+			var viewContent = @"
                 <div>Valid Content</div>
                 <span>Another Valid Text</span>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.Should().Contain(x => x.StaticContent == "Valid Content");
-            result.Should().Contain(x => x.StaticContent == "Another Valid Text");
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
+			result.Should().Contain(x => x.StaticContent == "Valid Content");
+			result.Should().Contain(x => x.StaticContent == "Another Valid Text");
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithIfStatement_FiltersOut()
-        {
-            // Arrange
-            var viewContent = @"<div>@if (condition) { <p>Some text<p> }</div>";
+		[Test]
+		public async Task GetStaticContentFromView_WithIfStatement_FiltersOut()
+		{
+			// Arrange
+			var viewContent = @"<div>@if (condition) { <p>Some text<p> }</div>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            // If statements should be filtered out by the regex
-            result.Should().NotContain(x => x.StaticContent.Contains("if ("));
-        }
+			// Assert
+			result.Should().NotBeNull();
+			// If statements should be filtered out by the regex
+			result.Should().NotContain(x => x.StaticContent.Contains("if ("));
+		}
 
 		[Test]
 		public async Task GetStaticContentFromView_WithForLoop_FiltersOut()
@@ -371,10 +372,10 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-        public async Task GetStaticContentFromView_WithNestedElements_ExtractsFromAllLevels()
-        {
-            // Arrange
-            var viewContent = @"
+		public async Task GetStaticContentFromView_WithNestedElements_ExtractsFromAllLevels()
+		{
+			// Arrange
+			var viewContent = @"
                     <h1>Main Header</h1>
                 <div>
                     <div>
@@ -385,146 +386,146 @@ namespace AutoDictionaries.Tests
                     </div>
                 </div>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().Contain(x => x.StaticContent == "Main Header");
-            result.Should().Contain(x => x.StaticContent == "Nested paragraph");
-            result.Should().Contain(x => x.StaticContent == "Bold text");
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "Main Header");
+			result.Should().Contain(x => x.StaticContent == "Nested paragraph");
+			result.Should().Contain(x => x.StaticContent == "Bold text");
+		}
 
-        [Test]
-        public async Task GetStaticContentFromView_WithMultipleDuplicates_CountsAllOccurrences()
-        {
-            // Arrange
-            var viewContent = @"
+		[Test]
+		public async Task GetStaticContentFromView_WithMultipleDuplicates_CountsAllOccurrences()
+		{
+			// Arrange
+			var viewContent = @"
                 <div>Error</div>
                 <p>Success</p>
                 <span>Error</span>
                 <h1>Success</h1>
                 <div>Error</div>";
 
-            // Act
-            var result = await _service.GetStaticContentFromView(viewContent);
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            
-            var errorItem = result.FirstOrDefault(x => x.StaticContent == "Error");
-            errorItem.Should().NotBeNull();
-            errorItem!.Used.Should().Be(3);
-            
-            var successItem = result.FirstOrDefault(x => x.StaticContent == "Success");
-            successItem.Should().NotBeNull();
-            successItem!.Used.Should().Be(2);
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
 
-        [Test]
-        public async Task GetStaticContentFromView_WithPartialMatches_DoesNotMatch()
-        {
-            // Arrange
-            var dictionaries = new List<DictionaryModel>
-            {
-                new DictionaryModel
-                {
-                    Id = 1,
-                    Key = "greeting",
-                    Guid = Guid.NewGuid(),
-                    Translations = new List<string> { "Hello" }
-                }
-            };
+			var errorItem = result.FirstOrDefault(x => x.StaticContent == "Error");
+			errorItem.Should().NotBeNull();
+			errorItem!.Used.Should().Be(3);
 
-            var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
-            var viewContent = @"<div>Hello World</div>"; // Should not match "Hello" dictionary
+			var successItem = result.FirstOrDefault(x => x.StaticContent == "Success");
+			successItem.Should().NotBeNull();
+			successItem!.Used.Should().Be(2);
+		}
 
-            // Act
-            var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
+		[Test]
+		public async Task GetStaticContentFromView_WithPartialMatches_DoesNotMatch()
+		{
+			// Arrange
+			var dictionaries = new List<DictionaryModel>
+			{
+				new DictionaryModel
+				{
+					Id = 1,
+					Key = "greeting",
+					Guid = Guid.NewGuid(),
+					Translations = new List<string> { "Hello" }
+				}
+			};
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result[0].StaticContent.Should().Be("Hello World");
-            result[0].Dictionary.Should().BeNull(); // Should not match partial content
-        }
+			var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
+			var viewContent = @"<div>Hello World</div>"; // Should not match "Hello" dictionary
 
-        [Test]
-        public async Task GetStaticContentFromView_WithExactMatch_FindsDictionary()
-        {
-            // Arrange
-            var dictionaries = new List<DictionaryModel>
-            {
-                new DictionaryModel
-                {
-                    Id = 1,
-                    Key = "greeting",
-                    Guid = Guid.NewGuid(),
-                    Translations = new List<string> { "Hello World" }
-                }
-            };
+			// Act
+			var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
 
-            var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
-            var viewContent = @"<div>Hello World</div>";
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Hello World");
+			result[0].Dictionary.Should().BeNull(); // Should not match partial content
+		}
 
-            // Act
-            var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
+		[Test]
+		public async Task GetStaticContentFromView_WithExactMatch_FindsDictionary()
+		{
+			// Arrange
+			var dictionaries = new List<DictionaryModel>
+			{
+				new DictionaryModel
+				{
+					Id = 1,
+					Key = "greeting",
+					Guid = Guid.NewGuid(),
+					Translations = new List<string> { "Hello World" }
+				}
+			};
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result[0].StaticContent.Should().Be("Hello World");
-            result[0].Dictionary.Should().NotBeNull();
-            result[0].Dictionary.Key.Should().Be("greeting");
-        }
+			var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
+			var viewContent = @"<div>Hello World</div>";
 
-        [Test]
-        public async Task GetStaticContentFromView_WithMultipleDictionariesAndPartialMatches_FindsCorrectMatches()
-        {
-            // Arrange
-            var dictionaries = new List<DictionaryModel>
-            {
-                new DictionaryModel
-                {
-                    Id = 1,
-                    Key = "welcome",
-                    Guid = Guid.NewGuid(),
-                    Translations = new List<string> { "Welcome", "Willkommen" }
-                },
-                new DictionaryModel
-                {
-                    Id = 2,
-                    Key = "goodbye",
-                    Guid = Guid.NewGuid(),
-                    Translations = new List<string> { "Goodbye", "Auf Wiedersehen" }
-                }
-            };
+			// Act
+			var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
 
-            var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
-            var viewContent = @"<div>Welcome</div><p>Goodbye</p><span>Hello</span>";
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result[0].StaticContent.Should().Be("Hello World");
+			result[0].Dictionary.Should().NotBeNull();
+			result[0].Dictionary.Key.Should().Be("greeting");
+		}
 
-            // Act
-            var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
+		[Test]
+		public async Task GetStaticContentFromView_WithMultipleDictionariesAndPartialMatches_FindsCorrectMatches()
+		{
+			// Arrange
+			var dictionaries = new List<DictionaryModel>
+			{
+				new DictionaryModel
+				{
+					Id = 1,
+					Key = "welcome",
+					Guid = Guid.NewGuid(),
+					Translations = new List<string> { "Welcome", "Willkommen" }
+				},
+				new DictionaryModel
+				{
+					Id = 2,
+					Key = "goodbye",
+					Guid = Guid.NewGuid(),
+					Translations = new List<string> { "Goodbye", "Auf Wiedersehen" }
+				}
+			};
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(3);
-            
-            var welcomeItem = result.FirstOrDefault(x => x.StaticContent == "Welcome");
-            welcomeItem.Should().NotBeNull();
-            welcomeItem!.Dictionary.Should().NotBeNull();
-            welcomeItem.Dictionary.Key.Should().Be("welcome");
+			var serviceWithDictionaries = CreateServiceWithPreloadedDictionaries(dictionaries);
+			var viewContent = @"<div>Welcome</div><p>Goodbye</p><span>Hello</span>";
 
-            var goodbyeItem = result.FirstOrDefault(x => x.StaticContent == "Goodbye");
-            goodbyeItem.Should().NotBeNull();
-            goodbyeItem!.Dictionary.Should().NotBeNull();
-            goodbyeItem.Dictionary.Key.Should().Be("goodbye");
+			// Act
+			var result = await serviceWithDictionaries.GetStaticContentFromView(viewContent);
 
-            var helloItem = result.FirstOrDefault(x => x.StaticContent == "Hello");
-            helloItem.Should().NotBeNull();
-            helloItem!.Dictionary.Should().BeNull(); // No matching dictionary
-        }
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(3);
+
+			var welcomeItem = result.FirstOrDefault(x => x.StaticContent == "Welcome");
+			welcomeItem.Should().NotBeNull();
+			welcomeItem!.Dictionary.Should().NotBeNull();
+			welcomeItem.Dictionary.Key.Should().Be("welcome");
+
+			var goodbyeItem = result.FirstOrDefault(x => x.StaticContent == "Goodbye");
+			goodbyeItem.Should().NotBeNull();
+			goodbyeItem!.Dictionary.Should().NotBeNull();
+			goodbyeItem.Dictionary.Key.Should().Be("goodbye");
+
+			var helloItem = result.FirstOrDefault(x => x.StaticContent == "Hello");
+			helloItem.Should().NotBeNull();
+			helloItem!.Dictionary.Should().BeNull(); // No matching dictionary
+		}
 
 
 		[Test]
@@ -651,8 +652,8 @@ namespace AutoDictionaries.Tests
 			result.Should().NotBeNull();
 			result.Should().HaveCount(3);
 			result[0].StaticContent.Should().Be("Theme by");
-            result[1].StaticContent.Should().Be("Start Bootstrap");
-            result[2].StaticContent.Should().Be("implemented in Umbraco by Paul Seal from");
+			result[1].StaticContent.Should().Be("Start Bootstrap");
+			result[2].StaticContent.Should().Be("implemented in Umbraco by Paul Seal from");
 		}
 
 		[Test]
@@ -903,5 +904,186 @@ namespace AutoDictionaries.Tests
 			result.Should().NotBeNull();
 			result.Should().BeEmpty();
 		}
+
+
+
+		[Test]
+		public async Task GetStaticContentFromView_Shouldnt_Find_Anything()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@{@inherits UmbracoViewPage
+
+@using Clean.Core.Helpers
+@using Clean.Core.Models.ViewModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@{
+    AuthorList authorList = UmbracoContext.Content.GetAtRoot().DescendantsOrSelf<AuthorList>().FirstOrDefault();
+    int modelId = Model.Id;
+    var isAuthorListPage = modelId == authorList?.Id;
+    var fallbackPageSize = isAuthorListPage ? 10 : 3;
+
+    var pageSize = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, ""size"", fallbackPageSize);
+    var pageNumber = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, ""page"", 1);
+    var allAuthors = authorList?.Children<Author>().Where(x => x.IsVisible()) ?? Enumerable.Empty<Author>();
+    var pageOfAuthors = allAuthors.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+    var totalItemCount = allAuthors.Count();
+    var pageCount = totalItemCount > 0 ? Math.Ceiling((double)totalItemCount / pageSize) : 1;
+
+}
+
+<div class=""container"">
+    <div class=""row"">
+        <div class=""col-lg-8 col-md-10 mx-auto"">
+            <div class=""container-fluid"">
+                <div class=""row"">
+                    @foreach (var author in pageOfAuthors)
+                    {
+                        <div class=""col-4 mx-auto"">
+                            <div class=""card"">
+                                <header>
+                                    <img src=""@(author.MainImage.Url())"" alt=""@author.Name"" class=""w-100"" />
+                                </header>
+                                <div class=""card-body"">
+                                    <div class=""content-left text-start my-auto py-4"">
+                                        <h2 class=""card-title"">@author.Name</h2>
+                                        <p class=""card-description"">@author.MetaDescription</p>
+                                        <a href=""@author.Url()"" class=""text-primary"">
+                                            @Umbraco.GetDictionaryValue(""Author.ReadMore"")
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (isAuthorListPage)
+            {
+                @await Component.InvokeAsync(""Pagination"", new { totalItems = totalItemCount, url = Model.Url(), pageNumber = pageNumber, pageSize = pageSize })
+            }
+        </div>
+    </div>
+</div>
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_2()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@inherits UmbracoViewPage<Clean.Core.Models.ViewModels.PageHeaderViewModel>
+
+@{
+    string mainImageUrl = Model.HasBackgroundImage ? Model.BackgroundImage.GetCropUrl(1903, 628) : ""/media/f01jqvmq/2.jpg"";
+}
+
+<header class=""masthead"" style=""background-image: url('@mainImageUrl')"">
+    <div class=""container position-relative px-4 px-lg-5"">
+        <div class=""row gx-4 gx-lg-5 justify-content-center"">
+            <div class=""col-md-10 col-lg-8 col-xl-7"">
+                <div class=""@(Model.ArticleDate.HasValue ? ""post-heading"" : ""site-heading"")"">
+                    <h1>@(!string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name)</h1>
+
+                    @if (Model.IsArticle)
+                    {
+                        if (Model.HasSubtitle)
+                        {
+                            <h2 class=""subheading mb-4"">@Model.Subtitle</h2>
+                        }
+                        <span class=""meta"">
+                            @Umbraco.GetDictionaryValue(""Article.Posted"")
+                            @if (Model.HasAuthor)
+                            {
+                                @Umbraco.GetDictionaryValue(""Article.By"")@Html.Raw(""&nbsp;"")@Model.AuthorName
+                            }
+                            @Umbraco.GetDictionaryValue(""Article.On"")@Html.Raw(""&nbsp;"")@Model.ArticleDate.Value.ToString(""MMMM dd, yyyy"")
+                        </span>
+                        @if (Model.Categories != null && Model.Categories.Any())
+                        {
+                            <span class=""mt-4 d-block""></span>
+                            @foreach (var category in Model.Categories.Select(x => x.Name).OrderBy(y => y))
+                            {
+                                <span class=""badge rounded-pill bg-light text-dark border-dark border-5"">@category</span>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Model.HasSubtitle)
+                        {
+                            <span class=""subheading"">@(Model.Subtitle)</span>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_3()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@model IPublishedContent
+@{
+    var metaKeywords = Model.Value<IEnumerable<string>>(""metaKeywords"");
+    var homePage = Model.AncestorOrSelf(""home"");
+    void RenderChildPages(IEnumerable<IPublishedContent> contentItems)
+    {
+        if (contentItems.Any())
+        {
+            foreach (var content in contentItems.Where(x => x.IsVisible()))
+            {
+                if (!(content.HasProperty(""excludeFromSitemap"") && content.Value<bool>(""excludeFromSitemap"")))
+                {
+<url><loc>@content.Url(mode:UrlMode.Absolute)</loc><lastmod>@content.UpdateDate.ToString(""yyyy-MM-ddTHH:mm:sszzz"")</lastmod></url>
+                    if (content.Children.Any(x => x.IsVisible()))
+                    {
+                        RenderChildPages(content.Children);
+                    }
+                }
+            }
+        }
+    };
+}
+
+<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9""
+    xmlns:image=""http://www.google.com/schemas/sitemap-image/1.1""
+    xmlns:video=""http://www.google.com/schemas/sitemap-video/1.1"">
+<url><loc>@homePage.Url(mode: UrlMode.Absolute)</loc><priority>1.0</priority><lastmod>@homePage.UpdateDate.ToString(""yyyy-MM-ddTHH:mm:sszzz"")</lastmod></url>
+    @{
+        RenderChildPages(homePage.Children);
+    }
+</urlset>
+
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 	}
 }
+

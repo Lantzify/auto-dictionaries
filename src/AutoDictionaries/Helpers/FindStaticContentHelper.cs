@@ -80,8 +80,8 @@ namespace AutoDictionaries.Helpers
 			if (Regex.IsMatch(text, @"^&\w+;$"))
 				return;
 
-			// Skip C# code patterns
-			if (text.TrimEnd().EndsWith(';') || text.TrimEnd().EndsWith('{') || text.TrimEnd().EndsWith('}'))
+			// Skip C# code patterns - starts/ends with code characters
+			if (Regex.IsMatch(text, @"^[@({>]|[;{}]$"))
 				return;
 
 			// Skip domain names
