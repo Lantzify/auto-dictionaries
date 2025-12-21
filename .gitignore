@@ -262,3 +262,4 @@ ModelManifest.xml
 **/Media/
 
 /src/AutoDictionaries/wwwroot/*
+/src/AutoDictionaries.Web/appsettings.Development.json
