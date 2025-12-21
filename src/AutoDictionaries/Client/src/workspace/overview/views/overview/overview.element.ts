@@ -107,8 +107,8 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 						<uui-table-cell>
 
 							${view.staticContent?.length  == 0 ?
-									html`<uui-icon name="icon-check"></uui-icon>` :
-									html`${view.staticContent?.length}<uui-icon name="icon-alert"></uui-icon>`}
+									html`<uui-icon name="icon-check" title=${this.localize.term("autoDictionaries_no_static_content")}></uui-icon>` :
+									html`${view.staticContent?.length}<uui-icon name="icon-alert"  title=${this.localize.term("autoDictionaries_has_static_content")}></uui-icon>`}
 						</uui-table-cell>
 						<uui-table-cell>
 
@@ -118,7 +118,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 							}
 
 							${view.dictionaries?.every((dictionary) => dictionary.translated) ?
-								html`<uui-icon name="icon-check" title=${this.localize.term("autoDictionaries_fully_translated")}"></uui-icon>` :
+								html`<uui-icon name="icon-check" title=${this.localize.term("autoDictionaries_fully_translated")}></uui-icon>` :
 								html`<uui-icon name="icon-alert" title=${this.localize.term("autoDictionaries_not_fully_translated")}></uui-icon>`}
 						</uui-table-cell>
 						<uui-table-cell>${view.matchDictionaries > 0 ? view.matchDictionaries : ""}</uui-table-cell>
