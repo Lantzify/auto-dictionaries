@@ -50,18 +50,15 @@ Right now the services below are built in with Auto dictionaries. Thease are how
 
 Azure documentation [Create a Translator resource](https://learn.microsoft.com/en-us/azure/ai-services/Translator/create-translator-resource)
 
+## Issues
+
+Sometimes Auto dictionaries might give a false positive when looking for static content. If you recive a false postive. Please raise an issue so we can make the package better for everyone. If you find any issues with the package, please raise an issue!
 
 ## Contributing
 
 If you would like to help me improve this package, feel free to create a pull request!
 
-Login details:
-- Email: admin@admin.com 
-- Password: password123
-
-## Issues
-
-If you find any issues with the package feel free to raise a issue!
+I am using the visual studio extension "NPM Task Runner" in order to buil and watch the client side. First run "install-client" for a "Npm install" and then run "build-watch" in order to build and watch the project.
 
 ## Screenshots
 
