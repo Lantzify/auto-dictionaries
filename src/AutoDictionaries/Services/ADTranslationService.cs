@@ -32,43 +32,43 @@ namespace AutoDictionaries.Services
         }
 
         public async Task<List<TranslateModel>> DeepLTranslate(string textToTranslate)
-        {
-            var translator = new Translator(_autoDictionariesService.GetApiKey());
+		{
+			var translator = new Translator(_autoDictionariesService.GetApiKey());
 
-            string defaultLangISOCode = _localizationService.GetDefaultLanguageIsoCode();
+			string defaultLangISOCode = _localizationService.GetDefaultLanguageIsoCode();
 
-            List<TranslateModel> translations = new List<TranslateModel>();
+			List<TranslateModel> translations = new List<TranslateModel>();
 
-            foreach (var lang in _localizationService.GetAllLanguages())
-            {
+			foreach (var lang in _localizationService.GetAllLanguages())
+			{
 
-                if (!lang.IsDefault)
-                {
-                    string iso = lang.CultureInfo.TwoLetterISOLanguageName;
+				if (!lang.IsDefault)
+				{
+					string iso = lang?.CultureInfo?.TwoLetterISOLanguageName ?? "";
 					var translatedText = await translator.TranslateTextAsync(textToTranslate,
-                        defaultLangISOCode,
-                        string.Format("{0}{1}", iso, iso == "en" ? "-US" : string.Empty));
+						defaultLangISOCode.Contains("-") ? defaultLangISOCode.Split("-").FirstOrDefault() : defaultLangISOCode,
+						string.Format("{0}{1}", iso, iso == "en" ? "-US" : string.Empty).ToUpper());
 
-                    translations.Add(new TranslateModel
-                    {
-                        Language = lang,
-                        TranslatedText = translatedText.Text
-                    });
-                }
-                else
-                {
-                    translations.Add(new TranslateModel
-                    {
-                        Language = lang,
-                        TranslatedText = textToTranslate
-                    });
-                }
-            }
+					translations.Add(new TranslateModel
+					{
+						Language = lang,
+						TranslatedText = translatedText.Text
+					});
+				}
+				else
+				{
+					translations.Add(new TranslateModel
+					{
+						Language = lang,
+						TranslatedText = textToTranslate
+					});
+				}
+			}
 
-            return translations;
-        }
+			return translations;
+		}
 
-        public async Task<List<TranslateModel>> MicrosoftTranslatorTranslate(string textToTranslate)
+		public async Task<List<TranslateModel>> MicrosoftTranslatorTranslate(string textToTranslate)
         {
             List<TranslateModel> translations = new List<TranslateModel>();
 
