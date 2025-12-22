@@ -7,7 +7,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-
 	<ItemGroup>
 		<PackageReference Include="DeepL.net" Version="1.9.0" />
 		<PackageReference Include="Umbraco.Cms.Api.Management" Version="17.0.0" />
@@ -16,7 +15,7 @@
 
 	<PropertyGroup>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>13.1.1</Version>
+		<Version>17.0.0</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>
@@ -36,12 +35,23 @@
 
 	</PropertyGroup>
 
-	<!-- package files -->
 	<ItemGroup>	
 		<None Include="..\..\assets\logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
+
+	<!-- Auto-generate schema file before packing -->
+	<Target Name="GenerateSchema" BeforeTargets="GenerateNuspec;Pack">
+		<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
+		<Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)\..\AutoDictionaries.SchemaGenerator\AutoDictionaries.SchemaGenerator.csproj&quot; -- -o &quot;$(MSBuildThisFileDirectory)\appsettings-schema.auto-dictionaries.json&quot;" />
+		<ItemGroup>
+			<None Include="$(MSBuildThisFileDirectory)appsettings-schema.auto-dictionaries.json">
+				<Pack>True</Pack>
+				<PackagePath>content</PackagePath>
+			</None>
+		</ItemGroup>
+	</Target>
 
 </Project>

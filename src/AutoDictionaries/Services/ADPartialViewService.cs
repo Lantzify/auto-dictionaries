@@ -29,12 +29,17 @@ namespace AutoDictionaries.Services
 		{
 			List<AutoDictionariesModel> partialViewList = new ();
 
-			var partialViews = _fileSystem.PartialViewsFileSystem.GetFiles(_rootPartialViewDirectory);
+			var partialViews = _fileSystem.PartialViewsFileSystem?.GetFiles(_rootPartialViewDirectory);
+
+			if(partialViews == null || !partialViews.Any())
+				return partialViewList;
 
 			foreach (var partialViewName in partialViews)
 			{
 				var partialView = await _partialViewService.GetAsync(partialViewName);
-				
+				if(partialView == null)
+					continue;
+
 				partialViewList.Add(await MapToAutoDictionariesModel(partialView, partialViewName));
 			}
 
@@ -53,10 +58,13 @@ namespace AutoDictionaries.Services
 				{
 					var partialView = await _partialViewService.GetAsync(partialViewName);
 					
+					if(partialView == null)
+						continue;
+
 					partialViewList.Add(await MapToAutoDictionariesModel(partialView, partialViewName));
 				}
 
-				GetDirectories(partialViewList, _rootPartialViewDirectory + fileDirectory);
+				await GetDirectories(partialViewList, _rootPartialViewDirectory + fileDirectory);
 			}
 		}
 
@@ -66,8 +74,10 @@ namespace AutoDictionaries.Services
 			var allPartialViews = await GetAllPartialViews();
 
 			var partialView = allPartialViews.Where(x => x.Id == id).FirstOrDefault();
+			if(partialView == null)
+				return null;
 
-			return await MapToAutoDictionariesModel(await GetUmbracoPartialView(partialView.Path), partialView.Path, true);
+			return await MapToAutoDictionariesModel(await GetUmbracoPartialView(partialView?.Path), partialView.Path, true);
 		}
 
 		public async Task<IPartialView> GetUmbracoPartialView(string path)
@@ -77,21 +87,22 @@ namespace AutoDictionaries.Services
 
 		public async Task<AutoDictionariesModel> MapToAutoDictionariesModel(IPartialView partialView, string path, bool getContent = false)
 		{
-			if (partialView == null) return null;
+			if (partialView == null) 
+				return null;
 
-			var staticContent = await _autoDictionariesService.GetStaticContentFromView(partialView.Content);
+			var staticContent = await _autoDictionariesService.GetStaticContentFromView(partialView?.Content ?? "");
 
 			return new AutoDictionariesModel()
 			{
 				Id = partialView.Id,
 				Key = partialView.Key,
 				Alias = partialView.Alias,
-				Name = RemoveFileExtension(partialView.Name),
+				Name = RemoveFileExtension(partialView?.Name ?? ""),
 				Type = "Partial view",
-				Path = !string.IsNullOrEmpty(path) ? path : partialView.VirtualPath,
-				Content = getContent ? partialView.Content : string.Empty,
+				Path = !string.IsNullOrEmpty(path) ? path : partialView?.VirtualPath,
+				Content = getContent ? partialView?.Content : string.Empty,
 				StaticContent = staticContent,
-				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView.Content),
+				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView?.Content ?? ""),
 				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}

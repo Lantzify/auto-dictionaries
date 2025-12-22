@@ -43,7 +43,7 @@ namespace AutoDictionaries.Services
 
 				if (!lang.IsDefault)
 				{
-					string iso = lang.CultureInfo.TwoLetterISOLanguageName;
+					string iso = lang?.CultureInfo?.TwoLetterISOLanguageName ?? "";
 					var translatedText = await translator.TranslateTextAsync(textToTranslate,
 						defaultLangISOCode.Contains("-") ? defaultLangISOCode.Split("-").FirstOrDefault() : defaultLangISOCode,
 						string.Format("{0}{1}", iso, iso == "en" ? "-US" : string.Empty).ToUpper());

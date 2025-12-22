@@ -153,7 +153,7 @@ namespace AutoDictionaries.Services
 			{
 				if (dictionary != null)
 				{
-					if (dictionary.Translations.Contains(staticContent))
+					if (dictionary.Translations != null && dictionary.Translations.Contains(staticContent))
 					{
 						return dictionary;
 					}

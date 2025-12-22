@@ -112,8 +112,8 @@ namespace AutoDictionaries.Core.Controllers
 
             return new string[]
             {
-                pathContent.Content,
-                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, staticContent)
+                pathContent?.Content ?? "",
+                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", staticContent)
             };
         }
 
@@ -125,7 +125,7 @@ namespace AutoDictionaries.Core.Controllers
                 var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent))
+                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", dictionary, dto?.StaticContent ?? ""))
                 {
                     return false;
                 }
@@ -174,7 +174,7 @@ namespace AutoDictionaries.Core.Controllers
 
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
+                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", dictionary, dto.StaticContent.StaticContent))
                 {
                     return false;
                 }
@@ -196,8 +196,10 @@ namespace AutoDictionaries.Core.Controllers
 				var defaultLang = await _languageService.GetDefaultIsoCodeAsync();
 
                 var item = await _dictionaryItemService.GetAsync(id);
+                if (item == null)
+                    return false;
 
-                var defaultText = item.Translations.FirstOrDefault(x => x.LanguageIsoCode == defaultLang);
+				var defaultText = item.Translations.FirstOrDefault(x => x.LanguageIsoCode == defaultLang);
 
                 if (string.IsNullOrEmpty(defaultText?.Value))
                     return false;
@@ -205,7 +207,7 @@ namespace AutoDictionaries.Core.Controllers
                 var newTranslations = await _adTranslationService.Translate(defaultText.Value);
 
                 var translations = item.Translations.ToList();
-				translations.AddRange(newTranslations.Where(x => x.Language.CultureInfo.Name != defaultLang).Select(x => new DictionaryTranslation(x.Language, x.TranslatedText)));
+				translations.AddRange(newTranslations.Where(x => x.Language?.CultureInfo?.Name != defaultLang).Select(x => new DictionaryTranslation(x.Language, x.TranslatedText)));
 
                 item.Translations = translations;
 
@@ -257,7 +259,7 @@ namespace AutoDictionaries.Core.Controllers
                     break;
                 case "Partial view":
 
-                    var partialView = await _adPartialViewService.GetUmbracoPartialView(autoDictionariesModel.Path);
+                    var partialView = await _adPartialViewService.GetUmbracoPartialView(autoDictionariesModel?.Path ?? "");
                     if (partialView != null)
                     {
                         pathContent.Path = "/Views/Partials/" + partialView.Path;

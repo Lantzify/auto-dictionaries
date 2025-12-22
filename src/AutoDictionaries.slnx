@@ -1,7 +1,11 @@
-﻿<Solution>
-	<Project Path="AutoDictionaries\AutoDictionaries.csproj" />
-	<Project Path="AutoDictionaries.Web\AutoDictionaries.Web.csproj" />
+<Solution>
+	<Folder Name="/Solution Items/">
+		<File Path=".editorconfig" />
+	</Folder>
+	<Project Path="AutoDictionaries.SchemaGenerator/AutoDictionaries.SchemaGenerator.csproj" Id="076664b7-f8cf-40d3-81cb-65f774d1c72a" />
 	<Project Path="AutoDictionaries.Tests\AutoDictionaries.Tests.csproj" />
+	<Project Path="AutoDictionaries.Web\AutoDictionaries.Web.csproj" />
+	<Project Path="AutoDictionaries\AutoDictionaries.csproj" />
 </Solution>
 
 
