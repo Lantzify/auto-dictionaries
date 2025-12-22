@@ -15,7 +15,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getTranslateSetting() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetTranslateSetting()
         );
@@ -24,7 +24,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getTranslatorSetting() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetTranslatorSetting()
         );
@@ -33,7 +33,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getApiEndpoint() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetApiEndpoint()
         );
@@ -42,7 +42,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getApiKeySetting() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetApiKey()
         );
@@ -51,7 +51,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getApiRegionSetting() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetApiRegion()
         );
@@ -60,7 +60,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getAllDictionaryItems() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetAllDictionaryItems()
         );
@@ -69,7 +69,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getAllViews() {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetAllViews()
         );
@@ -78,7 +78,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getViewById(id: string) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getGetViewById({ path: { id } })
         );
@@ -88,7 +88,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
 
 
     async postPreviewAddNewDictionaryItem(dto: PreviewAddNewDictionaryItemToViewDto) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.postPreviewAddNewDictionaryItem({
                 body: {
@@ -103,7 +103,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async postAddNewDictionaryItem(dto: AddNewDictionaryItemToViewDto) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.postAddNewDictionaryItem({
                 body: {
@@ -119,7 +119,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
 
 
     async postPreviewAddExistingDictionaryItem(dto: AddExistingDictionaryItemToViewDto) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.postPreviewAddExistingDictionaryItem({
                 body: {
@@ -134,7 +134,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async postAddExistingDictionaryItem(dto: AddExistingDictionaryItemToViewDto) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.postAddExistingDictionaryItem({
                 body: {
@@ -149,7 +149,7 @@ export class AutoDictionariesRepository extends UmbRepositoryBase implements Umb
     }
 
     async getTranslateDictionaryItem(id: string) {
-        const { data, error } = await tryExecute(
+        const { data } = await tryExecute(
             this._host,
             AutoDictionariesService.getTranslateDictionaryItemById({ path: { id } })
         );

@@ -1,27 +1,21 @@
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import {
-	LitElement,
-	css,
+import { LitElement,css,
 	customElement,
 	html,
 } from '@umbraco-cms/backoffice/external/lit';
 
 import { autoDictionariesWorkspaceContext } from './workspace.context'
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import type { UmbRoute } from '@umbraco-cms/backoffice/router';
 
 
 @customElement("auto-dictionaries-root")
 export class autoDictionariesWorkspaceRootElement extends UmbElementMixin(LitElement) {
-	#workspaceContext: autoDictionariesWorkspaceContext;
+	_workspaceContext: autoDictionariesWorkspaceContext;
 
 	constructor() {
 		super();
 
-		this.#workspaceContext = new autoDictionariesWorkspaceContext(this);
-	}
-	connectedCallback() {
-		super.connectedCallback();
+		this._workspaceContext = new autoDictionariesWorkspaceContext(this);
 	}
 
 	render() {

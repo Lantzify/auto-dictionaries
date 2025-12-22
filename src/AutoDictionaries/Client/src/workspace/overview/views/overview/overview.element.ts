@@ -33,9 +33,6 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	@state()
 	private _filterdViews?: AutoDictionariesModel[] = [];
 
-	@state()
-	private _isLoading = false;
-
 	constructor() {
 		super();
 
@@ -46,15 +43,13 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	}
 
 	#observeContext() {
+		
 		if (!this.#workspaceContext) return;
 
 		this.observe(this.#workspaceContext.views, (view) => {
 			this._views = view;
 			this._filterdViews = view;
-		});
-
-		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
-			this._isLoading = isLoading;
+			
 		});
 	}
 

@@ -5,9 +5,9 @@ export type ClientOptions = {
 };
 
 export type AddExistingDictionaryItemToViewDto = {
-    autoDictionariesModel: AutoDictionariesModel;
+    autoDictionariesModel?: AutoDictionariesModel | null;
     dictionaryKey: string;
-    staticContent: string;
+    staticContent?: string | null;
 };
 
 export type AddNewDictionaryItemToViewDto = {

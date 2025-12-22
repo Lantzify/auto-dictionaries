@@ -1,15 +1,8 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import {
-    type UmbTreeAncestorsOfRequestArgs,
-    type UmbTreeChildrenOfRequestArgs,
-    type UmbTreeRootItemsRequestArgs,
-    UmbTreeServerDataSourceBase,
-    type UmbTreeItemModel
-
-} from "@umbraco-cms/backoffice/tree";
+import { UmbTreeServerDataSourceBase, type UmbTreeItemModel } from "@umbraco-cms/backoffice/tree";
+import type { UmbDataSourceResponse } from "@umbraco-cms/backoffice/repository";
 
 import { AutoDictionariesService, type AutoDictionariesModel } from '../api';
-
 
 export class autoDictionariesTreeDataSource extends UmbTreeServerDataSourceBase<any, any> {
     constructor(host: UmbControllerHost) {
@@ -22,13 +15,32 @@ export class autoDictionariesTreeDataSource extends UmbTreeServerDataSourceBase<
     }
 }
 
-const getAncestorsOf = async (args: UmbTreeAncestorsOfRequestArgs) =>  [];
+const getAncestorsOf = async (): Promise<UmbDataSourceResponse<any>> => {
+    return { data: { items: [] } };
+};
 
-
-const getRootItems = async (args: UmbTreeRootItemsRequestArgs) =>
-    await AutoDictionariesService.getChildren();
+const getRootItems = async (): Promise<UmbDataSourceResponse<any>> => {
+    try {
+        const { data, error } = await AutoDictionariesService.getChildren();
+        
+        if (error || !data) {
+            return { error: error ? new Error(JSON.stringify(error)) : new Error('Unknown error') };
+        }
+        
+        return {
+            data: {
+                items: data.items ?? [],
+                total: data.total ?? 0
+            }
+        };
+    } catch (err) {
+        return { error: err instanceof Error ? err : new Error('Failed to fetch root items') };
+    }
+};
   
-const getChildrenOf = async (args: UmbTreeChildrenOfRequestArgs) => [];
+const getChildrenOf = async (): Promise<UmbDataSourceResponse<any>> => {
+    return { data: { items: [] } };
+};
 
 const mapper = (item: AutoDictionariesModel): UmbTreeItemModel => {
     return {

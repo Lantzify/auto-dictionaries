@@ -1,20 +1,14 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { LitElement, css, customElement, html, repeat, state } from "@umbraco-cms/backoffice/external/lit";
-import { UmbModalContext } from "@umbraco-cms/backoffice/modal";
+import { css, customElement, html, repeat, state } from "@umbraco-cms/backoffice/external/lit";
+import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import AutoDictionariesRepository from "../repository/auto-dictionaries.repository";
 import { AddNewDictionaryItemToViewDto, PreviewAddNewDictionaryItemToViewDto, StaticContentDto } from "../api";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 
 
 @customElement('generate-dictionaries-modal')
-export class GenerateDictionariesElement extends UmbElementMixin(LitElement) {
-
-    modalContext?: UmbModalContext;
+export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddNewDictionaryItemToViewDto, string[]> {
 
     #repository: AutoDictionariesRepository;
-
-    @state()
-    private data: PreviewAddNewDictionaryItemToViewDto | undefined;
 
     @state()
     private _diff: string[] | undefined;
