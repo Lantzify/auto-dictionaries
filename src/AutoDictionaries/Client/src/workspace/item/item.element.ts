@@ -95,7 +95,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		]);
 
 		this._allDictionaryOptions = [
-			{ value: '', name: 'None', selected: true },
+			{ value: '', name: this.localize.term("autoDictionaries_none"), selected: true },
 				...this._allDictionaries.map(dict => ({
 					value: dict.key ?? '',
 					name: dict.key ?? '',
@@ -198,7 +198,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 		this._allDictionaries = await repository.getAllDictionaryItems();
 		this._allDictionaryOptions = [
-			{ value: '', name: 'None', selected: true },
+			{ value: '', name: this.localize.term("autoDictionaries_none"), selected: true },
 			...this._allDictionaries.map(dict => ({
 				value: dict.key ?? '',
 				name: dict.key ?? '',
@@ -211,8 +211,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 		const modalContext = this._modalManagerContext?.open(
 			this, UMB_CONFIRM_MODAL, {
 			data: {
-					headline: `Translate: "${dictionary.key}"`,
-					content: "Are you sure you want to translate this dictionary item?",
+					headline: this.localize.term("autoDictionaries_translate_item", dictionary.key),
+					content: this.localize.term("autoDictionaries_are_you_sure_translate"),
 					color: "positive",
 					confirmLabel: this.localize.term("actions_translate"),
 					cancelLabel: this.localize.term("general_close") 
@@ -223,7 +223,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			const result = await this.#workspaceContext?.getRepository().getTranslateDictionaryItem(dictionary.guid);
 
 			if (result) {
-				const notification = { data: { message: `Successfully translated dictionary item: ${dictionary.key}` } };
+				const notification = { data: { message: this.localize.term("autoDictionaries_success_to_translate", dictionary.key) } };
 				this.#notificationContext?.peek('positive', notification);
 				if (this._item?.dictionaries) {
 					const index = this._item.dictionaries.findIndex(d => d.guid === dictionary.guid);
@@ -241,7 +241,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 					}
 				}
 			} else {
-				const notification = { data: { message: `Failed to fully translate dictionary item: ${dictionary.key}. Check logs for futher details.` } };
+				const notification = { data: { message: this.localize.term("autoDictionaries_failed_to_translate", dictionary.key) } };
 				this.#notificationContext?.peek('danger', notification);
 			}
 		});
@@ -310,7 +310,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 							${staticContent.dictionary ?
 								html`<uui-button
 										look="primary"
-										label="Convert into existing dictionary item"
+										label=${this.localize.term("autoDictionaries_convert_into_existing_dictionary")}
 										@click=${() => this.#openMatchDictionaryModal(staticContent)}
 									</uui-button>` : null}
 						</uui-table-cell>
@@ -329,17 +329,19 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						look="secondary"
 						@click="${() => this._selectedContent = []}"></uui-button>
 
-					<span><strong>${this._selectedContent.length}</strong> of ${this._item?.staticContent?.length} selected</span>
+					<span>
+						<umb-localize key="autoDictionaries_x_of_x_selected" args="[${this._selectedContent.length}, ${this._item?.staticContent?.length}]"></umb-localize>
+					</span>
 				</div>
 				<div class="selection-actions">
 					<uui-select
-						label="Set parent for all selected"
+						label=${this.localize.term("autoDictionaries_none")}
 						@change=${this.#changeAllParent}
 						.options=${this._allDictionaryOptions}>
 					</uui-select>
 						
 					<uui-button 
-						label="Generate (${this._selectedContent.length}) dictionaries"
+						label=${this.localize.term("autoDictionaries_generate_x_dictionaries", this._selectedContent.length)}
 						look="secondary"
 						@click=${this.#openCreateDictionaryModal}></uui-button>
 				</div>
@@ -360,11 +362,11 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			<umb-body-layout header-transparent>
 				<div id="autoDictionaries-layout">
 					<div id="autoDictionaries-main">
-						<uui-box class=${(this._item.dictionaries ?? []).length > 0 ? "no-padding": ""} headline="Dictionaries">
+						<uui-box class=${(this._item.dictionaries ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_dictionaries")}>
 
 							${(this._item.dictionaries ?? []).length > 0 ?
 							html`				
-								<uui-table aria-label="" aria-describedby="">
+								<uui-table>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
@@ -402,7 +404,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 							${(this._item.staticContent ?? []).length > 0 ?
 							html`
-								<uui-table selectable aria-label="Static content" aria-describedby="table-description">
+								<uui-table selectable>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
 									<uui-table-column></uui-table-column>
@@ -544,6 +546,10 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 			.text-center{
 				text-align:center;
+			}
+
+			uui-table-head-cell{
+				--uui-table-cell-padding: 0 15px!important;
 			}
 
 			#selection-actions-bar {

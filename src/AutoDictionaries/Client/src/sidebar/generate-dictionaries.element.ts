@@ -70,16 +70,16 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
                     if (counter !== this.data!.staticContent!.length) {
                         await generateDictionary(this.data!.staticContent![counter]);
                     } else {
-                        const notification = { data: { message: "All dictionaries were created and added to the template successfully!" } };
+                        const notification = { data: { message: this.localize.term('autoDictionaries_success_to_add_dictionary') } };
                         notificationContext?.peek('positive', notification);
                         this.isGenerating = false;
                         this.modalContext?.submit();
                     }
                 } else {
-                    throw new Error("Failed to add dictionary to template");
+                    throw new Error(this.localize.term('autoDictionaries_failed_to_add_dictionary'));
                 }
             } catch (error) {
-                const notification = { data: { message: "Failed to add dictionary to template" } };
+                const notification = { data: { message: this.localize.term('autoDictionaries_failed_to_add_dictionary') } };
                 notificationContext?.peek('danger', notification);
                 this.isGenerating = false;
                 this.modalContext?.reject();
@@ -98,7 +98,7 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
             <li>
                  <strong>${staticContent.staticContent}</strong>
                  ${staticContent.parent !== ""
-                        ? html` <span>with parent<strong> ${staticContent.parent}</strong></span>` 
+            ? html` <span> <umb-localize key="autoDictionaries_with_parent"></umb-localize> <strong> ${staticContent.parent}</strong></span>` 
                         : null}
            </li>`;
     }
@@ -112,22 +112,23 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
                         html`
                             <div class="progress-container">
                                 <uui-icon name="icon-globe" style="font-size: 50px;"></uui-icon>
-                                <h2>Generating dictionaries... ${Math.round(this.generatingPercentage)}%</h2>
-                                <p>Currently processing: <strong>${this.currentlyGenerating}</strong></p>
+                                <h2>
+                                    <umb-localize key="autoDictionaries_generating_dictionaries"></umb-localize>...
+                                    ${Math.round(this.generatingPercentage)}%
+                                </h2>
+                                <p><umb-localize key="autoDictionaries_currently_processing"></umb-localize>: <strong>${this.currentlyGenerating}</strong></p>
                                 <uui-progress-bar progress=${Math.round(this.generatingPercentage)}></uui-progress-bar>
                             </div>
                         ` :
                         html`
                         
-                            <p>Are you sure you want to generate dictionaries for:</p>
+                            <p><umb-localize key="autoDictionaries_are_you_sure_generate_dictionaries_for"></umb-localize>:</p>
                             <ul>
                                 ${repeat(this.data?.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this.#renderSelectedContent(staticContent))}
                             </ul>
-                            <p>This action can not be undone.</p>
+                            <p><umb-localize key="autoDictionaries_cannot_undo"></umb-localize>.</p>
 
                             <auto-dictionaries-code .diffCode=${this._diff}></auto-dictionaries-code>
-
-                                                              
                         `}  
                   </uui-box>
               
@@ -139,25 +140,24 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
 						label=${this.localize.term('general_close')}
 						@click="${this.#close}"></uui-button>
 
-       
                     ${this.data?.canTranslate ?
                         html`
                             <uui-button
                                 look="secondary"
-                                label="Generate"
+                                label=${this.localize.term("autoDictionaries_generate")}
 						        @click="${() => this.#submit(false)}"></uui-button>
 
-                                <uui-button
-						            label="Generate and Translate"
-                                    look="primary"
-                                    color="positive"
-                                    @click="${() => this.#submit(true)}"></uui-button>
+                            <uui-button
+						        label=${this.localize.term("autoDictionaries_generate_and_translate")}
+                                look="primary"
+                                color="positive"
+                                @click="${() => this.#submit(true)}"></uui-button>
                         ` : html`
                         <uui-button
 						    label=${this.localize.term("general_submit")}
                             look="primary"
                             color="positive"
-						    @click="${this.#close}"></uui-button>`}
+						    @click="${() => this.#submit(false)}"></uui-button>`}
 
 				</div>
             </umb-body-layout>`;

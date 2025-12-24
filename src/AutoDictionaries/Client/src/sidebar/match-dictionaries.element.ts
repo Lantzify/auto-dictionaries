@@ -42,14 +42,14 @@ export class MatchDictionariesElement extends UmbModalBaseElement<AddExistingDic
         if (response) {
             const notification = {
                 data: {
-                    message: `Successfully matched "${payload.staticContent}" to existing dictionary item`
+                    message: this.localize.term('autoDictionaries_success_to_match', payload.staticContent)
                 }
             };
             notificationContext?.peek('positive', notification);
         } else {
             const notification = {
                 data: {
-                    message: `Failed to match "${payload.staticContent}" to existing dictionary item`
+                    message: this.localize.term('autoDictionaries_failed_to_match', payload.staticContent)
                 }
             };
             notificationContext?.peek('danger', notification);
@@ -67,9 +67,9 @@ export class MatchDictionariesElement extends UmbModalBaseElement<AddExistingDic
             <umb-body-layout>
 
                 <uui-box>
-                    <p>This action can not be undone.</p>
+                    <p><umb-localize key="autoDictionaries_cannot_undo"></umb-localize></p>
                     <auto-dictionaries-code .diffCode=${this._diff}></auto-dictionaries-code>                               
-                  </uui-box>
+                </uui-box>
               
                 <div slot="actions">
       
@@ -103,6 +103,5 @@ export class MatchDictionariesElement extends UmbModalBaseElement<AddExistingDic
         `
     ];
 }
-
 
 export default MatchDictionariesElement;

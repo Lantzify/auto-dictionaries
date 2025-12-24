@@ -95,7 +95,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		return html`<uui-table-row @click=${() => this._openView(view)}>
 						<uui-table-cell>${view.name}</uui-table-cell>
 						<uui-table-cell>
-						<umb-localize key=${view.type === "Template" ? "template_template" : "autoDictionaries_partial_view"}></umb-localize>
+							<umb-localize key=${view.type === "Template" ? "template_template" : "autoDictionaries_partial_view"}></umb-localize>
 						
 						</uui-table-cell>
 						<uui-table-cell>${view.path}</uui-table-cell>
@@ -129,19 +129,19 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 					<div id="toolbar">
 						<div>
 							<uui-input 
-								label="Search"
+								label=${this.localize.term("placeholders_search")}
 								placeholder=${this.localize.term("placeholders_search")}
 								@input=${this._filter}/>
 						</div>
 
-						<uui-select label="Select type..."
-								placeholder="Select type..."
+						<uui-select label=${this.localize.term("autoDictionaries_select_type")}
+								placeholder=${this.localize.term("autoDictionaries_select_type")}
 								.options=${this.#options}
 								@change=${this._filterByType}></uui-select>
 					</div>
 				</umb-collection-toolbar>
 			
-				<uui-table aria-label="Views" aria-describedby="table-description">
+				<uui-table>
 					<uui-table-column></uui-table-column>
 						
 					<uui-table-head>
