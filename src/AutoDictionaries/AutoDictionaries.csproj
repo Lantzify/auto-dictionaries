@@ -22,8 +22,8 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/Lantzify/auto-dictionaries</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Lantzify/auto-dictionaries</RepositoryUrl>
-		<Description>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Description>
-		<Summary>Auto dictionaries is a Umbraco package that finds static content in templates and replaces them with dictionary items.</Summary>
+		<Description>Auto Dictionaries is an Umbraco package made to automate the process of replacing static content in templates and partial views with dictionary items. With built-in translation support, it streamlines the localization workflow for multilingual Umbraco websites</Description>
+		<Summary>Auto Dictionaries is an Umbraco package made to automate the process of replacing static content in templates and partial views with dictionary items. With built-in translation support, it streamlines the localization workflow for multilingual Umbraco websites</Summary>
 		<PackageTags>umbraco dictionaries package umbraco-marketplace</PackageTags>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
