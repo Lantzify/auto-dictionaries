@@ -23,6 +23,7 @@ Auto Dictionaries is a backoffice extension for **Umbraco** that automates the l
 - 📝 **Template & Partial View Support** - Works with both Umbraco templates and partial views
 - 👁️ **Preview** - See changes before applying them
 - 🔧 **Flexible Translation Services** - Support for DeepL and Microsoft Translator
+- 🈂️ **Backoffice Languages** -  Contains both English and Japanese backoffice translations
 
 After installation, the package will automatically register its services and appear in the Umbraco backoffice under the **Translation** section.
 
