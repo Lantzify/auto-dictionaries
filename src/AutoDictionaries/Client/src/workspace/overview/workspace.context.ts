@@ -13,6 +13,9 @@ export class autoDictionariesWorkspaceContext extends UmbControllerBase implemen
     #views = new UmbObjectState<AutoDictionariesModel[] | undefined>(undefined);
     public readonly views = this.#views.asObservable();
 
+    #isLoading = new UmbObjectState<boolean>(false);
+    public readonly isLoading = this.#isLoading.asObservable();
+
     constructor(host: UmbControllerHostElement) {
         super(host);
         this.provideContext(UMB_WORKSPACE_CONTEXT, this); 
@@ -20,6 +23,7 @@ export class autoDictionariesWorkspaceContext extends UmbControllerBase implemen
     }
 
     async load() {
+        this.#isLoading.setValue(true);
 
         const data = await this.#repository.getAllViews();
 
@@ -27,6 +31,7 @@ export class autoDictionariesWorkspaceContext extends UmbControllerBase implemen
             this.#views.setValue(data);
         }
 
+        this.#isLoading.setValue(false);
     }
 
     getRepository(): AutoDictionariesRepository {
