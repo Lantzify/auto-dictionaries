@@ -5,6 +5,7 @@
 		<StaticWebAssetBasePath>App_Plugins/AutoDictionaries</StaticWebAssetBasePath>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -53,5 +54,11 @@
 			</None>
 		</ItemGroup>
 	</Target>
+
+
+		<ItemGroup>
+				<Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+				<Content Include="appsettings-schema.auto-dictionaries.json" PackagePath="" />
+		</ItemGroup>
 
 </Project>

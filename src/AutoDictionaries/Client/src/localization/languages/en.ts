@@ -4,6 +4,7 @@ export default {
         default_settings: "Default settings",
         general: "General",
         select_type: "Select type...",
+        "clear_selection": "Clear selection",
 
         viewName: "View name",
         type: "Type",
