@@ -124,7 +124,11 @@ namespace AutoDictionaries.Services
 
 		public async Task<DictionaryModel> GetDictionaryItem(Guid dictionaryKey)
 		{
-			return await MapToDictionaryModel(await _dictionaryItemService.GetAsync(dictionaryKey));
+			var dictionaryItem = await _dictionaryItemService.GetAsync(dictionaryKey);
+			if (dictionaryItem == null)
+				return null;
+
+			return await MapToDictionaryModel(dictionaryItem);
 		}
 
 		public async Task<List<DictionaryModel>> GetDictionaryItems(string[] dictionaryKeys)

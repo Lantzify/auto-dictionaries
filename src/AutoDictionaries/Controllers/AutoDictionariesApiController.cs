@@ -112,8 +112,8 @@ namespace AutoDictionaries.Core.Controllers
 
             return new string[]
             {
-                pathContent?.Content ?? "",
-                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", staticContent)
+                pathContent?.Content,
+                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent?.Content, pathContent?.Path, staticContent)
             };
         }
 

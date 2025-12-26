@@ -102,7 +102,7 @@ namespace AutoDictionaries.Services
 				Path = !string.IsNullOrEmpty(path) ? path : partialView?.VirtualPath,
 				Content = getContent ? partialView?.Content : string.Empty,
 				StaticContent = staticContent,
-				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView?.Content ?? ""),
+				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView.Content),
 				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}

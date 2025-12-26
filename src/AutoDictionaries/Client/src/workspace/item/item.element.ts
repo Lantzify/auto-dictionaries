@@ -325,7 +325,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			<div id="selection-actions-bar">
 				<div class="selection-info">
 					<uui-button 
-						label="Clear selection" 
+						label=${this.localize.term("autoDictionaries_clear_selection")}
 						look="secondary"
 						@click="${() => this._selectedContent = []}"></uui-button>
 
