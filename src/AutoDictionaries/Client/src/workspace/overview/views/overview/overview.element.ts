@@ -33,6 +33,9 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	@state()
 	private _filterdViews?: AutoDictionariesModel[] = [];
 
+	@state()
+	private _isLoading: boolean = true;
+
 	constructor() {
 		super();
 
@@ -43,13 +46,16 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	}
 
 	#observeContext() {
-		
 		if (!this.#workspaceContext) return;
 
 		this.observe(this.#workspaceContext.views, (view) => {
 			this._views = view;
 			this._filterdViews = view;
-			
+		});
+
+
+		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
+			this._isLoading = isLoading;
 		});
 	}
 
@@ -121,9 +127,17 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	}
 
 	render() {
-		return html`
+		if (this._isLoading) {
+			return html`
+				<umb-body-layout header-transparent>
+					<div id="loader">
+						<uui-loader></uui-loader>
+					</div>
+				</umb-body-layout>
+			`;
+		}
 
-		
+		return html`
 			<umb-body-layout header-transparent>
 				<umb-collection-toolbar slot="header">
 					<div id="toolbar">
@@ -175,6 +189,13 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	static styles = [
 		UmbTextStyles,
 		css`
+			#loader{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height:100%;
+			}
+
 			uui-table-head {
 				position: sticky;
 				top: 0;

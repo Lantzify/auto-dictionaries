@@ -5,6 +5,7 @@
         general: "般",
         select_type: "表示タイプを選択する…",
         "clear_selection": "選択を解除",
+        failed_load: "ビューの読み込みに失敗しました",
 
         viewName: "ビューの名前",
         type: "表示タイプ",

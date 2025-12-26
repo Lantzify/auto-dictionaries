@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<NoWarn>CS8603</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

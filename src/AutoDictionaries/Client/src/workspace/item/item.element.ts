@@ -23,6 +23,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	#workspaceContext?: AutoDictionariesItemWorkspaceContext;
 	#serverFilePathUniqueSerializer = new UmbServerFilePathUniqueSerializer();
 	#notificationContext?: UmbNotificationContext;
+	#observerCleanup?: () => void;
 
 	@state()
 	private _translationSetting: boolean = false
@@ -38,6 +39,9 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 
 	@state()
 	private _selectedContent: StaticContentDto[] = [];
+
+	@state()
+	private _isLoading: boolean = true;
 
 	constructor() {
 		super();
@@ -68,9 +72,18 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			this._item = item;
 		});
 
+		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
+			this._isLoading = isLoading;
+		});
+
 		this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
 			this._modalManagerContext = _instance;
 		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.#observerCleanup?.();
 	}
 
 	async connectedCallback() {
@@ -165,11 +178,9 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			} as PreviewAddNewDictionaryItemToViewDto
 		});
 
-		await modalContext?.onSubmit().then(async () => {
-			this._selectedContent = [];
-
-			await this.#refreshItem();
-		});
+		await modalContext?.onSubmit();
+		this._selectedContent = [];
+		await this.#refreshItem();
 	}
 
 	async #openMatchDictionaryModal(staticContent: StaticContentModel) {
@@ -181,9 +192,8 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			} as AddExistingDictionaryItemToViewDto
 		});
 
-		await modalContext?.onSubmit().then(async () => {
-			await this.#refreshItem();
-		})
+		await modalContext?.onSubmit();
+		await this.#refreshItem();
 	}
 
 	async #refreshItem() {
@@ -350,10 +360,20 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	}
 
 	render() {
-		if (!this._item) {
+		if (this._isLoading) {
 			return html`
 				<umb-body-layout header-transparent>
-					<p>No item loaded</p>
+					<div id="loader">
+						<uui-loader></uui-loader>
+					</div>
+				</umb-body-layout>
+			`;
+		}
+
+		if (!this._item && !this._isLoading)  {
+			return html`
+				<umb-body-layout header-transparent>
+					<umb-localize key="autoDictionaries_failed_load"></umb-localize>
 				</umb-body-layout>
 			`;
 		}
@@ -440,7 +460,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 						${this.#renderSelectionActions()}
 					</div>
 					
-					<uui-box headline="General">
+					<uui-box headline=${this.localize.term("autoDictionaries_general")}>
 
 						<div class="general-item">
 							<strong>
@@ -507,6 +527,13 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 	static styles = [
 		UmbTextStyles,
 		css`
+			#loader{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height:100%;
+			}
+
 			#autoDictionaries-layout {
 				padding-bottom: var(--uui-size-layout-1);
 				display: grid;
