@@ -119,7 +119,11 @@ namespace AutoDictionaries.Services
 
 		public async Task<DictionaryModel> GetDictionaryItem(string dictionaryKey)
 		{
-			return await MapToDictionaryModel(await _dictionaryItemService.GetAsync(Regex.Replace(dictionaryKey, @"[\""]", "")));
+			var dictionaryItem = await _dictionaryItemService.GetAsync(dictionaryKey);
+			if(dictionaryItem == null)
+				return null;
+
+			return await MapToDictionaryModel(dictionaryItem);
 		}
 
 		public async Task<DictionaryModel> GetDictionaryItem(Guid dictionaryKey)

@@ -382,9 +382,9 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 			<umb-body-layout header-transparent>
 				<div id="autoDictionaries-layout">
 					<div id="autoDictionaries-main">
-						<uui-box class=${(this._item.dictionaries ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_dictionaries")}>
+						<uui-box class=${(this._item?.dictionaries ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_dictionaries")}>
 
-							${(this._item.dictionaries ?? []).length > 0 ?
+							${(this._item?.dictionaries ?? []).length > 0 ?
 							html`				
 								<uui-table>
 									<uui-table-column></uui-table-column>
@@ -411,18 +411,18 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 										<uui-table-head-cell></uui-table-head-cell>
 									</uui-table-head>
 
-									${repeat(this._item.dictionaries ?? [], (dictionary) => dictionary.guid, (dictionary) => this._renderDictionaries(dictionary))}
+									${repeat(this._item?.dictionaries ?? [], (dictionary) => dictionary.guid, (dictionary) => this._renderDictionaries(dictionary))}
 								</uui-table>` :
 							html`
-								${(this._item.staticContent ?? []).length > 0 ?
+								${(this._item?.staticContent ?? []).length > 0 ?
 								html`
 									<uui-icon name="icon-alert-alt"></uui-icon>` : null}
 									<umb-localize key="autoDictionaries_no_dictionaries"></umb-localize>`}		
 						</uui-box>	
 			
-						<uui-box class=${(this._item.staticContent ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_static_content")}>
+						<uui-box class=${(this._item?.staticContent ?? []).length > 0 ? "no-padding" : ""} headline=${this.localize.term("autoDictionaries_static_content")}>
 
-							${(this._item.staticContent ?? []).length > 0 ?
+							${(this._item?.staticContent ?? []).length > 0 ?
 							html`
 								<uui-table selectable>
 									<uui-table-column></uui-table-column>
@@ -450,7 +450,7 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 										<uui-table-head-cell></uui-table-head-cell>
 									</uui-table-head>
 
-									${repeat(this._item.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this._renderStaticContent(staticContent))}
+									${repeat(this._item?.staticContent ?? [], (staticContent) => staticContent.staticContent, (staticContent) => this._renderStaticContent(staticContent))}
 								</uui-table>` :
 							html`<umb-localize key="autoDictionaries_no_static_content"></umb-localize>`}
 
@@ -466,21 +466,21 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 							<strong>
 								<umb-localize key="general_name"></umb-localize>
 							</strong>
-							<span>${this._item.name}</span>
+							<span>${this._item?.name}</span>
 						</div>
 
 						<div class="general-item">
 							<strong>
 								<umb-localize key="content_alias"></umb-localize>
 							</strong>
-							<span>${this._item.alias}</span>
+							<span>${this._item?.alias}</span>
 						</div>
 
 						<div class="general-item">
 							<strong>
 								<umb-localize key="autoDictionaries_type"></umb-localize>
 							</strong>
-							<span>${this._item.type}</span>
+							<span>${this._item?.type}</span>
 						</div>
 
 					
@@ -490,12 +490,12 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 								<umb-localize key="autoDictionaries_view"></umb-localize>
 							</strong>
 							<span>
-								<uui-ref-node standalone name=${this._item.name} detail="${this._item.path}" 
-									href=${ifDefined(this._item.type === "Template" ?
+								<uui-ref-node standalone name=${this._item?.name} detail="${this._item?.path}" 
+									href=${ifDefined(this._item?.type === "Template" ?
 
 									this._routeBuilder?.({ entityType: UMB_TEMPLATE_ENTITY_TYPE }) + 'edit/' + this._item.key
 									:
-									this._routeBuilder?.({ entityType: UMB_PARTIAL_VIEW_ENTITY_TYPE }) + 'edit/' + this.#serverFilePathUniqueSerializer.toUnique("/" + this._item.path)
+									this._routeBuilder?.({ entityType: UMB_PARTIAL_VIEW_ENTITY_TYPE }) + 'edit/' + this.#serverFilePathUniqueSerializer.toUnique("/" + this._item?.path)
 
 								)}>
 									<uui-icon slot="icon" name="icon-document-html" aria-hidden="true"></uui-icon>
@@ -507,14 +507,14 @@ export class autoDictionariesItemViewElement extends UmbElementMixin(LitElement)
 							<strong>
 								<umb-localize key="template_id"></umb-localize>
 							</strong>
-							<span>${this._item.id}</span>
+							<span>${this._item?.id}</span>
 						</div>
 
 						<div class="general-item">
 							<strong>
 								<umb-localize key="autoDictionaries_key"></umb-localize>
 							</strong>
-							<span>${this._item.key}</span>
+							<span>${this._item?.key}</span>
 						</div>
 
 					</uui-box>
