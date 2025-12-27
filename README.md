@@ -110,9 +110,9 @@ If you find this package helpful, please:
 ![Settings](assets/settings.png)
 
 ### Edit View
-![Edit](assets/edit.png)
+![Edit view](assets/edit.png)
 
-### Edit View
+### Edit Preview
 ![Edit preview](assets/edit-preview.png)
 
 ### Edit Translate
