@@ -20,31 +20,31 @@
     ],
     "Screenshots": [
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/demo.gif",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/demo.gif",
             "Caption": "Quick demo"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/translate_existing.gif",
-            "Caption": "Quick demo"
-        },
-        {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/dashboard.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/dashboard.png",
             "Caption": "Overview"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/settings.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/settings.png",
             "Caption": "Settings"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/edit.PNG",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit.png",
             "Caption": "Edit"
         },
         {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/select.PNG",
-            "Caption": "Select"
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit-preview.png",
+            "Caption": "Edit preview"
+        },
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit-translate.png",
+            "Caption": "Edit translate"
         },
                 {
-            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v13/main/assets/generate.gif",
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/generate.gif",
             "Caption": "Short demo"
         }
     ]
