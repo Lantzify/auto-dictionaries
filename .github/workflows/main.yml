@@ -9,6 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'src/AutoDictionaries/Client/package-lock.json'
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src/AutoDictionaries/Client
+      
+      - name: Build frontend assets
+        run: npm run build
+        working-directory: src/AutoDictionaries/Client
       - name: Build project
         run: dotnet build --configuration Release src/AutoDictionaries
       - name: Package files
