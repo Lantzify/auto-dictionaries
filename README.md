@@ -101,19 +101,19 @@ If you find this package helpful, please:
 ## 📸 Screenshots
 
 ### Overview Dashboard
-![Dashboard](assets/dashboard.PNG)
+![Dashboard](assets/dashboard.png)
 
 ### Generating Dictionaries
 ![Generate](assets/generate.gif)
 
-### Translating Existing Dictionary Items
-![Translate](assets/translate_existing.gif)
-
 ### Settings Panel
-![Settings](assets/settings.PNG)
+![Settings](assets/settings.png)
 
 ### Edit View
-![Edit](assets/edit.PNG)
+![Edit](assets/edit.png)
 
-### Dictionary Selection
-![Select](assets/select.PNG)
+### Edit View
+![Edit preview](assets/edit-preview.png)
+
+### Edit Translate
+![Edit](assets/edit-translate.png)
