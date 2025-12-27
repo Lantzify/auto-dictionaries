@@ -33,15 +33,15 @@
         },
         {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit.png",
-            "Caption": "Edit"
+            "Caption": "View"
         },
         {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit-preview.png",
-            "Caption": "Edit preview"
+            "Caption": "Preview generate"
         },
         {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit-translate.png",
-            "Caption": "Edit translate"
+            "Caption": "Translate"
         },
                 {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/generate.gif",
