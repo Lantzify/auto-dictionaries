@@ -29,6 +29,7 @@
 		<PackageTags>umbraco dictionaries package umbraco-marketplace</PackageTags>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
+		<PackageReadmeFile>umbraco-marketplace-readme.md</PackageReadmeFile>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
 		<ContentTargetFolders>content</ContentTargetFolders>
@@ -37,13 +38,22 @@
 
 	</PropertyGroup>
 
-	<ItemGroup>	
+	<ItemGroup>
+		<None Include="..\..\umbraco-marketplace-readme.md" Pack="true" PackagePath="\" />
 		<None Include="..\..\assets\logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 
+<ItemGroup>
+		<Content Include="wwwroot\**\*.*">
+			<Pack>true</Pack>
+			<PackagePath>staticwebassets\</PackagePath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+		
 	<!-- Auto-generate schema file before packing -->
 	<Target Name="GenerateSchema" BeforeTargets="GenerateNuspec;Pack">
 		<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
