@@ -6,6 +6,7 @@ Auto Dictionaries is an Umbraco package made to automate the process of replacin
 [![Nuget](https://img.shields.io/nuget/dt/AutoDictionaries?color=%2346c018&logo=Nuget)](https://www.nuget.org/packages/AutoDictionaries/)
 [![Umbraco](https://img.shields.io/badge/marketplace-umbraco-%233544b1#f5c1bc)](https://marketplace.umbraco.com/package/autodictionaries)
 
+[![Unit testing](https://github.com/Lantzify/auto-dictionaries/actions/workflows/tests.yml/badge.svg)](https://github.com/Lantzify/auto-dictionaries/actions/workflows/tests.yml)
 [![Release](https://github.com/Lantzify/auto-dictionaries/actions/workflows/main.yml/badge.svg)](https://github.com/Lantzify/auto-dictionaries/actions/workflows/main.yml)
 [![Umbraco](https://img.shields.io/badge/our-umbraco-%233544b1)](https://our.umbraco.com/packages/backoffice-extensions/auto-dictionaries/)
 
