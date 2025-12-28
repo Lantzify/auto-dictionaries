@@ -1,9 +1,9 @@
-name: Release
+name: Unit testing
 on:
   workflow_dispatch:
 jobs:
   release_name:
-    name: Publish NuGet Package
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Run tests
