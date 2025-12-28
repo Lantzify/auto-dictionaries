@@ -43,16 +43,31 @@ Auto Dictionaries also detects static content in HTML attributes that are import
 
 The package is configurable in `appsettings.json`:
 
+**Translate**  
+- Type: `boolean`  
+- Default: `false`  
+- Enables or disables automatic translation.
 
-### Configuration Options
+**Translator**  
+- Type: `string`  
+- Default: `"DeepL"`  
+- Translation service to use: `DeepL` or `MicrosoftTranslation`.
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `Translate` | boolean | `false` | Enable/disable automatic translation feature |
-| `Translator` | string | `"DeepL"` | Translation service to use (`DeepL` or `MicrosoftTranslation`) |
-| `ApiKey` | string | `""` | API key for the selected translation service |
-| `ApiEndpoint` | string | `""` | API endpoint (Microsoft Translator only) |
-| `ApiRegion` | string | `""` | API region (Microsoft Translator only) |
+**ApiKey**  
+- Type: `string`  
+- Default: `""`  
+- API key for the selected translation service.
+
+**ApiEndpoint** *(Microsoft Translator only)*  
+- Type: `string`  
+- Default: `""`  
+- API endpoint for Microsoft Translator.
+
+**ApiRegion** *(Microsoft Translator only)*  
+- Type: `string`  
+- Default: `""`  
+- Azure region for Microsoft Translator.
+
 
 ## Translation Services
 

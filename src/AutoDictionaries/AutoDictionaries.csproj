@@ -16,7 +16,7 @@
 
 	<PropertyGroup>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>100.0.21</Version>
+		<Version>17.0.0</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>
@@ -48,7 +48,7 @@
 	<!-- Auto-generate schema file before packing -->
 		<Target Name="GenerateSchema" BeforeTargets="BeforeBuild">
 			<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
-			<Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)\..\AutoDictionaries.SchemaGenerator\AutoDictionaries.SchemaGenerator.csproj&quot; -- -o &quot;$(MSBuildThisFileDirectory)\appsettings-schema.auto-dictionaries.json&quot;" />
+			<Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)\..\AutoDictionaries.SchemaGenerator\AutoDictionaries.SchemaGenerator.csproj&quot; -- -o &quot;$(MSBuildThisFileDirectory)appsettings-schema.auto-dictionaries.json&quot;" />
 		</Target>
 		<ItemGroup>
 			<None Include="$(MSBuildThisFileDirectory)appsettings-schema.auto-dictionaries.json">
