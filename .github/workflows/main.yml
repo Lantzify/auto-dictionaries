@@ -22,6 +22,8 @@ jobs:
       - name: Build frontend assets
         run: npm run build
         working-directory: src/AutoDictionaries/Client
+      - name: Run tests
+        run: dotnet test --configuration Release src/AutoDictionaries.Tests
       - name: Build project
         run: dotnet build --configuration Release src/AutoDictionaries
       - name: Package files

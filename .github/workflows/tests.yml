@@ -1,0 +1,10 @@
+name: Release
+on:
+  workflow_dispatch:
+jobs:
+  release_name:
+    name: Publish NuGet Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: dotnet test --configuration Release src/AutoDictionaries.Tests
