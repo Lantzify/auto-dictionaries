@@ -46,9 +46,10 @@ namespace AutoDictionaries.Services
 
 		public async Task<AutoDictionariesModel> MapToMapToAutoDictionariesModel(ITemplate template)
 		{
-			if (template == null) return null;
+			if (template == null)
+				return null;
 
-			var staticContent = await _autoDictionariesService.GetStaticContentFromView(template?.Content ?? "");
+			var staticContent = await _autoDictionariesService.GetStaticContentFromView(template.Content ?? "");
 
 			return new AutoDictionariesModel()
 			{
@@ -59,7 +60,7 @@ namespace AutoDictionaries.Services
 				Path = template.VirtualPath,
 				Type = "Template",
 				StaticContent = staticContent,
-				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(template?.Content ?? ""),
+				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(template.Content ?? ""),
 				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}

@@ -96,9 +96,12 @@ namespace AutoDictionaries.Core.Controllers
 
 
         [HttpPost("preview-add-existing-dictionary-item")]
-        public async Task<string[]> PreviewAddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
+        public async Task<ActionResult<string[]>> PreviewAddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
         {
-            var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
+			if (dto.AutoDictionariesModel is null)
+				return BadRequest("AutoDictionariesModel is required.");
+
+			var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
             PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
             List<StaticContentDto> staticContent = new List<StaticContentDto>()
@@ -112,17 +115,20 @@ namespace AutoDictionaries.Core.Controllers
 
             return new string[]
             {
-                pathContent?.Content,
-                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent?.Content, pathContent?.Path, staticContent)
+                pathContent.Content,
+                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, staticContent)
             };
         }
 
         [HttpPost("add-existing-dictionary-item")]
-        public async Task<bool> AddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
+        public async Task<ActionResult<bool>> AddExistingDictionaryItemToView(AddExistingDictionaryItemToViewDto dto)
         {
             try
             {
-                var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
+				if (dto.AutoDictionariesModel is null)
+					return BadRequest("AutoDictionariesModel is required.");
+
+				var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
                 if (!_autoDictionariesService.AddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", dictionary, dto?.StaticContent ?? ""))
@@ -140,44 +146,70 @@ namespace AutoDictionaries.Core.Controllers
         }
 
         [HttpPost("preview-add-new-dictionary-item")]
-        public async Task<string[]> PreviewAddNewDictionaryItemToView(PreviewAddNewDictionaryItemToViewDto dto)
+        public async Task<ActionResult<string[]>> PreviewAddNewDictionaryItemToView(PreviewAddNewDictionaryItemToViewDto dto)
         {
-            foreach (var staticContent in dto.StaticContent)
-                staticContent.SafeAlias = $"{(!string.IsNullOrEmpty(staticContent.Parent) ? staticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(staticContent.StaticContent)}";
+			if (dto.AutoDictionariesModel is null) 
+                return BadRequest("AutoDictionariesModel is required.");
 
-            PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+			if (dto.StaticContent is null || dto.StaticContent.Count == 0) 
+                return BadRequest("StaticContent is required.");
 
-            return new string[]
+            string culture = await _languageService.GetDefaultIsoCodeAsync();
+			foreach (var staticContent in dto.StaticContent)
+            {
+				var parentPrefix = string.IsNullOrWhiteSpace(staticContent.Parent) ? "" : staticContent.Parent + "_";
+				staticContent.SafeAlias = parentPrefix + _shortStringHelper.CleanStringForUrlSegment(staticContent.StaticContent ?? "", culture);
+			}
+
+			var pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+
+			return Ok(new []
             {
                 pathContent.Content,
-                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, dto.StaticContent)
-            };
+                _autoDictionariesService.PreviewAddDictionaryItemToView(
+                    pathContent.Content,
+                    pathContent.Path, 
+                    dto.StaticContent)
+            });
         }
 
         [HttpPost("add-new-dictionary-item")]
-        public async Task<bool> AddNewDictionaryItemToView(AddNewDictionaryItemToViewDto dto)
+        public async Task<ActionResult<bool>> AddNewDictionaryItemToView(AddNewDictionaryItemToViewDto dto)
         {
             try
             {
-                var parent = await _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
-                var dictionaryName = $"{(dto.StaticContent.Parent != "" ? dto.StaticContent.Parent + "_" : null)}{_shortStringHelper.CleanStringForSafeAlias(dto.StaticContent.StaticContent)}";
-                DictionaryModel dictionary;
+				if (dto.AutoDictionariesModel is null)
+					return BadRequest("AutoDictionariesModel is required.");
 
+				if (dto.StaticContent == null)
+					return BadRequest("Static Content is required.");
+
+				var parent = await _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
+				var parentPrefix = string.IsNullOrWhiteSpace(dto.StaticContent.Parent) ? "" : dto.StaticContent.Parent + "_";
+				string culture = await _languageService.GetDefaultIsoCodeAsync();
+				var dictionaryName = parentPrefix + _shortStringHelper.CleanStringForUrlSegment(dto.StaticContent.StaticContent ?? "", culture);
+
+				var userKey = CurrentUserKeyOrNull();
+				if (userKey is null) 
+                    return Unauthorized();
+
+				DictionaryModel dictionary;
 				if (!dto.Translate)
                 {
-                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key, parent);
+                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, userKey.Value, parent);
                 }
                 else
                 {
-                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(dto.StaticContent.StaticContent), _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key, parent);
+                    if (string.IsNullOrEmpty(GetApiKeySetting()))
+						return BadRequest("No API key found");
+
+					dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(dto.StaticContent.StaticContent), userKey.Value, parent);
                 }
 
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", dictionary, dto.StaticContent.StaticContent))
-                {
+                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
                     return false;
-                }
             }
             catch (Exception ex)
             {
@@ -189,10 +221,14 @@ namespace AutoDictionaries.Core.Controllers
         }
 
         [HttpGet("translate-dictionary-item/{id}")]
-        public async Task<bool> TranslateDictionaryItem(Guid id)
+        public async Task<ActionResult<bool>> TranslateDictionaryItem(Guid id)
         {
             try
             {
+				var userKey = CurrentUserKeyOrNull();
+				if (userKey is null)
+					return Unauthorized();
+
 				var defaultLang = await _languageService.GetDefaultIsoCodeAsync();
 
                 var item = await _dictionaryItemService.GetAsync(id);
@@ -213,7 +249,7 @@ namespace AutoDictionaries.Core.Controllers
 
                
 
-				var attempt = await _dictionaryItemService.UpdateAsync(item, _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Key);
+				var attempt = await _dictionaryItemService.UpdateAsync(item, userKey.Value);
                 if (!attempt.Success)
                     return false;
             }
@@ -282,5 +318,7 @@ namespace AutoDictionaries.Core.Controllers
 				Total = 100
 			});
 		}
+
+		private Guid? CurrentUserKeyOrNull() => _backOfficeSecurityAccessor.BackOfficeSecurity?.CurrentUser?.Key;
 	}
 }

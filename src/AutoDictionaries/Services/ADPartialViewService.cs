@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using Umbraco.Cms.Core.IO;
+﻿using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
-using System.Collections.Generic;
 using AutoDictionaries.Core.Models;
-using Microsoft.AspNetCore.Hosting;
 using AutoDictionaries.Core.Services.Interfaces;
 
 namespace AutoDictionaries.Services
@@ -16,7 +13,9 @@ namespace AutoDictionaries.Services
 		private readonly string _rootPartialViewDirectory;
 		private readonly IAutoDictionariesService _autoDictionariesService;
 
-		public ADPartialViewService(FileSystems fileSystem, IPartialViewService partialViewService, IAutoDictionariesService autoDictionariesService)
+		public ADPartialViewService(FileSystems fileSystem,
+			IPartialViewService partialViewService,
+			IAutoDictionariesService autoDictionariesService)
 		{
 			_fileSystem = fileSystem;
 			_partialViewService = partialViewService;
@@ -50,9 +49,10 @@ namespace AutoDictionaries.Services
 
 		public async Task GetDirectories(List<AutoDictionariesModel> partialViewList, string path)
 		{
-			foreach (var fileDirectory in _fileSystem.PartialViewsFileSystem.GetDirectories(path))
+			var directories = _fileSystem.PartialViewsFileSystem?.GetDirectories(path) ?? Array.Empty<string>();
+			foreach (var fileDirectory in directories)
 			{
-				IEnumerable<string> partialViews = _fileSystem.PartialViewsFileSystem.GetFiles(_rootPartialViewDirectory + fileDirectory);
+				IEnumerable<string> partialViews = _fileSystem.PartialViewsFileSystem?.GetFiles(_rootPartialViewDirectory + fileDirectory) ?? Array.Empty<string>();
 
 				foreach (var partialViewName in partialViews)
 				{
@@ -68,16 +68,15 @@ namespace AutoDictionaries.Services
 			}
 		}
 
-		//Can't use Guid here since it's not reliabvle should use path insetad
 		public async Task<AutoDictionariesModel> GetPartialView(int id)
 		{
 			var allPartialViews = await GetAllPartialViews();
 
 			var partialView = allPartialViews.Where(x => x.Id == id).FirstOrDefault();
-			if(partialView == null)
+			if(partialView == null || string.IsNullOrEmpty(partialView.Path))
 				return null;
 
-			return await MapToAutoDictionariesModel(await GetUmbracoPartialView(partialView?.Path), partialView.Path, true);
+			return await MapToAutoDictionariesModel(await GetUmbracoPartialView(partialView.Path), partialView.Path, true);
 		}
 
 		public async Task<IPartialView> GetUmbracoPartialView(string path)
@@ -90,7 +89,7 @@ namespace AutoDictionaries.Services
 			if (partialView == null) 
 				return null;
 
-			var staticContent = await _autoDictionariesService.GetStaticContentFromView(partialView?.Content ?? "");
+			var staticContent = await _autoDictionariesService.GetStaticContentFromView(partialView.Content ?? string.Empty);
 
 			return new AutoDictionariesModel()
 			{
@@ -102,7 +101,7 @@ namespace AutoDictionaries.Services
 				Path = !string.IsNullOrEmpty(path) ? path : partialView?.VirtualPath,
 				Content = getContent ? partialView?.Content : string.Empty,
 				StaticContent = staticContent,
-				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView.Content),
+				Dictionaries = await _autoDictionariesService.GetDictionariesFromView(partialView?.Content ?? string.Empty),
 				MatchDictionaries = staticContent.Where(x => x.Dictionary != null).Count()
 			};
 		}

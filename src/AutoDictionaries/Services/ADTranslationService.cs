@@ -105,7 +105,7 @@ namespace AutoDictionaries.Services
 								translations.Add(new TranslateModel
 								{
 									Language = lang,
-									TranslatedText = result.FirstOrDefault()?.Translations.FirstOrDefault()?.Text
+									TranslatedText = result?.FirstOrDefault()?.Translations?.FirstOrDefault()?.Text
 								});
 							}
 						}

@@ -1,5 +1,4 @@
-﻿using Serilog.Events;
-using AutoDictionaries.Models;
+﻿using AutoDictionaries.Models;
 using Umbraco.Cms.Core.Models;
 using AutoDictionaries.Helpers;
 using Umbraco.Cms.Core.Services;
@@ -173,12 +172,16 @@ namespace AutoDictionaries.Services
 
 		public async Task<DictionaryModel> CreateDictionaryItem(string dictionaryName, string dictionaryValue, Guid userKey, DictionaryModel? parent = null)
 		{
+			var defaultLanguage = await _languageService.GetDefaultLanguageAsync();
+			if (defaultLanguage == null)
+				return null;
+
 			DictionaryItem dictionaryItem = new DictionaryItem(dictionaryName)
 			{
 				ParentId = parent?.Guid ?? null,
 				Translations = new List<DictionaryTranslation>
 				{
-					new DictionaryTranslation(await _languageService.GetDefaultLanguageAsync(), dictionaryValue)
+					new DictionaryTranslation(defaultLanguage, dictionaryValue)
 				} 
 			};
 
@@ -213,7 +216,8 @@ namespace AutoDictionaries.Services
 
 		public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
 		{
-			string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
+			var physicalPath = _webHostEnvironment.ContentRootFileProvider?.GetFileInfo(path).PhysicalPath;
+			string text = System.IO.File.ReadAllText(physicalPath ?? string.Empty);
 			foreach (var item in staticContent)
 			{
 				string insert = $"@Umbraco.GetDictionaryValue(\"{item.SafeAlias}\")";
@@ -242,8 +246,12 @@ namespace AutoDictionaries.Services
 
 			if (staticContentInView.Any())
 			{
-				string text = System.IO.File.ReadAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath);
-				System.IO.File.WriteAllText(_webHostEnvironment.ContentRootFileProvider.GetFileInfo(path).PhysicalPath, Regex.Replace(text, regex, insert));
+				var physicalPath = _webHostEnvironment?.ContentRootFileProvider?.GetFileInfo(path)?.PhysicalPath ?? string.Empty;
+				if (string.IsNullOrEmpty(physicalPath))
+					return false;
+
+				string text = System.IO.File.ReadAllText(physicalPath);
+				System.IO.File.WriteAllText(physicalPath, Regex.Replace(text, regex, insert));
 
 				return true;
 			}
