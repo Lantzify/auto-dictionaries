@@ -5,7 +5,6 @@
 		<StaticWebAssetBasePath>App_Plugins/AutoDictionaries</StaticWebAssetBasePath>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<NoWarn>CS8603</NoWarn>
 	</PropertyGroup>
 
@@ -17,7 +16,7 @@
 
 	<PropertyGroup>
 		<PackageId>AutoDictionaries</PackageId>
-		<Version>17.0.0</Version>
+		<Version>100.0.21</Version>
 		<Title>Auto dictionaries</Title>
 		<Authors>Lantzify</Authors>
 		<PackageIcon>logo.png</PackageIcon>
@@ -46,14 +45,6 @@
 		</None>
 	</ItemGroup>
 
-<ItemGroup>
-		<Content Include="wwwroot\**\*.*">
-			<Pack>true</Pack>
-			<PackagePath>staticwebassets\</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-		
 	<!-- Auto-generate schema file before packing -->
 	<Target Name="GenerateSchema" BeforeTargets="GenerateNuspec;Pack">
 		<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
@@ -66,10 +57,11 @@
 		</ItemGroup>
 	</Target>
 
-
 		<ItemGroup>
-				<Content Include="buildTransitive\**" PackagePath="buildTransitive" />
-				<Content Include="appsettings-schema.auto-dictionaries.json" PackagePath="" />
-		</ItemGroup>
+		<None Include="buildTransitive\**\*.*">
+			<Pack>True</Pack>
+			<PackagePath>buildTransitive</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

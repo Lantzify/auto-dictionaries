@@ -263,3 +263,4 @@ ModelManifest.xml
 
 /src/AutoDictionaries/wwwroot/*
 /src/AutoDictionaries.Web/appsettings.Development.json
+/src/AutoDictionaries/appsettings-schema.auto-dictionaries.json

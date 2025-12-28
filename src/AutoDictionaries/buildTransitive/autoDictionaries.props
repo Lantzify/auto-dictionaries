@@ -1,5 +1,0 @@
-﻿<Project>
-		<ItemGroup>
-				<UmbracoJsonSchemaFiles Include="$(MSBuildThisFileDirectory)..\appsettings-schema.auto-dictionaries.json" Weight="-80" />
-		</ItemGroup>
-</Project>
