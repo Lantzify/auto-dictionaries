@@ -46,16 +46,16 @@
 	</ItemGroup>
 
 	<!-- Auto-generate schema file before packing -->
-	<Target Name="GenerateSchema" BeforeTargets="GenerateNuspec;Pack">
-		<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
-		<Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)\..\AutoDictionaries.SchemaGenerator\AutoDictionaries.SchemaGenerator.csproj&quot; -- -o &quot;$(MSBuildThisFileDirectory)\appsettings-schema.auto-dictionaries.json&quot;" />
+		<Target Name="GenerateSchema" BeforeTargets="BeforeBuild">
+			<Message Text="Generating AutoDictionaries schema file..." Importance="high" />
+			<Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)\..\AutoDictionaries.SchemaGenerator\AutoDictionaries.SchemaGenerator.csproj&quot; -- -o &quot;$(MSBuildThisFileDirectory)\appsettings-schema.auto-dictionaries.json&quot;" />
+		</Target>
 		<ItemGroup>
 			<None Include="$(MSBuildThisFileDirectory)appsettings-schema.auto-dictionaries.json">
 				<Pack>True</Pack>
 				<PackagePath>content</PackagePath>
 			</None>
 		</ItemGroup>
-	</Target>
 
 		<ItemGroup>
 		<None Include="buildTransitive\**\*.*">
