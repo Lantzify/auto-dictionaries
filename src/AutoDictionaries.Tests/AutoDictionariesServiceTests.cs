@@ -1084,6 +1084,70 @@ namespace AutoDictionaries.Tests
 			result.Should().NotBeNull();
 			result.Should().BeEmpty();
 		}
+	
+
+		[Test]
+		public async Task GetStaticContentFromView_FunctionBlock()
+		{
+			var viewContent = @"@inherits UmbracoViewPage<Avc>
+@if (Model != null)
+{
+	<div class=""responsive-accordion"">
+		<div class=""accordion accordion-flush"" id="""">
+			<div class=""accordion-item"">
+				<h2 class=""accordion-header"">
+					<button class=""accordion-button"" type=""button"" data-bs-toggle=""collapse"" data-bs-target=""#collapseOne"" aria-expanded=""true"" aria-controls=""collapseOne"">
+						
+					</button>
+				</h2>
+				<div id=""collapseOne"" class=""accordion-collapse collapse show"" data-bs-parent="""">
+					<div class=""accordion-body"">
+						<h3 class=""mb-3"">@Model.Name</h3>
+		
+
+
+					</div>
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+
+	<div class=""responsive-tabs"">
+		<ul class=""nav nav-tabs flex-xl-row flex-column"" id=""avcTab"" role=""tablist"" style="""">
+			<li class=""nav-item"" role=""presentation"">
+				<button class=""nav-link active"" id=""contactTab"" data-bs-toggle=""tab"" data-bs-target=""#contactTab-pane"" type=""button"" role=""tab"" aria-controls=""contactTab-pane"" aria-selected=""true""></button>
+			</li>
+
+		</ul>
+
+
+		</div>
+	</div>
+}	
+
+@functions {
+	private int GetFractionSortOrder(string fractionName)
+	{
+		var orderMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) {};
+
+		if (orderMap.TryGetValue(fractionName, out int order))
+		{
+			return order;
+		}
+
+		return 1000;
+	}
+}";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 	}
 }
 

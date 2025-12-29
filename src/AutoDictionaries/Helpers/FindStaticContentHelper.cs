@@ -81,7 +81,7 @@ namespace AutoDictionaries.Helpers
 				return;
 
 			// Skip C# code patterns - starts/ends with code characters
-			if (Regex.IsMatch(text, @"^[@({>]|[;{}]$"))
+			if (Regex.IsMatch(text, @"^[@({}>]|[;{}]$"))
 				return;
 
 			// Skip domain names
