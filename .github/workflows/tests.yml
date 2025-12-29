@@ -1,6 +1,8 @@
 name: Unit testing
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   release_name:
     name: Run tests
