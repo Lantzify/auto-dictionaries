@@ -85,7 +85,7 @@ namespace AutoDictionaries.Core.Controllers
 		}
 
 		[HttpGet("get-all-dictionary-items")]
-        public async Task<List<DictionaryModel>> GetAllDictionaryItems() => await _autoDictionariesService.GetAllDictionaryItems();
+        public async Task<List<DictionaryModel>> GetAllDictionaryItems() => await _autoDictionariesService.LazyAllDictionaryItems();
 
         [HttpGet("get-preview/{id}")]
         public async Task<string> GetPreview(string id) 

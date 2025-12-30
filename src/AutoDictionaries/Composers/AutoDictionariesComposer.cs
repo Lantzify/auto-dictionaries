@@ -1,9 +1,9 @@
 ﻿using AutoDictionaries.Models;
-using Umbraco.Cms.Core.Manifest;
 using AutoDictionaries.Services;
 using AutoDictionaries.Composers;
-using System.Collections.Generic;
 using Umbraco.Cms.Core.Composing;
+using AutoDictionaries.Notifications;
+using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using AutoDictionaries.Core.Services.Interfaces;
@@ -14,12 +14,16 @@ namespace AutoDictionaries.Core.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
-            builder.Services.AddScoped<IADTemplateService, ADTemplateService>();
-            builder.Services.AddScoped<IADPartialViewService, ADPartialViewService>();
-            builder.Services.AddScoped<IAutoDictionariesService, AutoDictionariesService>();
-            builder.Services.AddScoped<IADTranslationService, ADTranslationService>();
 
-            builder.Services.ConfigureOptions<ConfigureSwaggerGenOptions>();
+            builder.Services.AddSingleton<IADTemplateService, ADTemplateService>()
+                            .AddSingleton<IADPartialViewService, ADPartialViewService>()
+							.AddSingleton<IADTranslationService, ADTranslationService>()
+							.AddSingleton<IAutoDictionariesService, AutoDictionariesService>();
+
+            builder.AddNotificationHandler<DictionaryItemSavedNotification, DictionaryItemLazyNotification>()
+                   .AddNotificationHandler<DictionaryItemDeletedNotification, DictionaryItemLazyNotification>();
+
+			builder.Services.ConfigureOptions<ConfigureSwaggerGenOptions>();
 
 			builder.Services.AddOptions<AutoDictionariesSettings>()
                 .Bind(builder.Config.GetSection(AutoDictionariesSettings.AutoDictionaries));

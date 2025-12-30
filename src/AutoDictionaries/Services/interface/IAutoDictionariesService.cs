@@ -7,7 +7,9 @@ namespace AutoDictionaries.Core.Services.Interfaces
 {
 	public interface IAutoDictionariesService
 	{
-		Task<List<DictionaryModel>> GetAllDictionaryItems();
+
+		void RefreshGetAllDictionaryItems();
+		Task<List<DictionaryModel>> LazyAllDictionaryItems();
 		Task GetChildrenDictionaryItems(List<DictionaryModel> dictionariesModel, Guid dictionaryGuid);
 		Task<List<DictionaryModel>> GetDictionariesFromView(string viewContent);
 		Task<List<StaticContentModel>> GetStaticContentFromView(string viewContent);

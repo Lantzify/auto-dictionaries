@@ -14,6 +14,7 @@ namespace AutoDictionaries.Services
 	public class AutoDictionariesService : IAutoDictionariesService
 	{
 		private readonly Lazy<Task<int>> _languageCount;
+		private Lazy<Task<List<DictionaryModel>>> _allDictionaryItems;
 		private readonly ILanguageService _languageService;
 		private readonly IWebHostEnvironment _webHostEnvironment;
 		private readonly IDictionaryItemService _dictionaryItemService;
@@ -34,6 +35,8 @@ namespace AutoDictionaries.Services
 			_adSettings = adSettings;
 			_languageService = languageService;
 			_dictionaryItemService = dictionaryItemService;
+			_allDictionaryItems = new Lazy<Task<List<DictionaryModel>>>(GetAllDictionaryItems);
+		
 			_languageCount = new Lazy<Task<int>>(async () =>
 			{
 				var languages = await _languageService.GetAllAsync();
@@ -41,7 +44,13 @@ namespace AutoDictionaries.Services
 			});
 		}
 
-		public async Task<List<DictionaryModel>> GetAllDictionaryItems()
+
+		public Task<List<DictionaryModel>> LazyAllDictionaryItems() => _allDictionaryItems.Value;
+
+		public void RefreshGetAllDictionaryItems() => _allDictionaryItems = new Lazy<Task<List<DictionaryModel>>>(GetAllDictionaryItems);
+
+
+		private async Task<List<DictionaryModel>> GetAllDictionaryItems()
 		{
 			List<DictionaryModel> dictionariesModel = new();
 
@@ -109,7 +118,7 @@ namespace AutoDictionaries.Services
 				{
 					Used = staticContent.Count(),
 					StaticContent = staticContent.Key,
-					Dictionary = GetDictionaryItemFromStaticContent(await GetAllDictionaryItems(), staticContent.Key)
+					Dictionary = GetDictionaryItemFromStaticContent(await LazyAllDictionaryItems(), staticContent.Key)
 				});
 			}
 
