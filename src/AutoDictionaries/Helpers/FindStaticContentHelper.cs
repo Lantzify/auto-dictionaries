@@ -62,7 +62,7 @@ namespace AutoDictionaries.Helpers
 			if (string.IsNullOrWhiteSpace(text))
 				return;
 
-			text = Regex.Replace(text, @"^[\s,;:!?\-–—]+", "").Trim();
+			text = Regex.Replace(text, @"^[\s,;:!?\-–—)""]+|[(.\-:]$", "").Trim();
 
 			if (string.IsNullOrWhiteSpace(text))
 				return;
@@ -73,15 +73,19 @@ namespace AutoDictionaries.Helpers
 
 			// Skip if starts with non-word character (likely code or special content), but allow & for HTML entities
 			var firstChar = text.TrimStart()[0];
-			if (Regex.IsMatch(firstChar.ToString(), @"[\d]"))
+			if (Regex.IsMatch(firstChar.ToString(), @"[\d+-]"))
 				return;
 
 			// Skip HTML entities that weren't decoded properly
 			if (Regex.IsMatch(text, @"^&\w+;$"))
 				return;
 
+			// C# operators / lambdas / generics / method calls
+			if (Regex.IsMatch(text, @"(&&|\|\||=>|==|!=|<=|>=|\.HasValue\s*\(|\.Value(?:\s*(?:<[^>]+>)?\s*\()?)", RegexOptions.IgnoreCase))
+				return;
+
 			// Skip C# code patterns - starts/ends with code characters
-			if (Regex.IsMatch(text, @"^[@({}>]|[;{}]$"))
+			if (Regex.IsMatch(text, @"^[@({}>]|(new\s{|case\s\""|default:|break;)|[;{}]$"))
 				return;
 
 			// Skip domain names

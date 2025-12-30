@@ -860,7 +860,7 @@ namespace AutoDictionaries.Tests
 			result.Should().NotBeNull();
 			result.Should().Contain(x => x.StaticContent == "Contact form");
 			result.Should().Contain(x => x.StaticContent == "Contact Us");
-			result.Should().Contain(x => x.StaticContent == "Fill out the form below to get in touch.");
+			result.Should().Contain(x => x.StaticContent == "Fill out the form below to get in touch");
 			result.Should().Contain(x => x.StaticContent == "Your full name");
 			result.Should().Contain(x => x.StaticContent == "Required field");
 			result.Should().Contain(x => x.StaticContent == "Email address");
@@ -1055,7 +1055,7 @@ namespace AutoDictionaries.Tests
             {
                 if (!(content.HasProperty(""excludeFromSitemap"") && content.Value<bool>(""excludeFromSitemap"")))
                 {
-<url><loc>@content.Url(mode:UrlMode.Absolute)</loc><lastmod>@content.UpdateDate.ToString(""yyyy-MM-ddTHH:mm:sszzz"")</lastmod></url>
+<url><loc>@content.Url(mode:UrlMode.Absolute)</loc><lastmod>12:20</lastmod></url>
                     if (content.Children.Any(x => x.IsVisible()))
                     {
                         RenderChildPages(content.Children);
@@ -1069,12 +1069,13 @@ namespace AutoDictionaries.Tests
 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9""
     xmlns:image=""http://www.google.com/schemas/sitemap-image/1.1""
     xmlns:video=""http://www.google.com/schemas/sitemap-video/1.1"">
-<url><loc>@homePage.Url(mode: UrlMode.Absolute)</loc><priority>1.0</priority><lastmod>@homePage.UpdateDate.ToString(""yyyy-MM-ddTHH:mm:sszzz"")</lastmod></url>
+<url><loc>@homePage.Url(mode: UrlMode.Absolute)</loc><priority>1.0</priority><lastmod>+00:00</lastmod></url>
     @{
         RenderChildPages(homePage.Children);
     }
 </urlset>
-
+<div>12:30</div>
+<div>2024-10-12</div>
 ";
 
 			// Act
@@ -1084,10 +1085,46 @@ namespace AutoDictionaries.Tests
 			result.Should().NotBeNull();
 			result.Should().BeEmpty();
 		}
-	
 
 		[Test]
-		public async Task GetStaticContentFromView_FunctionBlock()
+		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_4()
+		{
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@model dynamic
+
+@if (Model?.editor.config.markup is not null)
+{
+    string markup = Model.editor.config.markup.ToString();
+    markup = markup.Replace(""#value#"", Html.ReplaceLineBreaks((string)Model.value.ToString()).ToString());
+
+    if (Model.editor.config.style != null)
+    {
+        markup = markup.Replace(""#style#"", Model.editor.config.style.ToString());
+    }
+
+    <text>
+        @Html.Raw(markup)
+    </text>
+}
+else
+{
+    <text>
+        <div style=""@Model?.editor.config.style"">@Model?.value</div>
+    </text>
+}
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+
+		[Test]
+		public async Task GetStaticContentFromView_FunctionBlock_ShouldNotFindAnything()
 		{
 			var viewContent = @"@inherits UmbracoViewPage<Avc>
 @if (Model != null)
@@ -1147,6 +1184,190 @@ namespace AutoDictionaries.Tests
 			// Assert
 			result.Should().NotBeNull();
 			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Textbox_ShouldNotFindAnything()
+		{
+			var viewContent = @"<div class=""form-group"">
+            @Html.TextBox(""password"", """", new { @type = ""password"", @class = ""form-control""})
+            @Html.ValidationMessage(""password"", ViewData.ModelState.ConvertErrorToDictionaryKey(""Password"", Umbraco))
+
+            @Html.TextBox(""confirmPassword"", """", new { @type = ""password"", @class = ""form-control""})
+            @Html.ValidationMessage(""confirmPassword"", ViewData.ModelState.ConvertErrorToDictionaryKey(""ConfirmPassword"", Umbraco))
+
+            @Html.ValidationMessage(""IsTrue"", ViewData.ModelState.ConvertErrorToDictionaryKey(""IsTrue"", Umbraco))
+
+
+            @Html.Hidden(""email"", email)
+            @Html.Hidden(""token"", token)
+
+            @Html.ValidationMessage(""updatePasswordModel"")
+        </div>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_LINQ_ShouldNotFindAnything()
+		{
+			var viewContent = @"@{
+    var wasteCategoriesPage = Umbraco.ContentAtRoot().DescendantsOrSelfOfType(""wasteCategories"")?.First();
+    var wasteCategories = wasteCategoriesPage.GetChildren().Where(x => x.IsVisible() && x.Value<bool>(""showOnHomepage""))
+                                                           .OrderBy(x => x.HasValue(""order"") ? x.Value(""order"") : null);
+
+
+}";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_LINQ2_ShouldNotFindAnything()
+		{
+			var viewContent = @"@{
+    var newsPage = Model.ContentType.Alias == ""newsPage"" ? Model : Model.Parent;
+
+    var newsItems = newsPage.GetChildren().OrderByDescending(x => x.HasValue(""publishedDate"") ? x.Value<DateTime>(""publishedDate"") : x.CreateDate);
+    var selectedNewsItem = Model.ContentType.Alias == ""newsItem"" ? Model : newsItems.First();
+}";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Break_ShouldNotFindAnything()
+		{
+			var viewContent = @"@inherits UmbracoViewPage<Umbraco.Forms.Core.Models.FormsHtmlModel>
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv=""Content-Type"" content=""text/html; charset=utf-8"" />
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
+    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
+    <link href=""https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"" rel=""stylesheet"">
+</head>
+<body style=""background-color: #fff; margin: 0 !important; padding: 0 !important;"">
+    <table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""100%"" style=""margin-bottom: 40px;"">
+      
+        <!-- HERO -->
+        <tr>
+            <td bgcolor=""#fff"" align=""center"" style=""padding: 0px 10px 0px 10px;"">
+                <!--[if (gte mso 9)|(IE)]>
+                <table align=""center"" border=""0"" cellspacing=""0"" cellpadding=""0"" width=""600"">
+                <tr>
+                <td align=""center"" valign=""top"" width=""600"">
+                </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- COPY BLOCK -->
+        <tr>
+            <td bgcolor=""#F3F3F5"" align=""center"" style=""padding: 0px 10px 0px 10px;"">
+                <!--[if (gte mso 9)|(IE)]>
+                <table align=""center"" border=""0"" cellspacing=""0"" cellpadding=""0"" width=""600"">
+                <tr>
+                <td align=""center"" valign=""top"" width=""600"">
+            <![endif]-->
+                <table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""100%"" style=""max-width: 600px;"">
+
+      
+  
+
+                    <!-- COPY -->
+                    <tr>
+                        <td bgcolor=""#ffffff"" align=""left"" style=""padding: 20px 30px 40px 30px; color: #303033; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;"">
+
+                            @foreach (var field in Model.Fields)
+                            {
+                                <h4 style=""font-weight: 700; margin: 0; color: #000000;"">@field.Name</h4>
+
+                                switch (field.FieldType)
+                                {
+                                    case ""FieldType.FileUpload.cshtml"":
+                                        <p style=""margin-top: 0;""><a href=""@siteDomain/@field.GetValue()"" target=""_blank"" style=""color: #00AEA2;"">@field.GetValue()</a></p>
+                                        break;
+
+                                    case ""FieldType.DatePicker.cshtml"":
+                                        DateTime dt;
+                                        var fieldValue = field.GetValue();
+                                        var dateValid = DateTime.TryParse(fieldValue != null ? fieldValue.ToString() : string.Empty, out dt);
+                                        var dateStr = dateValid ? dt.ToString(""f"") : """";
+                                        <p style=""margin-top: 0;"">@dateStr</p>
+                                        break;
+
+                                    case ""FieldType.CheckboxList.cshtml"":
+                                        <p style=""margin-top: 0;"">
+                                            @foreach (var color in field.GetValues())
+                                            {
+                                                @color<br />
+                                            }
+                                        </p>
+                                        break;
+                                    default:
+                                        <p style=""margin-top: 0;"">@field.GetValue()</p>
+                                        break;
+                                }
+                            }
+
+                        </td>
+                    </tr>
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+                </td>
+                </tr>
+                </table>
+            <![endif]-->
+            </td>
+        </tr>
+
+
+
+    </table>
+</body>
+</html>
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_RmovesTrailingParentheses()
+		{
+			var viewContent = @"<span>Din sökning på <strong>@Model.SearchTerm</strong> gav (<strong>@Model.TotalSearchResults</strong>) resultat</span>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(3);
+			result.Should().Contain(x => x.StaticContent == "Din sökning på");
+			result.Should().Contain(x => x.StaticContent == "gav");
+			result.Should().Contain(x => x.StaticContent == "resultat");
 		}
 	}
 }
