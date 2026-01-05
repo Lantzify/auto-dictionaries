@@ -230,7 +230,12 @@ namespace AutoDictionaries.Services
 			foreach (var item in staticContent)
 			{
 				string insert = $"@Umbraco.GetDictionaryValue(\"{item.SafeAlias}\")";
-				var regex = @"(?<=>|)(" + item.StaticContent + @"+)(?=\s|<\/)";
+
+				string regexEscape = Regex.Escape(item.StaticContent ?? "");
+				if (string.IsNullOrEmpty(regexEscape))
+					continue;
+
+				var regex = @"(?<=>|)(" + regexEscape + @"+)(?=\s|<\/)";
 
 				var staticContentInView = Regex.Matches(viewContent, regex)
 											.Cast<Match>()
@@ -246,7 +251,12 @@ namespace AutoDictionaries.Services
 		public bool AddDictionaryItemToView(string viewContent, string path, DictionaryModel dictionary, string staticContent)
 		{
 			string insert = $"@Umbraco.GetDictionaryValue(\"{dictionary.Key}\")";
-			var regex = @"(?<=>|)(" + staticContent + @"+)(?=\s|<\/)";
+
+			string regexEscape = Regex.Escape(staticContent ?? "");
+			if (string.IsNullOrEmpty(regexEscape))
+				return false;
+
+			var regex = @"(?<=>|)(" + regexEscape + @"+)(?=\s|<\/)";
 
 			var staticContentInView = Regex.Matches(viewContent, regex)
 										.Cast<Match>()
