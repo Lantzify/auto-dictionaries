@@ -81,7 +81,7 @@ export class MatchDictionariesElement extends UmbModalBaseElement<AddExistingDic
 					label=${this.localize.term("general_submit")}
                     look="primary"
                     color="positive"
-					@click="${this.#submit()}"></uui-button>
+					@click=${this.#submit}></uui-button>
 
 				</div>
             </umb-body-layout>`;
