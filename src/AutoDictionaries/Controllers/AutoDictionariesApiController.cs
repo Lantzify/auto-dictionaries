@@ -102,9 +102,12 @@ namespace AutoDictionaries.Core.Controllers
 				return BadRequest("AutoDictionariesModel is required.");
 
 			var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
+           
             PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+            if(pathContent is null || string.IsNullOrEmpty(pathContent.Content) || string.IsNullOrEmpty(pathContent.Path))
+                return BadRequest("Failed to get path and content from view.");
 
-            List<StaticContentDto> staticContent = new List<StaticContentDto>()
+			List<StaticContentDto> staticContent = new List<StaticContentDto>()
             {
                 new StaticContentDto()
                 {
@@ -113,11 +116,16 @@ namespace AutoDictionaries.Core.Controllers
                 }
             };
 
-            return new string[]
+            string previewContent = _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, staticContent);
+
+            if (string.IsNullOrEmpty(previewContent))
+                return BadRequest("Failed to generate preview");
+
+			return new string[]
             {
                 pathContent.Content,
-                _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, staticContent)
-            };
+				previewContent
+			};
         }
 
         [HttpPost("add-existing-dictionary-item")]
@@ -129,12 +137,14 @@ namespace AutoDictionaries.Core.Controllers
 					return BadRequest("AutoDictionariesModel is required.");
 
 				var dictionary = await _autoDictionariesService.GetDictionaryItem(dto.DictionaryKey);
-                PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent?.Content ?? "", pathContent?.Path ?? "", dictionary, dto?.StaticContent ?? ""))
-                {
+                PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+				if (pathContent is null || string.IsNullOrEmpty(pathContent.Content) || string.IsNullOrEmpty(pathContent.Path) || string.IsNullOrEmpty(dto.StaticContent))
+					return BadRequest("Failed to get path and content from view.");
+
+
+				if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent))
                     return false;
-                }
             }
             catch (Exception ex)
             {
@@ -162,15 +172,19 @@ namespace AutoDictionaries.Core.Controllers
 			}
 
 			var pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+			if (pathContent is null || string.IsNullOrEmpty(pathContent.Content) || string.IsNullOrEmpty(pathContent.Path))
+				return BadRequest("Failed to get path and content from view.");
+
+			string previewContent = _autoDictionariesService.PreviewAddDictionaryItemToView(pathContent.Content, pathContent.Path, dto.StaticContent);
+
+            if(string.IsNullOrEmpty(previewContent))
+                return BadRequest("Failed to generate preview");
 
 			return Ok(new []
             {
                 pathContent.Content,
-                _autoDictionariesService.PreviewAddDictionaryItemToView(
-                    pathContent.Content,
-                    pathContent.Path, 
-                    dto.StaticContent)
-            });
+                previewContent
+			});
         }
 
         [HttpPost("add-new-dictionary-item")]
@@ -181,13 +195,15 @@ namespace AutoDictionaries.Core.Controllers
 				if (dto.AutoDictionariesModel is null)
 					return BadRequest("AutoDictionariesModel is required.");
 
-				if (dto.StaticContent == null)
+				if (dto.StaticContent is null || string.IsNullOrEmpty(dto.StaticContent.StaticContent))
 					return BadRequest("Static Content is required.");
 
-				var parent = await _autoDictionariesService.GetDictionaryItem(dto.StaticContent.Parent);
-				var parentPrefix = string.IsNullOrWhiteSpace(dto.StaticContent.Parent) ? "" : dto.StaticContent.Parent + "_";
+				var staticContent= dto.StaticContent.StaticContent;
+
+				var parent = await _autoDictionariesService.GetDictionaryItem(dto.StaticContent?.Parent ?? "");
+				var parentPrefix = string.IsNullOrWhiteSpace(dto.StaticContent?.Parent) ? "" : dto.StaticContent.Parent + "_";
 				string culture = await _languageService.GetDefaultIsoCodeAsync();
-				var dictionaryName = parentPrefix + _shortStringHelper.CleanStringForUrlSegment(dto.StaticContent.StaticContent ?? "", culture);
+				var dictionaryName = parentPrefix + _shortStringHelper.CleanStringForUrlSegment(staticContent, culture);
 
 				var userKey = CurrentUserKeyOrNull();
 				if (userKey is null) 
@@ -196,19 +212,21 @@ namespace AutoDictionaries.Core.Controllers
 				DictionaryModel dictionary;
 				if (!dto.Translate)
                 {
-                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, dto.StaticContent.StaticContent, userKey.Value, parent);
+                    dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, staticContent, userKey.Value, parent);
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(GetApiKeySetting()))
 						return BadRequest("No API key found");
 
-					dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(dto.StaticContent.StaticContent), userKey.Value, parent);
+					dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(staticContent), userKey.Value, parent);
                 }
 
                 PathContentDto pathContent = await GetPathAndContentFromView(dto.AutoDictionariesModel);
+				if (pathContent is null || string.IsNullOrEmpty(pathContent.Content) || string.IsNullOrEmpty(pathContent.Path))
+					return BadRequest("Failed to get path and content from view.");
 
-                if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, dto.StaticContent.StaticContent))
+				if (!_autoDictionariesService.AddDictionaryItemToView(pathContent.Content, pathContent.Path, dictionary, staticContent))
                     return false;
             }
             catch (Exception ex)
@@ -243,7 +261,8 @@ namespace AutoDictionaries.Core.Controllers
                 var newTranslations = await _adTranslationService.Translate(defaultText.Value);
 
                 var translations = item.Translations.ToList();
-				translations.AddRange(newTranslations.Where(x => x.Language?.CultureInfo?.Name != defaultLang).Select(x => new DictionaryTranslation(x.Language, x.TranslatedText)));
+				translations.AddRange(newTranslations.Where(x => x.Language?.CultureInfo?.Name != defaultLang && string.IsNullOrEmpty(x.TranslatedText))
+                    .Select(x => new DictionaryTranslation(x.Language!, x.TranslatedText!)));
 
                 item.Translations = translations;
 

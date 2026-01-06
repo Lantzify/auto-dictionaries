@@ -22,6 +22,9 @@ namespace AutoDictionaries.Services
 
 		public async Task<List<TranslateModel>> Translate(string textToTranslate)
 		{
+			if (string.IsNullOrEmpty(textToTranslate))
+				return new List<TranslateModel>();
+
 			return _autoDictionariesService.GetTranslatorSetting() switch
 			{
 				"DeepL" => await DeepLTranslate(textToTranslate),

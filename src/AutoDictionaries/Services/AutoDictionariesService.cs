@@ -95,9 +95,9 @@ namespace AutoDictionaries.Services
 
 			if (listDictionariesModel != null && listDictionariesModel.Any())
 			{
-				foreach (var dictionariesModel in listDictionariesModel)
+				foreach (var dictionariesModel in listDictionariesModel.Where(x => !string.IsNullOrEmpty(x.Key)))
 				{
-					dictionariesModel.Used = GetDictionaryCountInView(viewContent, dictionariesModel.Key);
+					dictionariesModel.Used = GetDictionaryCountInView(viewContent, dictionariesModel.Key!);
 				}
 			}
 
@@ -127,6 +127,9 @@ namespace AutoDictionaries.Services
 
 		public async Task<DictionaryModel> GetDictionaryItem(string dictionaryKey)
 		{
+			if(string.IsNullOrEmpty(dictionaryKey))
+				return null;
+
 			var dictionaryItem = await _dictionaryItemService.GetAsync(dictionaryKey);
 			if(dictionaryItem == null)
 				return null;
@@ -207,7 +210,15 @@ namespace AutoDictionaries.Services
 			var dicTranslations = new List<DictionaryTranslation>();
 
 			foreach (var translation in translations)
+			{
+				if (translation.Language == null || string.IsNullOrWhiteSpace(translation.TranslatedText))
+					continue;
+
 				dicTranslations.Add(new DictionaryTranslation(translation.Language, translation.TranslatedText));
+			}
+
+			if (!dicTranslations.Any())
+				return null;
 
 			DictionaryItem dictionaryItem = new DictionaryItem(dictionaryName)
 			{
@@ -225,7 +236,7 @@ namespace AutoDictionaries.Services
 
 		public string PreviewAddDictionaryItemToView(string viewContent, string path, List<StaticContentDto> staticContent)
 		{
-			var physicalPath = _webHostEnvironment.ContentRootFileProvider?.GetFileInfo(path).PhysicalPath;
+			var physicalPath = _webHostEnvironment.ContentRootFileProvider?.GetFileInfo(path ?? string.Empty).PhysicalPath;
 			string text = System.IO.File.ReadAllText(physicalPath ?? string.Empty);
 			foreach (var item in staticContent)
 			{
