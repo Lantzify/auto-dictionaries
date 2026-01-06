@@ -1,5 +1,4 @@
-﻿using System;
-using NJsonSchema;
+﻿using NJsonSchema;
 using System.Text.Json;
 using Namotion.Reflection;
 using NJsonSchema.Generation;
@@ -38,7 +37,7 @@ namespace AutoDictionaries.SchemaGenerator
 		{
 			base.GenerateProperties(schema, contextualType, settings, schemaGenerator, schemaResolver);
 
-			if (settings.SerializerOptions.IgnoreReadOnlyProperties)
+			if (settings.SerializerOptions?.IgnoreReadOnlyProperties ?? false)
 			{
 				foreach (ContextualPropertyInfo property in contextualType.Properties)
 				{
@@ -54,6 +53,10 @@ namespace AutoDictionaries.SchemaGenerator
 
 	internal class NamespacePrefixedSchemaNameGenerator : DefaultSchemaNameGenerator
 	{
-		public override string Generate(Type type) => type.Namespace.Replace(".", string.Empty) + base.Generate(type);
+		public override string Generate(Type type)
+		{
+			string typeNamespace = type.Namespace?.Replace(".", string.Empty) ?? string.Empty;
+			return typeNamespace + base.Generate(type);
+		}
 	}
 }

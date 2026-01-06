@@ -2,7 +2,7 @@
 {
 	internal class AppSettings
 	{
-		public AutoDictionariesDefinition AutoDictionaries { get; set; }
+		public AutoDictionariesDefinition AutoDictionaries { get; set; } = new();
 
 		internal class AutoDictionariesDefinition
 		{
