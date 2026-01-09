@@ -1,4 +1,4 @@
-using AutoDictionaries.Models;
+﻿using AutoDictionaries.Models;
 using FluentAssertions.Common;
 using Umbraco.Cms.Core.Models;
 using AutoDictionaries.Services;
@@ -94,7 +94,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithEmptyContent_ReturnsEmptyList()
+		public async Task GetStaticContentFromView_EmptyString_ReturnsEmptyList()
 		{
 			// Arrange
 			var viewContent = "";
@@ -108,7 +108,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public void GetStaticContentFromView_WithNullContent_ThrowsException()
+		public void GetStaticContentFromView_NullInput_ThrowsArgumentNullException()
 		{
 			// Arrange
 			string viewContent = null;
@@ -118,7 +118,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithSimpleStaticContent_ReturnsCorrectStaticContent()
+		public async Task GetStaticContentFromView_SimpleHtmlContent_ExtractsTextSuccessfully()
 		{
 			// Arrange
 			var viewContent = @"<div>Hello World</div>";
@@ -135,7 +135,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMultipleStaticContent_ReturnsAllContent()
+		public async Task GetStaticContentFromView_MultipleElements_ExtractsAllTextContent()
 		{
 			// Arrange
 			var viewContent = @"<div>Welcome</div><p>Thank you</p><span>Goodbye</span>";
@@ -153,7 +153,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithDuplicateContent_CountsCorrectly()
+		public async Task GetStaticContentFromView_DuplicateText_AggregatesUsageCount()
 		{
 			// Arrange
 			var viewContent = @"<div>Hello</div><p>Hello</p><span>Hello</span>";
@@ -169,7 +169,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithSpecialCharacters_HandlesCorrectly()
+		public async Task GetStaticContentFromView_PunctuationAndApostrophes_PreservesSpecialCharacters()
 		{
 			// Arrange
 			var viewContent = @"<div>Hello, World!</div><p>What's up?</p>";
@@ -185,7 +185,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithExistingDictionary_FindsMatchingDictionary()
+		public async Task GetStaticContentFromView_ExistingDictionaryTranslation_MatchesDictionaryItem()
 		{
 			// Arrange
 			var dictionaries = new List<DictionaryModel>
@@ -214,7 +214,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithEmailAddress_ExtractsPartially()
+		public async Task GetStaticContentFromView_EmailAddressWithAtSymbol_ExtractsTextBeforeAtSign()
 		{
 			// Arrange
 			var viewContent = @"<span>Email: test@example.com</span>";
@@ -230,7 +230,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithRazorCode_FiltersCorrectly()
+		public async Task GetStaticContentFromView_MixedStaticAndRazorContent_ExtractsOnlyStaticText()
 		{
 			// Arrange
 			var viewContent = @"<div>Welcome</div><div>@Model.Title</div>";
@@ -244,7 +244,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithWhitespaceOnly_FiltersOut()
+		public async Task GetStaticContentFromView_WhitespaceOnlyContent_FiltersOutEmptyStrings()
 		{
 			// Arrange
 			var viewContent = @"<div>   </div><p>
@@ -259,7 +259,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithSingleCharacter_FiltersOut()
+		public async Task GetStaticContentFromView_SingleCharacterStrings_FiltersOutShortContent()
 		{
 			// Arrange
 			var viewContent = @"<div>A</div><p>B</p><span>C</span>";
@@ -273,7 +273,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithComplexHtmlStructure_ExtractsCorrectContent()
+		public async Task GetStaticContentFromView_NestedHtmlStructure_ExtractsAllLevelsOfContent()
 		{
 			// Arrange
 			var viewContent = @"
@@ -306,7 +306,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMixedContentAndRazor_ExtractsOnlyStaticContent()
+		public async Task GetStaticContentFromView_MixedStaticAndDynamicContent_IgnoresRazorExpressions()
 		{
 			// Arrange
 			var viewContent = @"
@@ -324,7 +324,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithValidContent_ReturnsExpectedResults()
+		public async Task GetStaticContentFromView_ValidMultipleElements_ReturnsCorrectCount()
 		{
 			// Arrange
 			var viewContent = @"
@@ -342,7 +342,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithIfStatement_FiltersOut()
+		public async Task GetStaticContentFromView_RazorIfStatement_FiltersOutConditionalLogic()
 		{
 			// Arrange
 			var viewContent = @"<div>@if (condition) { <p>Some text<p> }</div>";
@@ -357,7 +357,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithForLoop_FiltersOut()
+		public async Task GetStaticContentFromView_RazorForLoop_FiltersOutLoopSyntax()
 		{
 			// Arrange
 			var viewContent = @"<div>@for (var item in items) { <p>Some text</p> }</div>";
@@ -372,7 +372,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithNestedElements_ExtractsFromAllLevels()
+		public async Task GetStaticContentFromView_DeeplyNestedElements_ExtractsAllNestedText()
 		{
 			// Arrange
 			var viewContent = @"
@@ -397,7 +397,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMultipleDuplicates_CountsAllOccurrences()
+		public async Task GetStaticContentFromView_RepeatedTextInMultipleElements_CountsAllOccurrences()
 		{
 			// Arrange
 			var viewContent = @"
@@ -424,7 +424,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithPartialMatches_DoesNotMatch()
+		public async Task GetStaticContentFromView_SubstringMatch_DoesNotMatchPartialDictionary()
 		{
 			// Arrange
 			var dictionaries = new List<DictionaryModel>
@@ -452,7 +452,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithExactMatch_FindsDictionary()
+		public async Task GetStaticContentFromView_ExactDictionaryMatch_FindsMatchingDictionary()
 		{
 			// Arrange
 			var dictionaries = new List<DictionaryModel>
@@ -481,7 +481,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMultipleDictionariesAndPartialMatches_FindsCorrectMatches()
+		public async Task GetStaticContentFromView_MultipleDictionariesWithMixedMatches_MatchesExactTranslationsOnly()
 		{
 			// Arrange
 			var dictionaries = new List<DictionaryModel>
@@ -527,9 +527,8 @@ namespace AutoDictionaries.Tests
 			helloItem!.Dictionary.Should().BeNull(); // No matching dictionary
 		}
 
-
 		[Test]
-		public async Task GetStaticContentFromView_DontFindInIfStatement()
+		public async Task GetStaticContentFromView_ComplexUmbracoSearchView_FiltersOutAllRazorCode()
 		{
 			// Arrange
 			var viewContent = @"@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Search>
@@ -616,17 +615,10 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_ShouldFindTextThatsBetweenHtmlTags()
+		public async Task GetStaticContentFromView_UmbracoFooterWithAnchors_ExtractsStaticTextBetweenTags()
 		{
 			// Arrange
-			var viewContent = @"@inherits UmbracoViewPage
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
-
-@{
-    var homePage = Model.AncestorOrSelf<ContentModels.Home>();
-}
-
-<!-- Footer-->
+			var viewContent = @"<!-- Footer-->
 <footer>
     <div class=""container px-4 px-lg-5"">
         <div class=""row gx-4 gx-lg-5 justify-content-center"">
@@ -657,7 +649,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithAltAttribute_ExtractsAltText()
+		public async Task GetStaticContentFromView_ImageAltAttribute_ExtractsAccessibilityText()
 		{
 			// Arrange - alt attributes are critical for WCAG accessibility (screen readers)
 			var viewContent = @"<img src=""logo.png"" alt=""Company Logo"" />";
@@ -672,7 +664,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithTitleAttribute_ExtractsTitleText()
+		public async Task GetStaticContentFromView_AnchorTitleAttribute_ExtractsTooltipText()
 		{
 			// Arrange - title attributes provide additional context (tooltips)
 			var viewContent = @"<a href=""/about"" title=""Learn more about our company"">About Us</a>";
@@ -688,7 +680,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithPlaceholderAttribute_ExtractsPlaceholderText()
+		public async Task GetStaticContentFromView_InputPlaceholderAttribute_ExtractsFormGuidanceText()
 		{
 			// Arrange - placeholder attributes guide users in form inputs
 			var viewContent = @"<input type=""text"" placeholder=""Enter your name"" />";
@@ -703,7 +695,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithValueAttribute_ExtractsButtonValue()
+		public async Task GetStaticContentFromView_SubmitButtonValueAttribute_ExtractsButtonText()
 		{
 			// Arrange - value attributes on buttons contain translatable text
 			var viewContent = @"<input type=""submit"" value=""Submit Form"" />";
@@ -718,7 +710,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMultipleWcagAttributes_ExtractsAll()
+		public async Task GetStaticContentFromView_MultipleAccessibilityAttributes_ExtractsAllWcagContent()
 		{
 			// Arrange - complex form with multiple accessibility attributes
 			var viewContent = @"
@@ -742,7 +734,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithSingleQuotedAttributes_ExtractsCorrectly()
+		public async Task GetStaticContentFromView_SingleQuotedAttributes_HandlesAlternativeQuoteSyntax()
 		{
 			// Arrange - attributes can use single quotes
 			var viewContent = @"<img src='image.jpg' alt='Profile picture' title='User avatar' />";
@@ -758,7 +750,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithRazorInAttribute_FiltersOut()
+		public async Task GetStaticContentFromView_RazorExpressionInAttribute_SkipsDynamicAttributes()
 		{
 			// Arrange - attributes containing Razor expressions should be filtered
 			var viewContent = @"<input type=""text"" placeholder=""@Model.PlaceholderText"" />";
@@ -772,7 +764,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithUrlInAttribute_FiltersOut()
+		public async Task GetStaticContentFromView_UrlInTitleAttribute_ExtractsOnlyTranslatableContent()
 		{
 			// Arrange - URL values shouldn't be extracted as translatable content
 			var viewContent = @"<a href=""https://example.com"" title=""Visit our website"">Link</a>";
@@ -789,7 +781,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithAriaLabel_DoesNotExtract()
+		public async Task GetStaticContentFromView_AriaLabelAttribute_ExtractsAccessibilityLabel()
 		{
 			// Arrange - aria-label is important for accessibility but not currently extracted
 			var viewContent = @"<button aria-label=""Close dialog"">X</button>";
@@ -804,7 +796,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithDuplicateAttributeValues_CountsCorrectly()
+		public async Task GetStaticContentFromView_RepeatedAttributeValues_AggregatesAllInstances()
 		{
 			// Arrange - same text in multiple attributes
 			var viewContent = @"
@@ -823,7 +815,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithEmptyAttributes_FiltersOut()
+		public async Task GetStaticContentFromView_EmptyAttributeValues_IgnoresBlankAttributes()
 		{
 			// Arrange - empty attributes shouldn't produce results
 			var viewContent = @"<input type=""text"" placeholder="""" title="""" /><img src=""x.png"" alt="""" />";
@@ -837,7 +829,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_WithMixedContentAndAttributes_ExtractsAll()
+		public async Task GetStaticContentFromView_ComplexFormWithMixedAttributes_ExtractsBothContentAndAttributes()
 		{
 			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"
@@ -870,7 +862,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Shouldnt_Find_If_And()
+		public async Task GetStaticContentFromView_NestedConditionalLogicWithIfAnd_FiltersOutComplexRazorSyntax()
 		{
 			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@model IPublishedContent
@@ -905,18 +897,11 @@ namespace AutoDictionaries.Tests
 			result.Should().BeEmpty();
 		}
 
-
-
 		[Test]
-		public async Task GetStaticContentFromView_Shouldnt_Find_Anything()
+		public async Task GetStaticContentFromView_UmbracoAuthorListView_FiltersOutAllDynamicContent()
 		{
 			// Arrange - realistic form with both element content and attributes
-			var viewContent = @"@{@inherits UmbracoViewPage
-
-@using Clean.Core.Helpers
-@using Clean.Core.Models.ViewModels;
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
-
+			var viewContent = @"@model IPublishedContent
 @{
     AuthorList authorList = UmbracoContext.Content.GetAtRoot().DescendantsOrSelf<AuthorList>().FirstOrDefault();
     int modelId = Model.Id;
@@ -977,7 +962,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_2()
+		public async Task GetStaticContentFromView_UmbracoPageHeaderView_FiltersOutComplexConditionals()
 		{
 			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@inherits UmbracoViewPage<Clean.Core.Models.ViewModels.PageHeaderViewModel>
@@ -1040,7 +1025,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_3()
+		public async Task GetStaticContentFromView_XmlSitemapTemplate_IgnoresTimeFormatsAndDates()
 		{
 			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@model IPublishedContent
@@ -1087,7 +1072,7 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Shouldnt_Find_Anything_4()
+		public async Task GetStaticContentFromView_DynamicMarkupTemplate_FiltersOutRazorStringManipulation()
 		{
 			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@model dynamic
@@ -1122,49 +1107,11 @@ else
 			result.Should().BeEmpty();
 		}
 
-
 		[Test]
-		public async Task GetStaticContentFromView_FunctionBlock_ShouldNotFindAnything()
+		public async Task GetStaticContentFromView_RazorFunctionsBlock_IgnoresCodeDefinitions()
 		{
-			var viewContent = @"@inherits UmbracoViewPage<Avc>
-@if (Model != null)
-{
-	<div class=""responsive-accordion"">
-		<div class=""accordion accordion-flush"" id="""">
-			<div class=""accordion-item"">
-				<h2 class=""accordion-header"">
-					<button class=""accordion-button"" type=""button"" data-bs-toggle=""collapse"" data-bs-target=""#collapseOne"" aria-expanded=""true"" aria-controls=""collapseOne"">
-						
-					</button>
-				</h2>
-				<div id=""collapseOne"" class=""accordion-collapse collapse show"" data-bs-parent="""">
-					<div class=""accordion-body"">
-						<h3 class=""mb-3"">@Model.Name</h3>
-		
-
-
-					</div>
-				</div>
-			</div>
-
-
-		</div>
-	</div>
-
-	<div class=""responsive-tabs"">
-		<ul class=""nav nav-tabs flex-xl-row flex-column"" id=""avcTab"" role=""tablist"" style="""">
-			<li class=""nav-item"" role=""presentation"">
-				<button class=""nav-link active"" id=""contactTab"" data-bs-toggle=""tab"" data-bs-target=""#contactTab-pane"" type=""button"" role=""tab"" aria-controls=""contactTab-pane"" aria-selected=""true""></button>
-			</li>
-
-		</ul>
-
-
-		</div>
-	</div>
-}	
-
-@functions {
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@functions {
 	private int GetFractionSortOrder(string fractionName)
 	{
 		var orderMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) {};
@@ -1187,10 +1134,10 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Textbox_ShouldNotFindAnything()
+		public async Task GetStaticContentFromView_HtmlHelperTextBoxes_FiltersOutHtmlHelpers()
 		{
-			var viewContent = @"<div class=""form-group"">
-            @Html.TextBox(""password"", """", new { @type = ""password"", @class = ""form-control""})
+			// Arrange - realistic form with both element content and attributes
+			var viewContent = @"@Html.TextBox(""password"", """", new { @type = ""password"", @class = ""form-control""})
             @Html.ValidationMessage(""password"", ViewData.ModelState.ConvertErrorToDictionaryKey(""Password"", Umbraco))
 
             @Html.TextBox(""confirmPassword"", """", new { @type = ""password"", @class = ""form-control""})
@@ -1214,8 +1161,9 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_LINQ_ShouldNotFindAnything()
+		public async Task GetStaticContentFromView_LinqQueryWithMethodChaining_IgnoresComplexQueries()
 		{
+			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@{
     var wasteCategoriesPage = Umbraco.ContentAtRoot().DescendantsOrSelfOfType(""wasteCategories"")?.First();
     var wasteCategories = wasteCategoriesPage.GetChildren().Where(x => x.IsVisible() && x.Value<bool>(""showOnHomepage""))
@@ -1233,8 +1181,9 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_LINQ2_ShouldNotFindAnything()
+		public async Task GetStaticContentFromView_LinqWithTernaryOperators_FiltersOutConditionalExpressions()
 		{
+			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@{
     var newsPage = Model.ContentType.Alias == ""newsPage"" ? Model : Model.Parent;
 
@@ -1251,8 +1200,9 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_Break_ShouldNotFindAnything()
+		public async Task GetStaticContentFromView_UmbracoFormsEmailTemplate_FiltersOutForeachAndSwitch()
 		{
+			// Arrange - realistic form with both element content and attributes
 			var viewContent = @"@inherits UmbracoViewPage<Umbraco.Forms.Core.Models.FormsHtmlModel>
 <!DOCTYPE html>
 <html>
@@ -1355,9 +1305,10 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_RmovesTrailingParentheses()
+		public async Task GetStaticContentFromView_SwedishTextWithParentheses_ExtractsSeparateTextSegments()
 		{
-			var viewContent = @"<span>Din s�kning p� <strong>@Model.SearchTerm</strong> gav (<strong>@Model.TotalSearchResults</strong>) resultat</span>";
+			// Arrange
+			var viewContent = @"<span>Din sökning på <strong>@Model.SearchTerm</strong> gav (<strong>@Model.TotalSearchResults</strong>) resultat</span>";
 
 			// Act
 			var result = await _service.GetStaticContentFromView(viewContent);
@@ -1365,9 +1316,92 @@ else
 			// Assert
 			result.Should().NotBeNull();
 			result.Should().HaveCount(3);
-			result.Should().Contain(x => x.StaticContent == "Din s�kning p�");
+			result.Should().Contain(x => x.StaticContent == "Din sökning på");
 			result.Should().Contain(x => x.StaticContent == "gav");
 			result.Should().Contain(x => x.StaticContent == "resultat");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_ExamineIndexSearchCode_IgnoresDotNotationAndNullChecks()
+		{
+			// Arrange
+			var viewContent = @"@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+	if (ExamineManager.TryGetIndex(""ExternalIndex"", out var index))
+	{
+		var searcher = index.Searcher;
+
+		if (results.NullCheck())
+		{
+			<ul>
+				@foreach (var result in results.Skip((page - 1) * pageSize).Take(pageSize))
+				{
+					if (result.Id != null)
+					{
+						var item = Umbraco.Content(result.Id);
+
+						<li>
+							<a href=""@item?.Url()"">@item?.Name</a>
+						</li>
+					}
+				}
+			</ul>
+		}
+	}";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_NavigationPartialWithTernary_FiltersOutConditionalClassAssignment()
+		{
+			// Arrange
+			var viewContent = @"@await Html.PartialAsync(""Navigation/Navigation"", new NavbarItem {
+                    Model = Model,
+                    CurrentPage = Model,
+                    IsMobile = false
+                })";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_TextWithEqualSign_PreservesNonRazorEquals()
+		{
+			// Arrange
+			var viewContent = @"<p>So in conclusion, Together = Stronger</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "So in conclusion, Together = Stronger");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_JapaneseCharacters_ExtractsNonLatinScript()
+		{
+			// Arrange
+			var viewContent = @"<p>こんにちは</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().Contain(x => x.StaticContent == "こんにちは");
 		}
 	}
 }
