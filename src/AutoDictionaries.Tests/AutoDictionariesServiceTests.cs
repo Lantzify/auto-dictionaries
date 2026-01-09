@@ -1403,6 +1403,20 @@ else
 			result.Should().NotBeNull();
 			result.Should().Contain(x => x.StaticContent == "こんにちは");
 		}
+
+		[Test]
+		public async Task GetStaticContentFromView_GetDictionaryValue()
+		{
+			// Arrange
+			var viewContent = @"<p>@Umbraco.GetDictionaryValue(""key"")</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
 	}
 }
 
