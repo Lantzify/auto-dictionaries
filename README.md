@@ -113,8 +113,13 @@ If you find this package helpful, please:
 ### Edit View
 ![Edit view](assets/edit.png)
 
+### Edit View 日本語
+![Edit preview japanese](assets/japanese-edit.png)
+
 ### Edit Preview
 ![Edit preview](assets/edit-preview.png)
 
 ### Edit Translate
 ![Edit](assets/edit-translate.png)
+
+

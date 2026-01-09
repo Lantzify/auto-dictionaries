@@ -43,7 +43,11 @@
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/edit-translate.png",
             "Caption": "Translate"
         },
-                {
+        {
+            "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/japanese-edit.png",
+            "Caption": "Japanese translation"
+        },
+        {
             "ImageUrl": "https://raw.githubusercontent.com/Lantzify/auto-dictionaries/v17/main/assets/generate.gif",
             "Caption": "Short demo"
         }
