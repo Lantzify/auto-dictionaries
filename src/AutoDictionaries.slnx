@@ -1,6 +1,9 @@
 <Solution>
+	<Folder Name="/Testing/">
+		<Project Path="AutoDictionaries.Benchmarks/AutoDictionaries.Benchmarks.csproj" Id="b94f986b-9233-4bbd-bd5b-373330d213a0" />
+		<Project Path="AutoDictionaries.Tests\AutoDictionaries.Tests.csproj" />
+	</Folder>
 	<Project Path="AutoDictionaries.SchemaGenerator/AutoDictionaries.SchemaGenerator.csproj" Id="076664b7-f8cf-40d3-81cb-65f774d1c72a" />
-	<Project Path="AutoDictionaries.Tests\AutoDictionaries.Tests.csproj" />
 	<Project Path="AutoDictionaries.Web\AutoDictionaries.Web.csproj" />
 	<Project Path="AutoDictionaries\AutoDictionaries.csproj" />
 </Solution>
