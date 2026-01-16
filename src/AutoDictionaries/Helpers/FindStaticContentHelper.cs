@@ -47,15 +47,15 @@ namespace AutoDictionaries.Helpers
 
 		// ProcessAndAddText regexes
 		private static readonly Regex TrimStartEndRegex = new(
-			@"^[\s,;:!?\-–—)""]+|[(.\-:]$",
+			@"^(?:\s*\d+(?:[.,]\d+)?%?\s+|\s*(?:\?)?\.[a-zA-Z_][a-zA-Z0-9_]*\s*|[\s,;:!?\-)""]+)|[().:-]$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex NonWordCharsRegex = new(
 			@"\W",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-		private static readonly Regex StartsWithNumberRegex = new(
-			@"[\d.+-]",
+		private static readonly Regex NumericOrDateTimeOnlyRegex = new(
+			@"^\s*(?:[+-]?\d+(?:[.,]\d+)?|[+-]?\d{1,2}:\d{2}(?::\d{2})?(?:\s?(?:AM|PM|am|pm))?|\d{4}-\d{2}-\d{2})\s*$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex HtmlEntityRegex = new(
@@ -153,9 +153,8 @@ namespace AutoDictionaries.Helpers
 			if (text.Length < 2 || NonWordCharsRegex.Replace(text, "").Length < 2)
 				return;
 
-			// Skip if starts with non-word character (likely code or special content), but allow & for HTML entities
-			var firstChar = text.TrimStart()[0];
-			if (StartsWithNumberRegex.IsMatch(firstChar.ToString()))
+			// Skip if the content is only a number, date, or time.
+			if (NumericOrDateTimeOnlyRegex.IsMatch(text))
 				return;
 
 			// Skip HTML entities that weren't decoded properly

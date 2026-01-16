@@ -273,6 +273,22 @@ namespace AutoDictionaries.Tests
 		}
 
 		[Test]
+		public async Task GetStaticContentFromView_TextStartingWithNumber_ExtractsContent()
+		{
+			// Arrange
+			var viewContent = @"<div>404 Not Found</div><span>50% off today</span>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(2);
+			result.Should().Contain(x => x.StaticContent == "Not Found");
+			result.Should().Contain(x => x.StaticContent == "off today");
+		}
+
+		[Test]
 		public async Task GetStaticContentFromView_NestedHtmlStructure_ExtractsAllLevelsOfContent()
 		{
 			// Arrange

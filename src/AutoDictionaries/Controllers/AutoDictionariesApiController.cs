@@ -192,7 +192,7 @@ namespace AutoDictionaries.Core.Controllers
         {
             try
             {
-				if (dto.AutoDictionariesModel is null)
+				if (dto.AutoDictionariesModel is not null)
 					return BadRequest("AutoDictionariesModel is required.");
 
 				if (dto.StaticContent is null || string.IsNullOrEmpty(dto.StaticContent.StaticContent))
