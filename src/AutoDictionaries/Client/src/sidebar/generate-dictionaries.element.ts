@@ -79,7 +79,7 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
                     throw new Error(this.localize.term('autoDictionaries_failed_to_add_dictionary'));
                 }
             } catch (error) {
-                const notification = { data: { message: this.localize.term('autoDictionaries_failed_to_add_dictionary') } };
+                const notification = { data: { message: error as string} };
                 notificationContext?.peek('danger', notification);
                 this.isGenerating = false;
                 this.modalContext?.reject();

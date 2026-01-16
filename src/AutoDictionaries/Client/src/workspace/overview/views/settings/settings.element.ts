@@ -3,6 +3,7 @@ import { LitElement, css, customElement, html, state } from '@umbraco-cms/backof
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 import autoDictionariesWorkspaceContext from '../../workspace.context';
+import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
 
 
 @customElement("auto-dictionaries-settings")
@@ -44,19 +45,25 @@ export class autoDictionariesSettingsViewElement extends UmbElementMixin(LitElem
 
         const repository = this.#workspaceContext.getRepository();
 
-        [
-            this._translate,
-            this._translator,
-            this._apiKey,
-            this._apiEndpoint,
-            this._apiRegion
-        ] = await Promise.all([
-            repository.getTranslateSetting(),
-            repository.getTranslatorSetting(),
-            repository.getApiKeySetting(),
-            repository.getApiEndpoint(),
-            repository.getApiRegionSetting()
-        ]);
+        try {
+            [
+                this._translate,
+                this._translator,
+                this._apiKey,
+                this._apiEndpoint,
+                this._apiRegion
+            ] = await Promise.all([
+                repository.getTranslateSetting(),
+                repository.getTranslatorSetting(),
+                repository.getApiKeySetting(),
+                repository.getApiEndpoint(),
+                repository.getApiRegionSetting()
+            ]);
+        } catch (error) {
+            const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+            const notification = { data: { message: this.localize.term("autoDictionaries_failed_load") } };
+            notificationContext?.peek('danger', notification);
+        }
     }
 
 	render() {

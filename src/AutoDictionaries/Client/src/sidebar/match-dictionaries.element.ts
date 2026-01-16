@@ -37,24 +37,23 @@ export class MatchDictionariesElement extends UmbModalBaseElement<AddExistingDic
 
         const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
 
-        const response = await this.#repository.postAddExistingDictionaryItem(payload);
-
-        if (response) {
-            const notification = {
-                data: {
-                    message: this.localize.term('autoDictionaries_success_to_match', payload.staticContent)
-                }
-            };
-            notificationContext?.peek('positive', notification);
-        } else {
-            const notification = {
-                data: {
-                    message: this.localize.term('autoDictionaries_failed_to_match', payload.staticContent)
-                }
-            };
+        try {
+            const response = await this.#repository.postAddExistingDictionaryItem(payload);
+            if (response) {
+                const notification = {
+                    data: {
+                        message: this.localize.term('autoDictionaries_success_to_match', payload.staticContent)
+                    }
+                };
+                notificationContext?.peek('positive', notification);
+            } else {
+                throw new Error(this.localize.term('autoDictionaries_failed_to_match', payload.staticContent));
+            }
+        } catch (error) {
+            const notification = { data: { message: error as string } };
             notificationContext?.peek('danger', notification);
         }
-
+   
         this.modalContext?.submit();
     }
 

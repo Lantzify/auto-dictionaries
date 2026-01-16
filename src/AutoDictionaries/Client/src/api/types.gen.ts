@@ -30,11 +30,11 @@ export type AutoDictionariesModel = {
 };
 
 export type DictionaryModel = {
-    key: string;
+    key?: string | null;
     id: number;
     guid: string;
     used: number;
-    translations: Array<string>;
+    translations?: Array<string> | null;
     translated: boolean;
 };
 
