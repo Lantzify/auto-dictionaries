@@ -36,9 +36,6 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	@state()
 	private _isLoading: boolean = true;
 
-	@state()
-	private _error?: unknown;
-
 	constructor() {
 		super();
 
@@ -59,10 +56,6 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 
 		this.observe(this.#workspaceContext.isLoading, (isLoading) => {
 			this._isLoading = isLoading;
-		});
-
-		this.observe(this.#workspaceContext.error, (error) => {
-			this._error = error;
 		});
 	}
 
@@ -140,14 +133,6 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 					<div id="loader">
 						<uui-loader></uui-loader>
 					</div>
-				</umb-body-layout>
-			`;
-		}
-
-		if (this._error) {
-			return html`
-				<umb-body-layout header-transparent>
-					<umb-localize key="autoDictionaries_failed_load"></umb-localize>
 				</umb-body-layout>
 			`;
 		}
