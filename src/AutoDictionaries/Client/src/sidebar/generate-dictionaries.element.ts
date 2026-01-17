@@ -140,7 +140,7 @@ export class GenerateDictionariesElement extends UmbModalBaseElement<PreviewAddN
 						label=${this.localize.term('general_close')}
 						@click="${this.#close}"></uui-button>
 
-                    ${this.data?.canTranslate ?
+                    ${this.data?.canTranslate ? 
                         html`
                             <uui-button
                                 look="secondary"

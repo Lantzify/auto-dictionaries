@@ -192,7 +192,7 @@ namespace AutoDictionaries.Core.Controllers
         {
             try
             {
-				if (dto.AutoDictionariesModel is not null)
+				if (dto.AutoDictionariesModel is null)
 					return BadRequest("AutoDictionariesModel is required.");
 
 				if (dto.StaticContent is null || string.IsNullOrEmpty(dto.StaticContent.StaticContent))
@@ -217,8 +217,11 @@ namespace AutoDictionaries.Core.Controllers
                 else
                 {
                     if (string.IsNullOrEmpty(GetApiKeySetting()))
+                    {
+                        _logger.LogError("No API key found for translation");
 						return BadRequest("No API key found");
-
+					}
+						
 					dictionary = await _autoDictionariesService.CreateDictionaryItem(dictionaryName, await _adTranslationService.Translate(staticContent), userKey.Value, parent);
                 }
 

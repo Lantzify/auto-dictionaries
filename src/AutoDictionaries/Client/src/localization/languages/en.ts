@@ -37,10 +37,10 @@ export default {
         failed_to_translate: "Failed to fully translate dictionary item: '{0}'. Check logs for futher details.",
         success_to_translate: "Successfully translated dictionary item: '{0}'",
 
-        failed_to_match: "Failed to match '{0}' to existing dictionary item",
+        failed_to_match: "Failed to match '{0}' to existing dictionary item. Check logs for further details.",
         success_to_match: "Successfully matched '{0}' to existing dictionary item",
 
-        failed_to_add_dictionary: "Failed to add dictionary item(s) to view",
+        failed_to_add_dictionary: "Failed to add dictionary item(s) to view. Check logs for further details.",
         success_to_add_dictionary: "All dictionaries were created and added to the template successfully!",
 
         are_you_sure_translate: "Are you sure you want to translate this dictionary item?",
