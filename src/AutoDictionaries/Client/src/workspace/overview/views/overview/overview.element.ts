@@ -67,12 +67,11 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		}
 	}
 
-	private _openView(view: AutoDictionariesModel) {
+	private _getUrl(view: AutoDictionariesModel) {
 		if (!view?.id) return;
 
 		const id = view.type === "Template" ? view.key.toString() : view.id.toString();
-		window.history.pushState({}, '', `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`);
-	
+		return `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`;
 	};
 
 	private _filter(e: InputEvent) {
@@ -98,7 +97,8 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	private _renderView(view: AutoDictionariesModel) {
 		if (!view) return;
 
-		return html`<uui-table-row @click=${() => this._openView(view)}>
+		return html`<uui-table-row>
+						<a style="display:contents;" href=${this._getUrl(view)}>
 						<uui-table-cell>${view.name}</uui-table-cell>
 						<uui-table-cell>
 							<umb-localize key=${view.type === "Template" ? "template_template" : "autoDictionaries_partial_view"}></umb-localize>
@@ -123,6 +123,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 								html`<uui-icon name="icon-alert" title=${this.localize.term("autoDictionaries_not_fully_translated")}></uui-icon>`}
 						</uui-table-cell>
 						<uui-table-cell>${view.matchDictionaries > 0 ? view.matchDictionaries : ""}</uui-table-cell>
+						</a>
 					</uui-table-row>`;
 	}
 
