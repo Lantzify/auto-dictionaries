@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace AutoDictionaries.Helpers
 {
@@ -16,6 +16,18 @@ namespace AutoDictionaries.Helpers
 		private static readonly Regex AwaitRegex = new(
 			@"@await\s+[^<\r\n]+",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		private static readonly Regex RazorInlineExpressionsRegex = new(
+			@"@\((?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!))\)",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		private static readonly Regex ObjectInitializersRegex = new(
+			@"\bnew\s+\w+(?:\.\w+)*\s*\{(?>[^{}]+|\{(?<Depth>)|\}(?<-Depth>))*(?(Depth)(?!))\}",
+			RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		private static readonly Regex HtmlHelpersRegex = new(
+			@"@Html\.[a-zA-Z_][a-zA-Z0-9_]*\s*\((?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!))\)",
+			RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
 		private static readonly Regex RazorPropertiesRegex = new(
 			@"@[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*(?:\([^)]*\))?)*",
@@ -47,7 +59,7 @@ namespace AutoDictionaries.Helpers
 
 		// ProcessAndAddText regexes
 		private static readonly Regex TrimStartEndRegex = new(
-			@"^(?:\s*\d+(?:[.,]\d+)?%?\s+|\s*(?:\?)?\.[a-zA-Z_][a-zA-Z0-9_]*\s*|[\s,;:!?\-)""]+)|[().:-]$",
+			@"^(?:\s*\d+(?:[.,]\d+)?%?\s+|\s*(?:\?)?\.[a-zA-Z_][a-zA-Z0-9_]*\s*|[\s,;:!?\-()'""]+)|[\s()'.:-]+$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex NonWordCharsRegex = new(
@@ -182,7 +194,9 @@ namespace AutoDictionaries.Helpers
 
 			content = DirectivesRegex.Replace(content, "");
 			content = AwaitRegex.Replace(content, "");
-	
+			content = RazorInlineExpressionsRegex.Replace(content, "");
+			content = ObjectInitializersRegex.Replace(content, "");
+			content = HtmlHelpersRegex.Replace(content, "");
 			content = RazorPropertiesRegex.Replace(content, "");
 			content = ExplicitExpressionRegex.Replace(content, "");
 

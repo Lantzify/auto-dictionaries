@@ -1338,6 +1338,23 @@ else
 		}
 
 		[Test]
+		public async Task GetStaticContentFromView_EnglishTextWithParentheses_ExtractsSeparateTextSegments()
+		{
+			// Arrange
+			var viewContent = @"<p>Search results for '@query' (@results.TotalItemCount)</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result.Should().Contain(x => x.StaticContent == "Search results for");
+		}
+
+		
+
+		[Test]
 		public async Task GetStaticContentFromView_ExamineIndexSearchCode_IgnoresDotNotationAndNullChecks()
 		{
 			// Arrange
@@ -1425,6 +1442,90 @@ else
 		{
 			// Arrange
 			var viewContent = @"<p>@Umbraco.GetDictionaryValue(""key"")</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_Parhentesis()
+		{
+			// Arrange
+			var viewContent = @"<p>This is text (should be extracted) for sure</p>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().HaveCount(1);
+			result.Should().Contain(x => x.StaticContent == "This is text (should be extracted) for sure");
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_GetDictionaryValued()
+		{
+			// Arrange
+			var viewContent = @"@using INKA.Starterkit.Dtos;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<InkaNavbarItem>
+@{
+    var navbarItem = Model.Model;
+    var subItems = navbarItem.GetChildrenExcludeDoctypes(Model.ExcludeDocumentTypes);
+}
+
+@if (subItems != null && subItems.Any())
+{
+    <li class=""nav-item dropdown"">
+        <button class=""nav-link collapsed main-menu-link"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) data-toggle=""offcanvas-submenu"" data-target=""#subMenu@(navbarItem.Key)"" aria-expanded=""false"" aria-label=""@Umbraco.GetDictionaryValue(""Expand_Subpages_For_The_Page"") @navbarItem.GetStringValue(""navigationName"")"">
+            @navbarItem.GetStringValue(""navigationName"") <i class=""fal fa-chevron-right""></i>
+        </button>
+        <div class=""navbar-collapse offcanvas-submenu offcanvas-submenu-collapse bg-beige @(Model.CurrentPage.AncestorsOrSelf().Select(x => x.Id).Contains(navbarItem.Id) ? ""open"" : null)"" id=""subMenu@(navbarItem.Key)"" role=""dialog"">
+            <ul class=""submenu"">
+                <li class=""nav-item top-nav-item"">
+                    <button class=""back-button submenu-close collapsed"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null)  data-toggle=""close-mobile-submenu"" data-target=""#mobileMenu"" aria-expanded=""false"" aria-label=""@(navbarItem.Level == 2 ? Umbraco.GetDictionaryValue(""Go_Back_To_The_Main_Menu"") : string.Format(""{0} {1}"", Umbraco.GetDictionaryValue(""Go_Back_To_Menu_For_Page""), navbarItem.Parent.GetStringValue(""navigationName"")))"">
+                        <i class=""fa-regular fa-arrow-left""></i>
+                    </button>
+                    <button class=""close-button collapsed"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null) data-bs-dismiss=""offcanvas"" aria-expanded=""false"" aria-label=""@Umbraco.GetDictionaryValue(""Close_Navbar_Menu"")"">
+                        <span></span>
+                        <span></span>
+                    </button>
+                </li>
+                <li class=""nav-item"">
+                    <a href=""@navbarItem.Url()"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null) class=""nav-link submenu-title @Model.CurrentPage.Parent?.Level @navbarItem.Level"">
+                        @navbarItem.GetStringValue(""navigationName"")
+
+                    </a>
+                </li>
+            </ul>
+            <ul class=""submenu-submenu"">
+                @foreach (var item in subItems)
+                {
+                    Model.Model = item;
+                    @(await Html.PartialAsync(""Navigation/_MobileNavigation"", Model))
+                }
+            </ul>
+        </div>
+    </li>
+}
+else
+{
+    if (navbarItem.ContentType.Alias == ""searchPage"")
+    {
+        <li class=""nav-item"">
+            <a class=""nav-link justify-content-start main-menu-link @(navbarItem == Model.CurrentPage ? ""active"" : null)"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) id=""subMenu@(navbarItem.Key)"" href=""@navbarItem.Url()""><i class=""fa-regular fa-magnifying-glass""></i>@navbarItem.GetStringValue(""navigationName"")</a>
+        </li>
+    }
+    else 
+    {
+        <li class=""nav-item"">
+            <a class=""nav-link main-menu-link @(navbarItem == Model.CurrentPage ? ""active"" : null)"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) id=""subMenu@(navbarItem.Key)"" href=""@navbarItem.Url()"">@navbarItem.GetStringValue(""navigationName"")</a>
+        </li>
+    }
+}";
 
 			// Act
 			var result = await _service.GetStaticContentFromView(viewContent);
