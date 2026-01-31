@@ -10,7 +10,7 @@ import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 @customElement("auto-dictionaries-overview")
 export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElement) {
 
-	#options: Array<Option> = [
+	#typeOptions: Array<Option> = [
 		{
 			name: this.localize.term("general_all"),
 			value: "all"
@@ -22,6 +22,17 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		{
 			name: this.localize.term("autoDictionaries_partial_view"),
 			value: "Partial view"
+		}
+	];
+
+	#filterOptions: Array<Option> = [
+		{
+			name: this.localize.term("general_all"),
+			value: "all"
+		},
+		{
+			name: this.localize.term("autoDictionaries_only_has_static_content"),
+			value: "onlySC"
 		}
 	];
 
@@ -74,7 +85,7 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		return `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`;
 	};
 
-	private _filter(e: InputEvent) {
+	private _filterByName(e: InputEvent) {
 		const query = (e.target as HTMLInputElement).value;
 
 		if (query) {
@@ -87,8 +98,18 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	private _filterByType(e: UUISelectEvent) {
 		const type = e.target.value as string;
 
-		if (type !== this.#options[0].value) {
+		if (type !== this.#typeOptions[0].value) {
 			this._filterdViews = this._views?.filter(view => view.type == type);
+		} else {
+			this._filterdViews = this._views;
+		}
+	}
+
+	private _filter(e: UUISelectEvent) {
+		const value = e.target.value as string;
+
+		if (value === 'onlySC') {
+			this._filterdViews = this._views?.filter(view => (view.staticContent?.length ?? 0) > 0);
 		} else {
 			this._filterdViews = this._views;
 		}
@@ -146,12 +167,17 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 							<uui-input 
 								label=${this.localize.term("placeholders_search")}
 								placeholder=${this.localize.term("placeholders_search")}
-								@input=${this._filter}/>
+								@input=${this._filterByName}/>
 						</div>
+
+						<uui-select label=${this.localize.term("autoDictionaries_show")}
+								placeholder=${this.localize.term("autoDictionaries_show")}
+								.options=${this.#filterOptions}
+								@change=${this._filter}></uui-select>
 
 						<uui-select label=${this.localize.term("autoDictionaries_select_type")}
 								placeholder=${this.localize.term("autoDictionaries_select_type")}
-								.options=${this.#options}
+								.options=${this.#typeOptions}
 								@change=${this._filterByType}></uui-select>
 					</div>
 				</umb-collection-toolbar>
@@ -180,9 +206,10 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 						</uui-table-head-cell>
 					</uui-table-head>
 
-					${repeat(this._filterdViews ?? [], (view) => view.id, (view) => this._renderView(view))}
+					${repeat(this._filterdViews ?? [], (view) => view.id, (view) => this._renderView(view))}				
 				</uui-table>
-			
+
+				${(this._filterdViews?.length ?? 0) == 0 ? html`<h4><umb-localize key="collection_noItemsTitle"></umb-localize></h4>` : null}
 			</umb-body-layout>
 		`;
 	}

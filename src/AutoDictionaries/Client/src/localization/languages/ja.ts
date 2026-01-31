@@ -6,6 +6,8 @@
         select_type: "表示タイプを選択する…",
         "clear_selection": "選択を解除",
         failed_load: "ビューの読み込みに失敗しました",
+        show: "表示条件…",
+        only_has_static_content: "静的コンテンツあり",
 
         viewName: "ビューの名前",
         type: "表示タイプ",

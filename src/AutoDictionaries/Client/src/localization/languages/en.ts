@@ -6,6 +6,8 @@ export default {
         select_type: "Select type...",
         clear_selection: "Clear selection",
         failed_load: "Failed to load view",
+        show: "Show...",
+        only_has_static_content: "Has static content",
 
         viewName: "View name",
         type: "Type",
