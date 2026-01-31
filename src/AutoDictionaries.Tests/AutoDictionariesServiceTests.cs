@@ -1467,65 +1467,222 @@ else
 		}
 
 		[Test]
-		public async Task GetStaticContentFromView_GetDictionaryValued()
+		public async Task GetStaticContentFromView_InlineRazor()
 		{
 			// Arrange
-			var viewContent = @"@using INKA.Starterkit.Dtos;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<InkaNavbarItem>
-@{
-    var navbarItem = Model.Model;
-    var subItems = navbarItem.GetChildrenExcludeDoctypes(Model.ExcludeDocumentTypes);
-}
-
-@if (subItems != null && subItems.Any())
-{
-    <li class=""nav-item dropdown"">
+			var viewContent = @"
         <button class=""nav-link collapsed main-menu-link"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) data-toggle=""offcanvas-submenu"" data-target=""#subMenu@(navbarItem.Key)"" aria-expanded=""false"" aria-label=""@Umbraco.GetDictionaryValue(""Expand_Subpages_For_The_Page"") @navbarItem.GetStringValue(""navigationName"")"">
             @navbarItem.GetStringValue(""navigationName"") <i class=""fal fa-chevron-right""></i>
-        </button>
-        <div class=""navbar-collapse offcanvas-submenu offcanvas-submenu-collapse bg-beige @(Model.CurrentPage.AncestorsOrSelf().Select(x => x.Id).Contains(navbarItem.Id) ? ""open"" : null)"" id=""subMenu@(navbarItem.Key)"" role=""dialog"">
-            <ul class=""submenu"">
-                <li class=""nav-item top-nav-item"">
-                    <button class=""back-button submenu-close collapsed"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null)  data-toggle=""close-mobile-submenu"" data-target=""#mobileMenu"" aria-expanded=""false"" aria-label=""@(navbarItem.Level == 2 ? Umbraco.GetDictionaryValue(""Go_Back_To_The_Main_Menu"") : string.Format(""{0} {1}"", Umbraco.GetDictionaryValue(""Go_Back_To_Menu_For_Page""), navbarItem.Parent.GetStringValue(""navigationName"")))"">
-                        <i class=""fa-regular fa-arrow-left""></i>
-                    </button>
-                    <button class=""close-button collapsed"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null) data-bs-dismiss=""offcanvas"" aria-expanded=""false"" aria-label=""@Umbraco.GetDictionaryValue(""Close_Navbar_Menu"")"">
-                        <span></span>
-                        <span></span>
-                    </button>
-                </li>
-                <li class=""nav-item"">
-                    <a href=""@navbarItem.Url()"" @(Model.CurrentPage.Parent?.Level > navbarItem.Level ? ""tabindex=-1"" : null) class=""nav-link submenu-title @Model.CurrentPage.Parent?.Level @navbarItem.Level"">
-                        @navbarItem.GetStringValue(""navigationName"")
+        </button>";
 
-                    </a>
-                </li>
-            </ul>
-            <ul class=""submenu-submenu"">
-                @foreach (var item in subItems)
-                {
-                    Model.Model = item;
-                    @(await Html.PartialAsync(""Navigation/_MobileNavigation"", Model))
-                }
-            </ul>
-        </div>
-    </li>
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_UmbracoFormsInline_DontGet_Checked_aria_describedby()
+		{
+			// Arrange
+			var viewContent = @"
+<input type=""checkbox"" name=""@Model.Name"" id=""@Model.Id"" value=""true""  data-umb=""@Model.Id""
+       @if(Model.Mandatory) { <text>  data-val=""true"" data-val-requiredcb=""@Model.RequiredErrorMessage"" aria-required=""true""</text> }
+       @if (Model.ContainsValue(true) || Model.ContainsValue(""true"") || Model.ContainsValue(""on"")) { <text>checked=""checked""</text> }
+       @if (!string.IsNullOrEmpty(Model.ToolTip)) { <text> aria-describedby=""@(Model.Id)_description"" </text> }                                                                                                                                                                 
+/>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_DontGet_RenderSection()
+		{
+			// Arrange
+			var viewContent = @"
+    <footer>
+
+    </footer>
+
+
+    @RenderSection(""scripts"", false)
+
+    @Html.Raw()
+</body>
+</html>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_UmbracoForms_DontGet_Brackets()
+		{
+			// Arrange
+			var viewContent = @"
+<div id=""@Model.Id"" data-umb=""@Model.Id"" class=""@Html.GetFormFieldClass(Model.FieldTypeName)"">
+    @if (hasCaption)
+    {
+        @Html.Raw(""<"" + captionTag + "">"")@settings[""Caption""]@Html.Raw(""</"" + captionTag + "">"")
+    }
+    @if (hasBody)
+    {
+        if (Configuration.Value.AllowUnsafeHtmlRendering)
+        {
+            <p>@Html.Raw(settings[""BodyText""].Replace(""\r\n"", ""\n"").Replace(""\r"", ""\n"").Replace(""\n"", ""<br />""))</p>
+        }
+        else
+        {
+            <p>@settings[""BodyText""]</p>
+        }
+    }
+</div>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_UmbracoForms_DontGet_NestedInlineRazor()
+		{
+			// Arrange
+			var viewContent = @"@model Umbraco.Forms.Web.Models.FieldViewModel
+@using Umbraco.Forms.Web
+
+@{
+    var autocompleteAttribute = Model.GetSettingValue<string>(""AutocompleteAttribute"", string.Empty);
+    var numberOfRows = Model.GetSettingValue<int>(""NumberOfRows"", global::Umbraco.Forms.Core.Providers.FieldTypes.Textarea.DefaultNumberOfRows);
+    var maxLength = Model.GetSettingValue<int>(""MaximumLength"", 0);
 }
-else
-{
-    if (navbarItem.ContentType.Alias == ""searchPage"")
+<textarea class=""@Html.GetFormFieldClass(Model.FieldTypeName)""
+          name=""@Model.Name""
+          id=""@Model.Id""
+          data-umb=""@Model.Id""
+          rows=""@numberOfRows""
+          cols=""20""
+          @{if (string.IsNullOrEmpty(Model.PlaceholderText) == false) { <text> placeholder=""@Model.PlaceholderText"" </text> } }
+          @{if (string.IsNullOrEmpty(autocompleteAttribute) == false) { <text> autocomplete=""@autocompleteAttribute"" </text> } }
+          @{if (maxLength > 0) { <text> maxlength=""@maxLength"" </text> } }
+          @{if (Model.Mandatory || Model.Validate) { <text> data-val=""true"" </text> } }
+          @{if (Model.Mandatory) { <text> data-val-required=""@Model.RequiredErrorMessage"" aria-required=""true"" </text> }}
+          @{if (Model.Validate) { <text> data-val-regex=""@Model.InvalidErrorMessage"" data-val-regex-pattern=""@Html.Raw(Model.Regex)"" </text> }}
+          @{if (!string.IsNullOrEmpty(Model.ToolTip)) { <text> aria-describedby=""@(Model.Id)_description"" </text> } }>@Model.ValueAsHtmlString</textarea>
+
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_UmbracoForms_DontGet_MultiPageFormPagingDetails()
+		{
+			// Arrange
+			var viewContent = @"@using System.Text
+@model Umbraco.Forms.Web.Models.FormViewModel
+
+@{
+    var html = new StringBuilder();
+
+    string formatStringWithHtml = Model.PagingDetailsFormat
+        .Replace(""{0}"", ""<span class=\""umbraco-forms-paging-count-number\"">{0}</span>"")
+        .Replace(""{1}"", ""<span class=\""umbraco-forms-paging-count-number\"">{1}</span>"");
+    html.Append(""<div class=\""umbraco-forms-paging-count\"">"");
+    html.AppendFormat(formatStringWithHtml, Model.PageNumber, Model.PageCount);
+    html.Append(""</div>"");
+
+    html.Append(""<ol class=\""umbraco-forms-paging-captions\"">"");
+    for (int i = 0; i < Model.Pages.Count; i++)
     {
-        <li class=""nav-item"">
-            <a class=""nav-link justify-content-start main-menu-link @(navbarItem == Model.CurrentPage ? ""active"" : null)"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) id=""subMenu@(navbarItem.Key)"" href=""@navbarItem.Url()""><i class=""fa-regular fa-magnifying-glass""></i>@navbarItem.GetStringValue(""navigationName"")</a>
-        </li>
+        html.AppendFormat(
+            ""<li class=\""umbraco-forms-paging-captions-caption"" + (Model.FormStep == i ? "" umbraco-forms-paging-captions-caption-current"" : string.Empty) + ""\"">{0}</li>"",
+            Model.GetPageCaption(i));
     }
-    else 
+    if (Model.HasSummaryPage)
     {
-        <li class=""nav-item"">
-            <a class=""nav-link main-menu-link @(navbarItem == Model.CurrentPage ? ""active"" : null)"" @(Model.CurrentPage.Level > navbarItem.Level ? ""tabindex=-1"" : null) id=""subMenu@(navbarItem.Key)"" href=""@navbarItem.Url()"">@navbarItem.GetStringValue(""navigationName"")</a>
-        </li>
+        html.AppendFormat(
+            ""<li class=\""umbraco-forms-paging-captions-caption\"">{0}</li>"",
+            @Model.SummaryCaption);
     }
-}";
+    html.Append(""</ol>"");
+
+    <div class=""umbraco-forms-paging"">
+        @Html.Raw(html.ToString())
+    </div>
+}
+";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_DontGet_Numbers()
+		{
+			// Arrange
+			var viewContent = @"<h1 class=""w-100 text-center"">33%</h1>";
+
+			// Act
+			var result = await _service.GetStaticContentFromView(viewContent);
+
+			// Assert
+			result.Should().NotBeNull();
+			result.Should().BeEmpty();
+		}
+
+		[Test]
+		public async Task GetStaticContentFromView_DontGet_CodeBlock()
+		{
+			// Arrange
+			var viewContent = @"    // Handle address
+    if (footerAddress.NullCheck())
+    {
+        var addressParts = footerAddress.FirstOrDefault()?.Split(' ') ?? Array.Empty<string>();
+        var addressProperties = new List<string>();
+
+        addressProperties.Add(""\""@type\"": \""PostalAddress\"""");
+
+        if (addressParts.Length > 1)
+        {
+            addressProperties.Add($""\""streetAddress\"": \""{addressParts[0]} {addressParts[1].Trim("","")}\"""");
+        }
+
+        if (addressParts.Length > 2)
+        {
+            addressProperties.Add($""\""addressLocality\"": \""{addressParts[2]}\"""");
+        }
+
+        if (addressParts.Length > 4)
+        {
+            addressProperties.Add($""\""postalCode\"": \""{addressParts[3]} {addressParts[4]}\"""");
+        }
+
+        var addressJson = string.Join("",\n    "", addressProperties);
+        schemaProperties.Add($""\""address\"": {{\n    {addressJson}\n  }}"");
+    }";
 
 			// Act
 			var result = await _service.GetStaticContentFromView(viewContent);

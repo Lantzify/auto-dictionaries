@@ -4,9 +4,8 @@ namespace AutoDictionaries.Helpers
 {
 	public class FindStaticContentHelper
 	{
-		// Pre-compiled static regexes (or use [GeneratedRegex] in .NET 7+)
 		private static readonly Regex ControlStructuresRegex = new(
-			@"(?:@)?(?:if|for|foreach|while|switch)\s*\((?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!))\)",
+			@"(?:@)?(?:if|for|foreach|while|switch|RenderSection)\s*\((?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!))\)",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex DirectivesRegex = new(
@@ -30,7 +29,7 @@ namespace AutoDictionaries.Helpers
 			RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
 		private static readonly Regex RazorPropertiesRegex = new(
-			@"@[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*(?:\([^)]*\))?)*",
+			@"@[a-zA-Z_][a-zA-Z0-9_]*(?:\.(?:[a-zA-Z_][a-zA-Z0-9_]*)(?:\([^)]*\))?|\[(?:""[^""]*""|'[^']*')\])*",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex ExplicitExpressionRegex = new(
@@ -50,8 +49,8 @@ namespace AutoDictionaries.Helpers
 			RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex TextBetweenTagsRegex = new(
-			@">([^<]+)<",
-			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+				@">([^<]+)<",
+				RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex TranslatableAttributesRegex = new(
 			@"\b(alt|title|placeholder|value|aria-label)\s*=\s*(['""])(.*?)\2",
@@ -67,7 +66,7 @@ namespace AutoDictionaries.Helpers
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex NumericOrDateTimeOnlyRegex = new(
-			@"^\s*(?:[+-]?\d+(?:[.,]\d+)?|[+-]?\d{1,2}:\d{2}(?::\d{2})?(?:\s?(?:AM|PM|am|pm))?|\d{4}-\d{2}-\d{2})\s*$",
+			@"^\s*(?:[+-]?\d+(?:[.,]\d+)?%?|[+-]?\d{1,2}:\d{2}(?::\d{2})?(?:\s?(?:AM|PM|am|pm))?|\d{4}-\d{2}-\d{2})\s*$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex HtmlEntityRegex = new(
@@ -79,7 +78,7 @@ namespace AutoDictionaries.Helpers
 			RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex CodePatternsRegex = new(
-			@"^[@({}>]|(new\s{|case\s\""|default:|break;)|[;{}]$",
+			@"^[@({}>]|(new\s{|case\s\""|default:|break;)|[;{}]|[=\""']$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private static readonly Regex DomainNameRegex = new(
@@ -156,6 +155,9 @@ namespace AutoDictionaries.Helpers
 			if (string.IsNullOrWhiteSpace(text))
 				return;
 
+			if (ContainsRazorOrCode(text))
+				return;
+
 			text = TrimStartEndRegex.Replace(text, "").Trim();
 
 			if (string.IsNullOrWhiteSpace(text))
@@ -187,7 +189,7 @@ namespace AutoDictionaries.Helpers
 
 			results.Add(text);
 		}
-		
+
 		private static string RemoveRazorCode(string content)
 		{
 			content = ControlStructuresRegex.Replace(content, "");
