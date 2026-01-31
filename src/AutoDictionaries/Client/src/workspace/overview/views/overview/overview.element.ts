@@ -45,6 +45,15 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 	private _filterdViews?: AutoDictionariesModel[] = [];
 
 	@state()
+	private _searchQuery: string = '';
+
+	@state()
+	private _selectedType: string = 'all';
+
+	@state()
+	private _selectedFilter: string = 'all';
+
+	@state()
 	private _isLoading: boolean = true;
 
 	constructor() {
@@ -78,42 +87,47 @@ export class autoDictionariesOverviewViewElement extends UmbElementMixin(LitElem
 		}
 	}
 
+	#applyAllFilters() {
+		let filtered = this._views ?? [];
+
+		if (this._searchQuery) {
+			filtered = filtered.filter(view =>
+				view?.name?.toLowerCase().includes(this._searchQuery.toLowerCase())
+			);
+		}
+
+		if (this._selectedType !== 'all') {
+			filtered = filtered.filter(view => view.type === this._selectedType);
+		}
+
+		if (this._selectedFilter === 'onlySC') {
+			filtered = filtered.filter(view => (view.staticContent?.length ?? 0) > 0);
+		}
+
+		this._filterdViews = filtered;
+	}
+
+	private _filterByName(e: InputEvent) {
+		this._searchQuery = (e.target as HTMLInputElement).value;
+		this.#applyAllFilters();
+	}
+
+	private _filterByType(e: UUISelectEvent) {
+		this._selectedType = e.target.value as string;
+		this.#applyAllFilters();
+	}
+
+	private _filter(e: UUISelectEvent) {
+		this._selectedFilter = e.target.value as string;
+		this.#applyAllFilters();
+	}
+
 	private _getUrl(view: AutoDictionariesModel) {
 		if (!view?.id) return;
 
 		const id = view.type === "Template" ? view.key.toString() : view.id.toString();
 		return `/umbraco/section/translation/workspace/auto-dictionaries-item/edit/${id}`;
 	};
-
-	private _filterByName(e: InputEvent) {
-		const query = (e.target as HTMLInputElement).value;
-
-		if (query) {
-			this._filterdViews = this._views?.filter(view => view?.name?.toLowerCase().includes(query.toLowerCase()));
-		} else {
-			this._filterdViews = this._views;
-		}
-	}
-
-	private _filterByType(e: UUISelectEvent) {
-		const type = e.target.value as string;
-
-		if (type !== this.#typeOptions[0].value) {
-			this._filterdViews = this._views?.filter(view => view.type == type);
-		} else {
-			this._filterdViews = this._views;
-		}
-	}
-
-	private _filter(e: UUISelectEvent) {
-		const value = e.target.value as string;
-
-		if (value === 'onlySC') {
-			this._filterdViews = this._views?.filter(view => (view.staticContent?.length ?? 0) > 0);
-		} else {
-			this._filterdViews = this._views;
-		}
-	}
 
 	private _renderView(view: AutoDictionariesModel) {
 		if (!view) return;
