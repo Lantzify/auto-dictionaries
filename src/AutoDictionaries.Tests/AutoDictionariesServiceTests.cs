@@ -225,8 +225,8 @@ namespace AutoDictionaries.Tests
 			// Assert
 			result.Should().NotBeNull();
 			result.Should().HaveCount(1);
-			// The @ symbol acts as a Razor boundary, so we extract text before it
-			result[0].StaticContent.Should().Be("Email: test");
+
+			result[0].StaticContent.Should().Be("Email");
 		}
 
 		[Test]

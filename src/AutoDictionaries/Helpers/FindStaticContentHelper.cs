@@ -85,6 +85,10 @@ namespace AutoDictionaries.Helpers
 			@"^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+		private static readonly Regex EmailRegex = new(
+			@"\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
 		private static readonly Regex CodeKeywordsRegex = new(
 			@"\b(var|const|let|function|return|null|true|false|undefined)\b",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -192,6 +196,8 @@ namespace AutoDictionaries.Helpers
 
 		private static string RemoveRazorCode(string content)
 		{
+			content = EmailRegex.Replace(content, "");
+
 			content = ControlStructuresRegex.Replace(content, "");
 
 			content = DirectivesRegex.Replace(content, "");
