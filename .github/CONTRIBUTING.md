@@ -1,4 +1,4 @@
-# 🤝 Contributing to Auto Dictionaries
+# Contributing to Auto Dictionaries
 
 Contributions are welcome! Here's how you can help:
 1. Fork the repository
@@ -9,7 +9,7 @@ Contributions are welcome! Here's how you can help:
 6. Push to the branch (`git push origin amazing-feature`)
 7. Open a Pull Request
 
-## 💻Development Setup
+## Development Setup
 
 1. Clone the repository
 2. Install dependencies (both .NET and npm)
